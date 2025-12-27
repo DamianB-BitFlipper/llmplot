@@ -113,9 +113,9 @@ async function renderVerticalChart(models: ProcessedModel[], showRankings: boole
   const columns = await Promise.all(
     models.map(
       async (m) => `
-        <div class="flex flex-col items-center gap-2 w-20">
-          <!-- Bar -->
-          <div class="w-full bg-gray-200 rounded-full flex flex-col justify-end" style="height: 280px;">
+        <div class="flex flex-col items-center gap-2" style="width: 70px; flex-shrink: 0;">
+          <!-- Bar container -->
+          <div class="w-10 bg-gray-200 rounded-full flex flex-col justify-end overflow-hidden" style="height: 200px;">
             <div 
               class="w-full rounded-full flex items-start justify-center pt-2"
               style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
@@ -137,19 +137,19 @@ async function renderVerticalChart(models: ProcessedModel[], showRankings: boole
           ` : ""}
           
           <!-- Icon -->
-          <div class="w-10 h-10 flex items-center justify-center shrink-0">
+          <div class="w-8 h-8 flex items-center justify-center shrink-0">
             ${await loadIcon(m.providerConfig.iconPath, m.provider)}
           </div>
           
           <!-- Model name -->
-          <div class="text-xs text-gray-600 text-center h-12 overflow-hidden" title="${escapeHtml(m.displayLabel)}">
-            <span class="block truncate w-20">${escapeHtml(m.displayLabel)}</span>
+          <div class="text-xs text-gray-600 text-center overflow-hidden" style="width: 70px;" title="${escapeHtml(m.displayLabel)}">
+            <span class="block truncate">${escapeHtml(m.displayLabel)}</span>
           </div>
         </div>`
     )
   );
   return `
-    <div class="flex items-end justify-center gap-4">
+    <div class="flex items-end justify-start gap-2 overflow-x-auto pb-2">
       ${columns.join("\n")}
     </div>`;
 }
