@@ -5,11 +5,11 @@ orientation: horizontal
 
 models:
   - model: "anthropic/claude-opus-4.5"
-    positive: 20
+    positive: 19
     total: 20
 
-  - model: "anthropic/claude-sonnet-4.5"
-    positive: 16
+  - model: "openai/gpt-5.2-codex-max"
+    positive: 18
     total: 20
 
   - model: "mistralai/devstral-2512"
@@ -32,6 +32,6 @@ models:
     positive: 11
     total: 20
 
-  - model: "z-ai/glm-4.5-air"
+  - model: "meta-llama/llama-4-maverick"
     positive: 9
     total: 20
