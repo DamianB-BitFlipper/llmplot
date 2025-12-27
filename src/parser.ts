@@ -9,6 +9,20 @@ export class ParseError extends Error {
   }
 }
 
+/**
+ * Format params label based on totalParams and activeParams.
+ * - If only totalParams: "123B Dense"
+ * - If totalParams === activeParams: "123B Dense"
+ * - If different: "355B / 32B Active"
+ */
+function formatParamsLabel(totalParams?: number, activeParams?: number): string | undefined {
+  if (totalParams === undefined) return undefined;
+  if (activeParams === undefined || totalParams === activeParams) {
+    return `${totalParams}B Dense`;
+  }
+  return `${totalParams}B / ${activeParams}B Active`;
+}
+
 function validateModelData(model: unknown, index: number): ModelData {
   if (typeof model !== "object" || model === null) {
     throw new ParseError(`models[${index}] must be an object`);
@@ -36,10 +50,26 @@ function validateModelData(model: unknown, index: number): ModelData {
     throw new ParseError(`models[${index}].positive (${m.positive}) cannot exceed total (${m.total})`);
   }
 
+  // Validate optional totalParams
+  if (m.totalParams !== undefined) {
+    if (typeof m.totalParams !== "number" || !Number.isInteger(m.totalParams) || m.totalParams <= 0) {
+      throw new ParseError(`models[${index}].totalParams must be a positive integer (billions)`);
+    }
+  }
+
+  // Validate optional activeParams
+  if (m.activeParams !== undefined) {
+    if (typeof m.activeParams !== "number" || !Number.isInteger(m.activeParams) || m.activeParams <= 0) {
+      throw new ParseError(`models[${index}].activeParams must be a positive integer (billions)`);
+    }
+  }
+
   return {
     model: m.model,
     positive: m.positive,
     total: m.total,
+    totalParams: m.totalParams as number | undefined,
+    activeParams: m.activeParams as number | undefined,
   };
 }
 
@@ -82,6 +112,26 @@ function validateInputConfig(data: unknown): InputConfig {
 }
 
 /**
+ * Calculate ranks with tie handling.
+ * Same percentage = same rank, then skip to position.
+ * Example: [100, 80, 65, 65, 55, 55, 55, 45] → [1, 2, 3, 3, 5, 5, 5, 8]
+ */
+function calculateRanks(models: ProcessedModel[]): void {
+  if (models.length === 0) return;
+
+  models[0].rank = 1;
+  for (let i = 1; i < models.length; i++) {
+    if (models[i].percentage === models[i - 1].percentage) {
+      // Same percentage = same rank as previous
+      models[i].rank = models[i - 1].rank;
+    } else {
+      // Different percentage = position-based rank (1-indexed)
+      models[i].rank = i + 1;
+    }
+  }
+}
+
+/**
  * Parse and validate a YAML input file.
  * Returns processed models sorted by percentage (best to worst).
  */
@@ -117,9 +167,14 @@ export async function parseInputFile(filePath: string): Promise<{
         modelName,
         percentage: (m.positive / m.total) * 100,
         providerConfig: getProviderConfig(provider),
+        rank: 0, // will be calculated after sorting
+        paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),
       };
     })
     .sort((a, b) => b.percentage - a.percentage);
+
+  // Calculate ranks with tie handling
+  calculateRanks(models);
 
   return { config, models };
 }
