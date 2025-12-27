@@ -256,8 +256,8 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   <title>${escapeHtml(config.title)}</title>
   ${fontFaceRule ? `<style>${fontFaceRule}</style>` : ""}
 </head>
-<body class="min-h-screen bg-gray-100 p-8" style="font-family: ${fontFamily};">
-  <div id="llmplot-chart" class="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
+<body class="h-screen w-screen bg-gray-100 px-5 flex items-center justify-center overflow-hidden" style="font-family: ${fontFamily};">
+  <div id="llmplot-chart" class="w-full bg-white rounded-xl p-5 shadow-sm">
     <!-- Header -->
     <div class="mb-4">
       <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
