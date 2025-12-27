@@ -3,7 +3,7 @@ subtitle: "One-shot real features and bug-fixes from elluminate platform, valida
 sponsoredBy: "ellamind"
 orientation: horizontal
 showRankings: true
-font: "Arial"
+font: "Geist Sans"
 
 models:
   - model: "anthropic/claude-opus-4.5"

@@ -11,6 +11,54 @@ install({
 // Cache for loaded SVG icons
 const iconCache = new Map<string, string>();
 
+// Cache for loaded fonts
+const fontCache = new Map<string, string | null>();
+
+/**
+ * Map font names to their file names in assets/fonts/
+ */
+const embeddedFonts: Record<string, string> = {
+  "geist sans": "Geist-Regular.woff2",
+};
+
+/**
+ * Load a font as base64 for embedding.
+ * Returns base64 string if found, null if not available.
+ */
+async function loadEmbeddedFont(fontName: string): Promise<string | null> {
+  const normalizedName = fontName.toLowerCase();
+  
+  // Check cache
+  if (fontCache.has(normalizedName)) {
+    return fontCache.get(normalizedName) ?? null;
+  }
+
+  // Look up the font file name
+  const fileName = embeddedFonts[normalizedName];
+  if (!fileName) {
+    fontCache.set(normalizedName, null);
+    return null;
+  }
+
+  const fontPath = new URL(`../assets/fonts/${fileName}`, import.meta.url).pathname;
+  const file = Bun.file(fontPath);
+
+  if (!(await file.exists())) {
+    fontCache.set(normalizedName, null);
+    return null;
+  }
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    fontCache.set(normalizedName, base64);
+    return base64;
+  } catch {
+    fontCache.set(normalizedName, null);
+    return null;
+  }
+}
+
 /**
  * Load an SVG icon from disk and cache it.
  * Returns the SVG content or a placeholder if not found.
@@ -164,9 +212,37 @@ function getRankBadge(rank: number): { bg: string; text: string } {
 export async function renderHtml(config: InputConfig, models: ProcessedModel[]): Promise<string> {
   const isVertical = config.orientation === "vertical";
   const showRankings = config.showRankings ?? false;
-  const fontFamily = config.font 
-    ? `'${config.font}', ui-sans-serif, system-ui, sans-serif`
-    : `ui-sans-serif, system-ui, sans-serif`;
+  
+  // Default font is Geist Sans
+  const requestedFont = config.font ?? "Geist Sans";
+  
+  // Try to load embedded font
+  const embeddedBase64 = await loadEmbeddedFont(requestedFont);
+  
+  // Determine font family CSS and @font-face rule
+  let fontFamily: string;
+  let fontFaceRule = "";
+  
+  if (embeddedBase64) {
+    // Embedded font found - use it with fallback
+    fontFamily = `'${requestedFont}', ui-sans-serif, system-ui, sans-serif`;
+    fontFaceRule = `
+    @font-face {
+      font-family: '${requestedFont}';
+      src: url(data:font/woff2;base64,${embeddedBase64}) format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    `;
+  } else if (config.font) {
+    // Custom font specified but not embedded - try as system font
+    fontFamily = `'${requestedFont}', ui-sans-serif, system-ui, sans-serif`;
+  } else {
+    // No font specified and default not available - use system fonts
+    fontFamily = `ui-sans-serif, system-ui, sans-serif`;
+  }
+  
   const chartHtml = isVertical 
     ? await renderVerticalChart(models, showRankings) 
     : await renderHorizontalChart(models, showRankings);
@@ -177,6 +253,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(config.title)}</title>
+  ${fontFaceRule ? `<style>${fontFaceRule}</style>` : ""}
 </head>
 <body class="min-h-screen bg-gray-100 p-8" style="font-family: ${fontFamily};">
   <div class="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
