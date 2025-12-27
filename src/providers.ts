@@ -15,7 +15,7 @@ export const providers: Record<string, ProviderConfig> = {
   },
   google: {
     color: "#888888",
-    iconPath: "assets/icons/google.svg",
+    iconPath: "assets/icons/gemini.svg",
   },
   meta: {
     color: "#888888",
@@ -23,7 +23,7 @@ export const providers: Record<string, ProviderConfig> = {
   },
   mistralai: {
     color: "#FFAF02",
-    iconPath: "assets/icons/mistralai.svg",
+    iconPath: "assets/icons/mistral.svg",
   },
   "x-ai": {
     color: "#000000",
