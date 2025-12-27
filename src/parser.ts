@@ -38,16 +38,34 @@ function validateModelData(model: unknown, index: number): ModelData {
     throw new ParseError(`models[${index}].model must be in format "provider/model-name" (e.g., "anthropic/claude-opus-4.5")`);
   }
 
-  if (typeof m.positive !== "number" || !Number.isInteger(m.positive) || m.positive < 0) {
-    throw new ParseError(`models[${index}].positive must be a non-negative integer`);
+  // Check for percent vs positive/total
+  const hasPercent = m.percent !== undefined;
+  const hasPositiveTotal = m.positive !== undefined || m.total !== undefined;
+
+  if (hasPercent && hasPositiveTotal) {
+    throw new ParseError(`models[${index}] cannot have both 'percent' and 'positive/total' - use one or the other`);
   }
 
-  if (typeof m.total !== "number" || !Number.isInteger(m.total) || m.total <= 0) {
-    throw new ParseError(`models[${index}].total must be a positive integer`);
+  if (!hasPercent && !hasPositiveTotal) {
+    throw new ParseError(`models[${index}] must have either 'percent' or both 'positive' and 'total'`);
   }
 
-  if (m.positive > m.total) {
-    throw new ParseError(`models[${index}].positive (${m.positive}) cannot exceed total (${m.total})`);
+  if (hasPercent) {
+    if (typeof m.percent !== "number" || m.percent < 0 || m.percent > 100) {
+      throw new ParseError(`models[${index}].percent must be a number between 0 and 100`);
+    }
+  } else {
+    if (typeof m.positive !== "number" || !Number.isInteger(m.positive) || m.positive < 0) {
+      throw new ParseError(`models[${index}].positive must be a non-negative integer`);
+    }
+
+    if (typeof m.total !== "number" || !Number.isInteger(m.total) || m.total <= 0) {
+      throw new ParseError(`models[${index}].total must be a positive integer`);
+    }
+
+    if (m.positive > m.total) {
+      throw new ParseError(`models[${index}].positive (${m.positive}) cannot exceed total (${m.total})`);
+    }
   }
 
   // Validate optional displayName
@@ -71,8 +89,9 @@ function validateModelData(model: unknown, index: number): ModelData {
 
   return {
     model: m.model,
-    positive: m.positive,
-    total: m.total,
+    positive: m.positive as number | undefined,
+    total: m.total as number | undefined,
+    percent: m.percent as number | undefined,
     displayName: m.displayName as string | undefined,
     totalParams: m.totalParams as number | undefined,
     activeParams: m.activeParams as number | undefined,
@@ -102,6 +121,13 @@ function validateInputConfig(data: unknown): InputConfig {
     throw new ParseError('orientation must be "horizontal" or "vertical"');
   }
 
+  // Validate optional percentPrecision
+  if (d.percentPrecision !== undefined) {
+    if (typeof d.percentPrecision !== "number" || !Number.isInteger(d.percentPrecision) || d.percentPrecision < 0) {
+      throw new ParseError("percentPrecision must be a non-negative integer");
+    }
+  }
+
   if (!Array.isArray(d.models) || d.models.length === 0) {
     throw new ParseError("models must be a non-empty array");
   }
@@ -114,6 +140,7 @@ function validateInputConfig(data: unknown): InputConfig {
     sponsoredBy: d.sponsoredBy as string | undefined,
     orientation: (d.orientation as "horizontal" | "vertical") ?? "horizontal",
     showRankings: d.showRankings === true,
+    percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
     font: typeof d.font === "string" ? d.font : undefined,
     models,
   };
@@ -169,15 +196,18 @@ export async function parseInputFile(filePath: string): Promise<{
     .map((m) => {
       const [provider, ...rest] = m.model.split("/");
       const modelName = rest.join("/"); // handle case of multiple slashes
+      const usePercent = m.percent !== undefined;
+      const percentage = usePercent ? m.percent! : (m.positive! / m.total!) * 100;
       return {
         ...m,
         provider,
         modelName,
         displayLabel: m.displayName ?? modelName,
-        percentage: (m.positive / m.total) * 100,
+        percentage,
         providerConfig: getProviderConfig(provider),
         rank: 0, // will be calculated after sorting
         paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),
+        usePercent,
       };
     })
     .sort((a, b) => b.percentage - a.percentage);

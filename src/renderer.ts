@@ -109,7 +109,7 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-async function renderHorizontalChart(models: ProcessedModel[], showRankings: boolean): Promise<string> {
+async function renderHorizontalChart(models: ProcessedModel[], showRankings: boolean, percentPrecision: number): Promise<string> {
   const rows = await Promise.all(
     models.map(
       async (m) => `
@@ -136,7 +136,7 @@ async function renderHorizontalChart(models: ProcessedModel[], showRankings: boo
               <span class="text-lg text-gray-800">${escapeHtml(m.displayLabel)}</span>
               ${m.paramsLabel ? `<span class="text-gray-400 text-sm">${escapeHtml(m.paramsLabel)}</span>` : ""}
             </div>
-            <span class="font-semibold text-lg text-gray-800">${Math.round(m.percentage)}%</span>
+            <span class="font-semibold text-lg text-gray-800">${m.percentage.toFixed(percentPrecision)}%</span>
           </div>
           
           <!-- Bar container (full width) -->
@@ -145,9 +145,9 @@ async function renderHorizontalChart(models: ProcessedModel[], showRankings: boo
               class="h-full rounded-full flex items-center justify-end pr-3"
               style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
             >
-              <span class="text-xs font-medium text-white drop-shadow-sm">
+              ${!m.usePercent ? `<span class="text-xs font-medium text-white drop-shadow-sm">
                 ${m.positive}/${m.total}
-              </span>
+              </span>` : ""}
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ async function renderHorizontalChart(models: ProcessedModel[], showRankings: boo
   return rows.join("\n");
 }
 
-async function renderVerticalChart(models: ProcessedModel[], showRankings: boolean): Promise<string> {
+async function renderVerticalChart(models: ProcessedModel[], showRankings: boolean, percentPrecision: number): Promise<string> {
   const columns = await Promise.all(
     models.map(
       async (m) => `
@@ -169,7 +169,7 @@ async function renderVerticalChart(models: ProcessedModel[], showRankings: boole
               style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
             >
               <span class="text-xs font-semibold text-white drop-shadow-sm">
-                ${Math.round(m.percentage)}%
+                ${m.percentage.toFixed(percentPrecision)}%
               </span>
             </div>
           </div>
@@ -243,9 +243,10 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
     fontFamily = `ui-sans-serif, system-ui, sans-serif`;
   }
   
+  const percentPrecision = config.percentPrecision ?? 0;
   const chartHtml = isVertical 
-    ? await renderVerticalChart(models, showRankings) 
-    : await renderHorizontalChart(models, showRankings);
+    ? await renderVerticalChart(models, showRankings, percentPrecision) 
+    : await renderHorizontalChart(models, showRankings, percentPrecision);
 
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -259,7 +260,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   <div class="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
     <!-- Header -->
     <div class="mb-4">
-      <h1 class="text-2xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
+      <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
       ${config.subtitle ? `<p class="text-gray-500 mt-1">${escapeHtml(config.subtitle)}</p>` : ""}
     </div>
     
@@ -272,7 +273,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
     ${
       config.sponsoredBy
         ? `
-    <div class="mt-8 pt-4 border-t border-gray-200">
+    <div class="mt-4">
       <p class="text-sm text-gray-400 text-right">Sponsored by <span class="font-semibold text-gray-600">${escapeHtml(config.sponsoredBy)}</span></p>
     </div>`
         : ""
