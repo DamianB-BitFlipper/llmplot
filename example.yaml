@@ -14,6 +14,11 @@ models:
     positive: 18
     total: 20
 
+  - model: "google/gemini-3-pro-preview"
+    displayName: "Gemini 3 Pro"
+    positive: 17
+    total: 20
+
   - model: "mistralai/devstral-2"
     displayName: "Devstral 2"
     positive: 13
@@ -52,3 +57,16 @@ models:
     total: 20
     totalParams: 400
     activeParams: 17
+
+  - model: "deepseek/deepseek-v3.2"
+    displayName: "DeepSeek V3.2"
+    positive: 9
+    total: 20
+    totalParams: 685
+    activeParams: 37
+
+  - model: "cohere/command-a"
+    displayName: "Command A"
+    positive: 5
+    total: 20
+    totalParams: 111

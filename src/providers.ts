@@ -10,15 +10,15 @@ export const providers: Record<string, ProviderConfig> = {
     iconPath: "assets/icons/anthropic.svg",
   },
   openai: {
-    color: "#888888",
+    color: "#4BA080",
     iconPath: "assets/icons/openai.svg",
   },
   google: {
-    color: "#888888",
+    color: "#3186FF",
     iconPath: "assets/icons/gemini.svg",
   },
   meta: {
-    color: "#888888",
+    color: "#0DACF1",
     iconPath: "assets/icons/meta.svg",
   },
   mistralai: {
@@ -42,11 +42,11 @@ export const providers: Record<string, ProviderConfig> = {
     iconPath: "assets/icons/qwen.svg",
   },
   deepseek: {
-    color: "#888888",
+    color: "#4D6BFE",
     iconPath: "assets/icons/deepseek.svg",
   },
   cohere: {
-    color: "#888888",
+    color: "#D18EE2",
     iconPath: "assets/icons/cohere.svg",
   },
 };
