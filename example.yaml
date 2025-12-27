@@ -18,6 +18,7 @@ models:
   - model: "openai/gpt-5.2-high"
     displayName: "GPT 5.2 High"
     percent: 71.8
+    color: "#4BA080"
 
   - model: "deepseek/deepseek-v3.2"
     displayName: "DeepSeek V3.2"

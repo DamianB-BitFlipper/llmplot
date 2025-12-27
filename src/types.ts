@@ -6,6 +6,7 @@ export interface ModelData {
   displayName?: string;  // optional override for display (e.g., "Opus 4.5" instead of "claude-opus-4.5")
   totalParams?: number;  // billions (e.g., 123 for 123B)
   activeParams?: number; // billions (e.g., 32 for 32B) - for MoE models
+  color?: string;        // optional hex color override (e.g., "#FF5733")
 }
 
 export type Orientation = "horizontal" | "vertical";

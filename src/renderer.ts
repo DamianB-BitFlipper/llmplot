@@ -143,7 +143,7 @@ async function renderHorizontalChart(models: ProcessedModel[], showRankings: boo
           <div class="h-7 bg-gray-200 rounded-full overflow-hidden">
             <div 
               class="h-full rounded-full flex items-center justify-end pr-3"
-              style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
+              style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.color ?? m.providerConfig.color};"
             >
               ${!m.usePercent ? `<span class="text-xs font-medium text-white drop-shadow-sm">
                 ${m.positive}/${m.total}
@@ -166,7 +166,7 @@ async function renderVerticalChart(models: ProcessedModel[], showRankings: boole
           <div class="w-10 bg-gray-200 rounded-full flex flex-col justify-end overflow-hidden" style="height: 200px;">
             <div 
               class="w-full rounded-full flex items-start justify-center pt-2"
-              style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
+              style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.color ?? m.providerConfig.color};"
             >
               <span class="text-xs font-semibold text-white drop-shadow-sm">
                 ${m.percentage.toFixed(percentPrecision)}%

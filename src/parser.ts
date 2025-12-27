@@ -87,6 +87,13 @@ function validateModelData(model: unknown, index: number): ModelData {
     }
   }
 
+  // Validate optional color (hex string)
+  if (m.color !== undefined) {
+    if (typeof m.color !== "string" || !/^#[0-9A-Fa-f]{6}$/.test(m.color)) {
+      throw new ParseError(`models[${index}].color must be a valid hex color (e.g., "#FF5733")`);
+    }
+  }
+
   return {
     model: m.model,
     positive: m.positive as number | undefined,
@@ -95,6 +102,7 @@ function validateModelData(model: unknown, index: number): ModelData {
     displayName: m.displayName as string | undefined,
     totalParams: m.totalParams as number | undefined,
     activeParams: m.activeParams as number | undefined,
+    color: m.color as string | undefined,
   };
 }
 
