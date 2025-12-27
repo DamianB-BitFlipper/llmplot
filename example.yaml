@@ -1,7 +1,9 @@
 title: "swellubench"
 subtitle: "One-shot real features and bug-fixes from elluminate platform, validated with unit tests · 20 PRs · opencode"
 sponsoredBy: "ellamind"
-orientation: horizontal
+orientation: vertical
+showRankings: true
+font: "Arial"
 
 models:
   - model: "anthropic/claude-opus-4.5"

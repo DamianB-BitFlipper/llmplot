@@ -113,6 +113,8 @@ function validateInputConfig(data: unknown): InputConfig {
     subtitle: d.subtitle as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
     orientation: (d.orientation as "horizontal" | "vertical") ?? "horizontal",
+    showRankings: d.showRankings === true,
+    font: typeof d.font === "string" ? d.font : undefined,
     models,
   };
 }

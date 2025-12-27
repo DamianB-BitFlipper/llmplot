@@ -12,17 +12,6 @@ install({
 const iconCache = new Map<string, string>();
 
 /**
- * Get rank badge background color.
- * Gold for 1st, silver for 2nd, bronze for 3rd, gray for rest.
- */
-function getRankBadgeColor(rank: number): string {
-  if (rank === 1) return "#F59E0B"; // gold/amber
-  if (rank === 2) return "#9CA3AF"; // silver/gray
-  if (rank === 3) return "#CD7F32"; // bronze
-  return "#6B7280"; // gray for 4+
-}
-
-/**
  * Load an SVG icon from disk and cache it.
  * Returns the SVG content or a placeholder if not found.
  */
@@ -72,19 +61,20 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-async function renderHorizontalChart(models: ProcessedModel[]): Promise<string> {
+async function renderHorizontalChart(models: ProcessedModel[], showRankings: boolean): Promise<string> {
   const rows = await Promise.all(
     models.map(
       async (m) => `
-      <div class="flex items-start gap-4 py-4">
+      <div class="flex items-center gap-4 py-4">
+        ${showRankings ? `
         <!-- Rank badge -->
         <div 
-          class="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 mt-1"
-          style="background-color: ${getRankBadgeColor(m.rank)};"
+          class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
+          style="background-color: ${getRankBadge(m.rank).bg}; color: ${getRankBadge(m.rank).text};"
         >
           ${m.rank}
         </div>
-        
+        ` : ""}
         <!-- Icon -->
         <div class="w-12 h-12 shrink-0 flex items-center justify-center">
           ${await loadIcon(m.providerConfig.iconPath, m.provider)}
@@ -92,16 +82,19 @@ async function renderHorizontalChart(models: ProcessedModel[]): Promise<string> 
         
         <!-- Name + Bar stacked -->
         <div class="flex-1 min-w-0">
-          <!-- Name row -->
-          <div class="flex items-baseline gap-2 mb-1">
-            <span class="font-semibold text-lg text-gray-800">${escapeHtml(m.displayLabel)}</span>
-            ${m.paramsLabel ? `<span class="text-gray-400 text-sm">${escapeHtml(m.paramsLabel)}</span>` : ""}
+          <!-- Name row with percentage -->
+          <div class="flex items-baseline justify-between mb-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-lg text-gray-800">${escapeHtml(m.displayLabel)}</span>
+              ${m.paramsLabel ? `<span class="text-gray-400 text-sm">${escapeHtml(m.paramsLabel)}</span>` : ""}
+            </div>
+            <span class="font-semibold text-lg text-gray-800">${Math.round(m.percentage)}%</span>
           </div>
           
-          <!-- Bar container -->
-          <div class="h-6 bg-gray-100 rounded-md overflow-hidden">
+          <!-- Bar container (full width) -->
+          <div class="h-7 bg-gray-200 rounded-full overflow-hidden">
             <div 
-              class="h-full rounded-r-md flex items-center justify-end pr-2"
+              class="h-full rounded-full flex items-center justify-end pr-3"
               style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
             >
               <span class="text-xs font-medium text-white drop-shadow-sm">
@@ -110,34 +103,21 @@ async function renderHorizontalChart(models: ProcessedModel[]): Promise<string> 
             </div>
           </div>
         </div>
-        
-        <!-- Percentage (no decimal) -->
-        <div class="w-14 text-right font-semibold text-lg text-gray-800 shrink-0">
-          ${Math.round(m.percentage)}%
-        </div>
       </div>`
     )
   );
   return rows.join("\n");
 }
 
-async function renderVerticalChart(models: ProcessedModel[]): Promise<string> {
+async function renderVerticalChart(models: ProcessedModel[], showRankings: boolean): Promise<string> {
   const columns = await Promise.all(
     models.map(
       async (m) => `
         <div class="flex flex-col items-center gap-2 w-20">
-          <!-- Rank badge -->
-          <div 
-            class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
-            style="background-color: ${getRankBadgeColor(m.rank)};"
-          >
-            ${m.rank}
-          </div>
-          
           <!-- Bar -->
-          <div class="w-full bg-gray-100 rounded-t-md flex flex-col justify-end" style="height: 280px;">
+          <div class="w-full bg-gray-200 rounded-full flex flex-col justify-end" style="height: 280px;">
             <div 
-              class="w-full rounded-t-md flex items-start justify-center pt-2"
+              class="w-full rounded-full flex items-start justify-center pt-2"
               style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.providerConfig.color};"
             >
               <span class="text-xs font-semibold text-white drop-shadow-sm">
@@ -145,6 +125,16 @@ async function renderVerticalChart(models: ProcessedModel[]): Promise<string> {
               </span>
             </div>
           </div>
+          
+          ${showRankings ? `
+          <!-- Rank badge -->
+          <div 
+            class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+            style="background-color: ${getRankBadge(m.rank).bg}; color: ${getRankBadge(m.rank).text};"
+          >
+            ${m.rank}
+          </div>
+          ` : ""}
           
           <!-- Icon -->
           <div class="w-10 h-10 flex items-center justify-center shrink-0">
@@ -164,9 +154,22 @@ async function renderVerticalChart(models: ProcessedModel[]): Promise<string> {
     </div>`;
 }
 
+function getRankBadge(rank: number): { bg: string; text: string } {
+  if (rank === 1) return { bg: "#F59E0B", text: "white" }; // gold
+  if (rank === 2) return { bg: "#9CA3AF", text: "white" }; // silver
+  if (rank === 3) return { bg: "#CD7F32", text: "white" }; // bronze
+  return { bg: "#E6E7EB", text: "#6B7280" }; // light gray with dark text for 4+
+}
+
 export async function renderHtml(config: InputConfig, models: ProcessedModel[]): Promise<string> {
   const isVertical = config.orientation === "vertical";
-  const chartHtml = isVertical ? await renderVerticalChart(models) : await renderHorizontalChart(models);
+  const showRankings = config.showRankings ?? false;
+  const fontFamily = config.font 
+    ? `'${config.font}', ui-sans-serif, system-ui, sans-serif`
+    : `ui-sans-serif, system-ui, sans-serif`;
+  const chartHtml = isVertical 
+    ? await renderVerticalChart(models, showRankings) 
+    : await renderHorizontalChart(models, showRankings);
 
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -175,10 +178,10 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(config.title)}</title>
 </head>
-<body class="min-h-screen bg-gray-100 p-8">
+<body class="min-h-screen bg-gray-100 p-8" style="font-family: ${fontFamily};">
   <div class="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="mb-4">
       <h1 class="text-2xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
       ${config.subtitle ? `<p class="text-gray-500 mt-1">${escapeHtml(config.subtitle)}</p>` : ""}
     </div>

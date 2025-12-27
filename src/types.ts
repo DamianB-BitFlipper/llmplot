@@ -14,6 +14,8 @@ export interface InputConfig {
   subtitle?: string;
   sponsoredBy?: string;
   orientation?: Orientation;
+  showRankings?: boolean; // default: false
+  font?: string; // optional font family (e.g., "SF Pro"), defaults to system font
   models: ModelData[];
 }
 
