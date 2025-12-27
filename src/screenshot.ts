@@ -3,36 +3,8 @@ import puppeteer from "puppeteer";
 export type ExportFormat = "png" | "svg";
 
 export interface ImageDimensions {
-  width?: number;
-  height?: number;
-}
-
-// Default aspect ratio 4:5 (width:height) optimized for social media
-const DEFAULT_WIDTH = 1080;
-const ASPECT_RATIO = 4 / 5;
-
-/**
- * Calculate dimensions with 4:5 aspect ratio default.
- * If only width provided, calculate height from aspect ratio.
- * If only height provided, calculate width from aspect ratio.
- * If neither provided, use defaults (1080x1350).
- */
-function calculateDimensions(dims?: ImageDimensions): { width: number; height: number } {
-  const { width, height } = dims ?? {};
-
-  if (width && height) {
-    return { width, height };
-  }
-
-  if (width) {
-    return { width, height: Math.round(width / ASPECT_RATIO) };
-  }
-
-  if (height) {
-    return { width: Math.round(height * ASPECT_RATIO), height };
-  }
-
-  return { width: DEFAULT_WIDTH, height: Math.round(DEFAULT_WIDTH / ASPECT_RATIO) };
+  width: number;
+  height: number;
 }
 
 /**
@@ -43,9 +15,9 @@ export async function renderToImage(
   html: string,
   outputPath: string,
   format: ExportFormat,
-  dimensions?: ImageDimensions
+  dimensions: ImageDimensions
 ): Promise<void> {
-  const { width, height } = calculateDimensions(dimensions);
+  const { width, height } = dimensions;
 
   const browser = await puppeteer.launch({
     headless: true,

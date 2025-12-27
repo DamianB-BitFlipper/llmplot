@@ -2,7 +2,7 @@
 
 import { program } from "commander";
 import { parseInputFile, ParseError } from "./parser.js";
-import { renderHtml } from "./renderer.js";
+import { renderHtml, calculateLayoutDimensions } from "./renderer.js";
 import { renderToImage, getExportFormat } from "./screenshot.js";
 
 program
@@ -11,9 +11,7 @@ program
   .version("0.1.0")
   .argument("<input>", "Input YAML file path")
   .requiredOption("-o, --output <path>", "Output file path (.html, .png, or .svg)")
-  .option("-W, --width <pixels>", "Image width in pixels (default: 1080 for 4:5 aspect ratio)")
-  .option("-H, --height <pixels>", "Image height in pixels (default: 4:5 aspect ratio based on width)")
-  .action(async (input: string, options: { output: string; width?: string; height?: string }) => {
+  .action(async (input: string, options: { output: string }) => {
     try {
       const outputPath = options.output;
       const imageFormat = getExportFormat(outputPath);
@@ -32,12 +30,19 @@ program
       const html = await renderHtml(config, models);
 
       if (imageFormat) {
-        // Parse dimensions if provided
-        const width = options.width ? parseInt(options.width, 10) : undefined;
-        const height = options.height ? parseInt(options.height, 10) : undefined;
+        // Calculate viewport dimensions based on content for 4:5 aspect ratio
+        const layoutDims = calculateLayoutDimensions(
+          models.length,
+          !!config.subtitle,
+          !!config.sponsoredBy,
+          config.showRankings ?? false
+        );
 
         // Export as image (PNG or SVG)
-        await renderToImage(html, outputPath, imageFormat, { width, height });
+        await renderToImage(html, outputPath, imageFormat, {
+          width: Math.round(layoutDims.viewportWidth),
+          height: Math.round(layoutDims.viewportHeight)
+        });
       } else {
         // Write HTML output
         await Bun.write(outputPath, html);
