@@ -50,6 +50,11 @@ function validateModelData(model: unknown, index: number): ModelData {
     throw new ParseError(`models[${index}].positive (${m.positive}) cannot exceed total (${m.total})`);
   }
 
+  // Validate optional displayName
+  if (m.displayName !== undefined && typeof m.displayName !== "string") {
+    throw new ParseError(`models[${index}].displayName must be a string`);
+  }
+
   // Validate optional totalParams
   if (m.totalParams !== undefined) {
     if (typeof m.totalParams !== "number" || !Number.isInteger(m.totalParams) || m.totalParams <= 0) {
@@ -68,6 +73,7 @@ function validateModelData(model: unknown, index: number): ModelData {
     model: m.model,
     positive: m.positive,
     total: m.total,
+    displayName: m.displayName as string | undefined,
     totalParams: m.totalParams as number | undefined,
     activeParams: m.activeParams as number | undefined,
   };
@@ -165,6 +171,7 @@ export async function parseInputFile(filePath: string): Promise<{
         ...m,
         provider,
         modelName,
+        displayLabel: m.displayName ?? modelName,
         percentage: (m.positive / m.total) * 100,
         providerConfig: getProviderConfig(provider),
         rank: 0, // will be calculated after sorting

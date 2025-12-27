@@ -5,42 +5,50 @@ orientation: horizontal
 
 models:
   - model: "anthropic/claude-opus-4.5"
-    positive: 20
+    displayName: "Opus 4.5"
+    positive: 19
     total: 20
 
-  - model: "anthropic/claude-sonnet-4.5"
-    positive: 16
+  - model: "openai/gpt-5.1-codex-max"
+    displayName: "GPT 5.1 Codex Max"
+    positive: 18
     total: 20
 
   - model: "mistralai/devstral-2"
+    displayName: "Devstral 2"
     positive: 13
     total: 20
     totalParams: 123
 
   - model: "z-ai/glm-4.6"
+    displayName: "GLM 4.6"
     positive: 13
     total: 20
     totalParams: 355
     activeParams: 32
 
   - model: "prime-intellect/intellect-3"
+    displayName: "Intellect 3"
     positive: 11
     total: 20
     totalParams: 106
     activeParams: 12
 
   - model: "x-ai/grok-code-fast-1"
+    displayName: "Grok Code Fast"
     positive: 11
     total: 20
 
   - model: "qwen/qwen3-coder"
+    displayName: "Qwen3 Coder"
     positive: 11
     total: 20
     totalParams: 480
     activeParams: 35
 
-  - model: "meta-llama/glm-4.5-air"
+  - model: "meta-llama/llama-4-maverick"
+    displayName: "Llama 4 Maverick"
     positive: 9
     total: 20
-    totalParams: 106
-    activeParams: 12
+    totalParams: 400
+    activeParams: 17

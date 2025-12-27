@@ -94,7 +94,7 @@ async function renderHorizontalChart(models: ProcessedModel[]): Promise<string> 
         <div class="flex-1 min-w-0">
           <!-- Name row -->
           <div class="flex items-baseline gap-2 mb-1">
-            <span class="font-semibold text-lg text-gray-800">${escapeHtml(m.modelName)}</span>
+            <span class="font-semibold text-lg text-gray-800">${escapeHtml(m.displayLabel)}</span>
             ${m.paramsLabel ? `<span class="text-gray-400 text-sm">${escapeHtml(m.paramsLabel)}</span>` : ""}
           </div>
           
@@ -152,8 +152,8 @@ async function renderVerticalChart(models: ProcessedModel[]): Promise<string> {
           </div>
           
           <!-- Model name -->
-          <div class="text-xs text-gray-600 text-center h-12 overflow-hidden" title="${escapeHtml(m.modelName)}">
-            <span class="block truncate w-20">${escapeHtml(m.modelName.split("-")[0])}</span>
+          <div class="text-xs text-gray-600 text-center h-12 overflow-hidden" title="${escapeHtml(m.displayLabel)}">
+            <span class="block truncate w-20">${escapeHtml(m.displayLabel)}</span>
           </div>
         </div>`
     )
