@@ -56,9 +56,46 @@ const defaultConfig: ProviderConfig = {
 };
 
 /**
- * Get provider configuration, falling back to defaults for unknown providers.
+ * Get provider configuration with fuzzy matching.
+ * Matches are case-insensitive and support:
+ * 1. Exact match
+ * 2. Input starts with key (e.g., "meta-llama" matches "meta")
+ * 3. Key starts with input
+ * 4. Input contains key or key contains input
+ *
+ * Throws an error if multiple providers match (ambiguous).
  */
 export function getProviderConfig(provider: string): ProviderConfig {
-  const normalized = provider.toLowerCase();
-  return providers[normalized] ?? defaultConfig;
+  const input = provider.toLowerCase();
+  const keys = Object.keys(providers);
+
+  // 1. Exact match (case-insensitive)
+  const exactMatch = keys.find((k) => k.toLowerCase() === input);
+  if (exactMatch) return providers[exactMatch];
+
+  // 2. Fuzzy match
+  const matches = keys.filter((k) => {
+    const key = k.toLowerCase();
+    return (
+      input.startsWith(key) ||
+      key.startsWith(input) ||
+      input.includes(key) ||
+      key.includes(input)
+    );
+  });
+
+  // Error if multiple matches (ambiguous)
+  if (matches.length > 1) {
+    throw new Error(
+      `Ambiguous provider "${provider}" matches multiple: ${matches.join(", ")}`
+    );
+  }
+
+  // 3. Single fuzzy match found
+  if (matches.length === 1) {
+    return providers[matches[0]];
+  }
+
+  // 4. No match - fallback
+  return defaultConfig;
 }
