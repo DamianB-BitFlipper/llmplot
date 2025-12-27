@@ -1,0 +1,24 @@
+{
+  "name": "llmplot",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "llmplot": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun"
+  },
+  "dependencies": {
+    "@twind/core": "^1.1.3",
+    "@twind/preset-autoprefix": "^1.0.7",
+    "@twind/preset-tailwind": "^1.1.4",
+    "commander": "^12.1.0",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.3",
+    "bun-types": "^1.3.5",
+    "typescript": "^5.9.3"
+  }
+}

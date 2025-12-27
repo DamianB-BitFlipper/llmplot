@@ -1,0 +1,37 @@
+title: "swellubench"
+subtitle: "One-shot real features and bug-fixes from elluminate platform, validated with unit tests · 20 PRs · opencode"
+sponsoredBy: "ellamind"
+orientation: horizontal
+
+models:
+  - model: "anthropic/claude-opus-4.5"
+    positive: 20
+    total: 20
+
+  - model: "anthropic/claude-sonnet-4.5"
+    positive: 16
+    total: 20
+
+  - model: "mistralai/devstral-2512"
+    positive: 13
+    total: 20
+
+  - model: "z-ai/glm-4.6"
+    positive: 13
+    total: 20
+
+  - model: "prime-intellect/intellect-3"
+    positive: 11
+    total: 20
+
+  - model: "x-ai/grok-4.1-fast"
+    positive: 11
+    total: 20
+
+  - model: "qwen/qwen3-coder"
+    positive: 11
+    total: 20
+
+  - model: "z-ai/glm-4.5-air"
+    positive: 9
+    total: 20
