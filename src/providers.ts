@@ -27,11 +27,11 @@ export const providers: Record<string, ProviderConfig> = {
   },
   "x-ai": {
     color: "#000000",
-    iconPath: "assets/icons/x-ai.svg",
+    iconPath: "assets/icons/xai.svg",
   },
   "z-ai": {
     color: "#3859FF",
-    iconPath: "assets/icons/z-ai.svg",
+    iconPath: "assets/icons/zhipu.svg",
   },
   "prime-intellect": {
     color: "#4D7B4D",

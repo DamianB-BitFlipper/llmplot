@@ -23,7 +23,7 @@ program
       const { config, models } = await parseInputFile(input);
 
       // Render HTML
-      const html = renderHtml(config, models);
+      const html = await renderHtml(config, models);
 
       // Write output file
       await Bun.write(options.output, html);

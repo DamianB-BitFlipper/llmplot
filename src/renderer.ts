@@ -8,6 +8,51 @@ install({
   presets: [presetAutoprefix(), presetTailwind()],
 });
 
+// Cache for loaded SVG icons
+const iconCache = new Map<string, string>();
+
+/**
+ * Load an SVG icon from disk and cache it.
+ * Returns the SVG content or a placeholder if not found.
+ */
+async function loadIcon(iconPath: string | undefined, provider: string): Promise<string> {
+  if (!iconPath) {
+    return getPlaceholder(provider);
+  }
+
+  // Check cache first
+  if (iconCache.has(iconPath)) {
+    return iconCache.get(iconPath)!;
+  }
+
+  // Resolve path relative to project root (where the CLI is run from)
+  const fullPath = new URL(`../${iconPath}`, import.meta.url).pathname;
+  const file = Bun.file(fullPath);
+
+  if (!(await file.exists())) {
+    return getPlaceholder(provider);
+  }
+
+  try {
+    const content = await file.text();
+    
+    // Make SVG responsive by ensuring it has width/height or viewBox
+    const processedSvg = content
+      .replace(/<svg/, '<svg class="w-full h-full"')
+      .replace(/width="[^"]*"/, "")
+      .replace(/height="[^"]*"/, "");
+    
+    iconCache.set(iconPath, processedSvg);
+    return processedSvg;
+  } catch {
+    return getPlaceholder(provider);
+  }
+}
+
+function getPlaceholder(provider: string): string {
+  return `<span class="text-xs text-gray-400">${escapeHtml(provider.slice(0, 2).toUpperCase())}</span>`;
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -16,14 +61,14 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function renderHorizontalChart(models: ProcessedModel[]): string {
-  return models
-    .map(
-      (m) => `
+async function renderHorizontalChart(models: ProcessedModel[]): Promise<string> {
+  const rows = await Promise.all(
+    models.map(
+      async (m) => `
       <div class="flex items-center gap-4 py-2">
-        <!-- Icon placeholder -->
-        <div class="w-8 h-8 rounded-md flex items-center justify-center bg-gray-100 shrink-0">
-          <span class="text-xs text-gray-400">${escapeHtml(m.provider.slice(0, 2).toUpperCase())}</span>
+        <!-- Icon -->
+        <div class="w-8 h-8 rounded-md flex items-center justify-center bg-gray-100 shrink-0 overflow-hidden">
+          ${await loadIcon(m.providerConfig.iconPath, m.provider)}
         </div>
         
         <!-- Model name -->
@@ -49,15 +94,14 @@ function renderHorizontalChart(models: ProcessedModel[]): string {
         </div>
       </div>`
     )
-    .join("\n");
+  );
+  return rows.join("\n");
 }
 
-function renderVerticalChart(models: ProcessedModel[]): string {
-  return `
-    <div class="flex items-end justify-center gap-4 h-96">
-      ${models
-        .map(
-          (m) => `
+async function renderVerticalChart(models: ProcessedModel[]): Promise<string> {
+  const columns = await Promise.all(
+    models.map(
+      async (m) => `
         <div class="flex flex-col items-center gap-2 w-20">
           <!-- Bar -->
           <div class="w-full bg-gray-100 rounded-t-md flex flex-col justify-end" style="height: 320px;">
@@ -71,9 +115,9 @@ function renderVerticalChart(models: ProcessedModel[]): string {
             </div>
           </div>
           
-          <!-- Icon placeholder -->
-          <div class="w-8 h-8 rounded-md flex items-center justify-center bg-gray-100 shrink-0">
-            <span class="text-xs text-gray-400">${escapeHtml(m.provider.slice(0, 2).toUpperCase())}</span>
+          <!-- Icon -->
+          <div class="w-8 h-8 rounded-md flex items-center justify-center bg-gray-100 shrink-0 overflow-hidden">
+            ${await loadIcon(m.providerConfig.iconPath, m.provider)}
           </div>
           
           <!-- Model name (rotated) -->
@@ -81,14 +125,17 @@ function renderVerticalChart(models: ProcessedModel[]): string {
             <span class="block truncate w-20">${escapeHtml(m.modelName.split("-")[0])}</span>
           </div>
         </div>`
-        )
-        .join("\n")}
+    )
+  );
+  return `
+    <div class="flex items-end justify-center gap-4 h-96">
+      ${columns.join("\n")}
     </div>`;
 }
 
-export function renderHtml(config: InputConfig, models: ProcessedModel[]): string {
+export async function renderHtml(config: InputConfig, models: ProcessedModel[]): Promise<string> {
   const isVertical = config.orientation === "vertical";
-  const chartHtml = isVertical ? renderVerticalChart(models) : renderHorizontalChart(models);
+  const chartHtml = isVertical ? await renderVerticalChart(models) : await renderHorizontalChart(models);
 
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">
