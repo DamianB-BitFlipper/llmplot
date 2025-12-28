@@ -119,15 +119,27 @@ function renderHorizontalChart(
           </div>
           
           <!-- Bar container (fixed width) -->
-          <div class="bg-gray-200 rounded-full overflow-hidden" style="height: ${BAR_HEIGHT}px;">
+          ${(() => {
+            // Dynamic threshold based on label length - longer numbers need more space
+            const labelLength = `${m.passed}/${m.total}`.length;
+            // Base threshold 20% for short labels (e.g., "1/10"), increases ~4% per additional character
+            // Dynamic threshold: short labels (4 chars) → 15%, long labels (10 chars) → 30%
+            // Linear interpolation: threshold = 15 + (labelLength - 4) * (15 / 6)
+            const threshold = Math.min(30, Math.max(15, 15 + (labelLength - 4) * (15 / 6)));
+            const isLabelInside = m.percentage >= threshold;
+            return `<div class="relative bg-gray-200 rounded-full overflow-visible" style="height: ${BAR_HEIGHT}px;">
             <div 
-              class="h-full rounded-full flex items-center justify-end pr-3"
+              class="h-full rounded-full${isLabelInside ? ' flex items-center justify-end pr-3' : ''}"
               style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.color ?? m.providerConfig.color};"
             >
-              ${!m.usePercent ? `<span class="text-xs font-medium text-white drop-shadow-sm">
+              ${!m.usePercent && isLabelInside ? `<span class="text-xs font-medium text-white drop-shadow-sm">
                 ${m.passed}/${m.total}
               </span>` : ""}
             </div>
+            ${!m.usePercent && !isLabelInside ? `<span class="absolute text-xs font-medium text-gray-600" style="left: calc(${m.percentage.toFixed(1)}% + 8px); top: 50%; transform: translateY(-50%);">
+              ${m.passed}/${m.total}
+            </span>` : ""}`;
+          })()}
           </div>
         </div>
       </div>`

@@ -129,7 +129,7 @@ export function ModelCard({
                     error={showError('passed')}
                     placeholder="75"
                     min={0}
-                    className="w-20"
+                    className="w-24"
                   />
                 </ConfigCardColumn>
                 <span className="h-8 flex items-center justify-center text-muted-foreground font-light text-sm px-1">/</span>
@@ -143,7 +143,7 @@ export function ModelCard({
                     error={showError('total')}
                     placeholder="100"
                     min={1}
-                    className="w-20"
+                    className="w-24"
                   />
                 </ConfigCardColumn>
               </>
