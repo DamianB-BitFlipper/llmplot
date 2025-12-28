@@ -283,9 +283,10 @@ export default function ChartGenerator() {
       <div className="hidden lg:block mt-4 -mb-4 bg-border" />
 
       {/* Preview Panel */}
-      <div className="pt-8">
+      <div className="pt-8 min-w-0">
+        {/* Measurement div - not affected by chart content */}
+        <div ref={containerRef} className="w-full" />
         <div 
-          ref={containerRef}
           className="sticky top-8 relative border rounded-lg overflow-hidden"
         >
           {isGenerating && (

@@ -284,8 +284,9 @@ export function useChartConfig() {
     if (!el) return;
 
     const observer = new ResizeObserver((entries) => {
+      const newWidth = entries[0].contentRect.width;
       changeSourceRef.current = 'resize';
-      setContainerWidth(entries[0].contentRect.width);
+      setContainerWidth(newWidth);
     });
     observer.observe(el);
     return () => observer.disconnect();
