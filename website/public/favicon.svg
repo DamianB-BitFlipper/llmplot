@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Favicon">
+  <defs>
+    <clipPath id="r">
+      <rect x="4" y="4" width="56" height="56" rx="14"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <g clip-path="url(#r)">
+    <rect x="4" y="4" width="56" height="56" rx="14" fill="#F7F8FA"/>
+    <rect x="4.5" y="4.5" width="55" height="55" rx="13.5" fill="none" stroke="#E5E7EB"/>
+
+    <!-- Row 1 -->
+    <circle cx="16" cy="22" r="3" fill="#C46A4A"/>
+    <rect x="22" y="18.5" width="34" height="7" rx="3.5" fill="#D9DEE7"/>
+    <rect x="22" y="18.5" width="26" height="7" rx="3.5" fill="#C46A4A"/>
+
+    <!-- Row 2 -->
+    <circle cx="16" cy="32" r="3" fill="#4F8F73"/>
+    <rect x="22" y="28.5" width="34" height="7" rx="3.5" fill="#D9DEE7"/>
+    <rect x="22" y="28.5" width="24" height="7" rx="3.5" fill="#4F8F73"/>
+
+    <!-- Row 3 -->
+    <circle cx="16" cy="42" r="3" fill="#3F75E6"/>
+    <rect x="22" y="38.5" width="34" height="7" rx="3.5" fill="#D9DEE7"/>
+    <rect x="22" y="38.5" width="22" height="7" rx="3.5" fill="#3F75E6"/>
+  </g>
+</svg>

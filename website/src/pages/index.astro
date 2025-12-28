@@ -7,7 +7,7 @@ import { Toaster } from "../components/ui/sonner";
 <Layout title="LLM Plot - Generate Beautiful LLM Benchmark Charts">
   <main class="min-h-screen bg-gray-50">
     <div class="max-w-6xl mx-auto px-4 py-12">
-      <ChartGenerator client:load />
+      <ChartGenerator client:only="react" />
     </div>
   </main>
   <Toaster client:load richColors position="bottom-right" />

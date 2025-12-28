@@ -69,6 +69,11 @@ function calculateRanks(models: ProcessedModel[]): void {
  * Custom providers override built-in providers when matching by key.
  */
 export function processModels(config: InputConfig): ProcessedModel[] {
+  // Validate that there is at least one model
+  if (!config.models || config.models.length === 0) {
+    throw new ValidationError("models must be a non-empty array");
+  }
+
   // Build a lookup map for custom providers
   const customProviderMap = new Map<string, CustomProvider>();
   if (config.customProviders) {

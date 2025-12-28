@@ -239,10 +239,13 @@ export function useChartConfig() {
   // State to force showing all errors (e.g. after download attempt)
   const [showAllErrors, setShowAllErrors] = useState(false);
   
-  const [chartHtml, setChartHtml] = useState<string>("");
+  // null = not yet generated, "" = failed to render, string = valid HTML
+  const [chartHtml, setChartHtml] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Track the source of the change to use different debounce times
+  const changeSourceRef = useRef<'config' | 'resize'>('config');
   
   // Store config in a ref so generateChart doesn't need config as a dependency
   const configRef = useRef<ChartConfig>(chartConfig);
@@ -281,6 +284,7 @@ export function useChartConfig() {
     if (!el) return;
 
     const observer = new ResizeObserver((entries) => {
+      changeSourceRef.current = 'resize';
       setContainerWidth(entries[0].contentRect.width);
     });
     observer.observe(el);
@@ -302,7 +306,8 @@ export function useChartConfig() {
       const models = processModels(renderConfig);
       
       const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.description, !!renderConfig.sponsoredBy, renderConfig.showRankings);
-      const scale = containerWidth > 0 ? containerWidth / dimensions.backgroundWidth : 1;
+      // Cap scale at 1.0 - only scale down, never up
+      const scale = containerWidth > 0 ? Math.min(1, containerWidth / dimensions.backgroundWidth) : 1;
       
       const html = renderChart(renderConfig, models, { mode: 'web', scale });
       setChartHtml(html);
@@ -316,26 +321,31 @@ export function useChartConfig() {
   const isWaitingRef = useRef<boolean>(false);
 
   // Re-render chart when container width changes or chart-affecting data changes
-  // Leading-edge debounce: render immediately on first change, then batch until 100ms pause
+  // Leading-edge debounce: render immediately on first change, then batch until pause
+  // Uses different debounce times: 250ms for resize events, 100ms for config changes
   useEffect(() => {
     if (containerWidth > 0) {
       const now = Date.now();
       const timeSinceLastChange = now - lastChangeTimeRef.current;
       lastChangeTimeRef.current = now;
+      
+      // Use different debounce times based on change source
+      const debounceMs = changeSourceRef.current === 'resize' ? 250 : 100;
 
       const doRender = () => {
         isWaitingRef.current = false;
+        changeSourceRef.current = 'config'; // Reset to default after render
         generateChart();
         setIsGenerating(false);
       };
 
-      // If not currently waiting and last change was > 100ms ago, render immediately
-      if (!isWaitingRef.current && timeSinceLastChange > 100) {
+      // If not currently waiting and last change was > debounceMs ago, render immediately
+      if (!isWaitingRef.current && timeSinceLastChange > debounceMs) {
         doRender();
         return;
       }
 
-      // Otherwise, debounce: wait for 100ms pause before rendering
+      // Otherwise, debounce: wait for pause before rendering
       isWaitingRef.current = true;
 
       // Only show loading indicator if render takes longer than 250ms
@@ -346,7 +356,7 @@ export function useChartConfig() {
       const renderTimeout = setTimeout(() => {
         clearTimeout(loadingTimeout);
         doRender();
-      }, 100);
+      }, debounceMs);
       
       return () => {
         clearTimeout(loadingTimeout);
@@ -477,16 +487,12 @@ export function useChartConfig() {
     }));
   }, []);
 
-  const clearAll = useCallback(() => {
+  const restoreSampleData = useCallback(() => {
+    // Restore default config with fresh IDs for each model
     setChartConfig({
-      title: "",
-      description: "",
-      sponsoredBy: "",
-      showRankings: false,
-      percentPrecision: 0,
-      font: "sora" as const,
-      models: [createEmptyModel()],
-      customProviders: [],
+      ...defaultChartConfig,
+      // Fresh objects & IDs to avoid reference sharing and React key collisions
+      models: defaultModels.map((m) => ({ ...m, id: generateId() })),
     });
     setTouched({});
     setShowAllErrors(false);
@@ -511,6 +517,6 @@ export function useChartConfig() {
     exportYaml,
     downloadYaml,
     importYaml,
-    clearAll,
+    restoreSampleData,
   };
 }

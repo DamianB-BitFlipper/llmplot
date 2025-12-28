@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes, Trash2 } from "lucide-react";
+import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useChartConfig, hasErrors, formatErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
@@ -52,7 +52,7 @@ export default function ChartGenerator() {
     downloadHtml,
     downloadYaml,
     importYaml,
-    clearAll,
+    restoreSampleData,
   } = useChartConfig();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,12 +118,12 @@ export default function ChartGenerator() {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={clearAll}
+                    onClick={restoreSampleData}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <RotateCcw className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Clear All</TooltipContent>
+                <TooltipContent>Restore Sample Data</TooltipContent>
               </Tooltip>
               <Button
                 variant="outline"
@@ -344,18 +344,23 @@ export default function ChartGenerator() {
               id="chart-preview"
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
+          ) : chartHtml === null ? (
+            // Not yet generated - show nothing to avoid flash
+            null
+          ) : hasErrors(errors) ? (
+            <div className="p-8 text-center bg-muted min-h-64 flex items-center justify-center text-muted-foreground">
+              <div className="text-left">
+                <p className="font-medium mb-2">Please fix the following errors:</p>
+                <ul className="list-disc list-inside text-sm space-y-1">
+                  {formatErrors(errors).map((error, i) => (
+                    <li key={i}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           ) : (
             <div className="p-8 text-center bg-muted min-h-64 flex items-center justify-center text-muted-foreground">
-              {hasErrors(errors) ? (
-                <div className="text-left">
-                  <p className="font-medium mb-2">Please fix the following errors:</p>
-                  <ul className="list-disc list-inside text-sm space-y-1">
-                    {formatErrors(errors).map((error, i) => (
-                      <li key={i}>{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : "Enter data to preview chart"}
+              Failed to render chart
             </div>
           )}
         </div>
