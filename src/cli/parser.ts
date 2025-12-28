@@ -217,7 +217,7 @@ function validateModelData(model: unknown, index: number): RawModelData {
 
 interface RawInputConfig {
   title: string;
-  subtitle?: string;
+  description?: string;
   sponsoredBy?: string;
   showRankings: boolean;
   percentPrecision: number;
@@ -237,8 +237,8 @@ function validateInputConfig(data: unknown): RawInputConfig {
     throw new ParseError("title is required and must be a non-empty string");
   }
 
-  if (d.subtitle !== undefined && typeof d.subtitle !== "string") {
-    throw new ParseError("subtitle must be a string");
+  if (d.description !== undefined && typeof d.description !== "string") {
+    throw new ParseError("description must be a string");
   }
 
   if (d.sponsoredBy !== undefined && typeof d.sponsoredBy !== "string") {
@@ -301,7 +301,7 @@ function validateInputConfig(data: unknown): RawInputConfig {
 
   return {
     title: d.title,
-    subtitle: d.subtitle as string | undefined,
+    description: d.description as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
     showRankings: (d.showRankings as boolean | undefined) ?? false,
     percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
@@ -370,7 +370,7 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
 
   return {
     title: rawConfig.title,
-    subtitle: rawConfig.subtitle,
+    description: rawConfig.description,
     sponsoredBy: rawConfig.sponsoredBy,
     showRankings: rawConfig.showRankings,
     percentPrecision: rawConfig.percentPrecision,

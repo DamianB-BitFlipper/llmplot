@@ -2,6 +2,13 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { processModels, renderChart, calculateLayoutDimensions } from "../../../../src/core/index.js";
 import type { InputConfig, ModelData } from "../../../../src/core/index.js";
 import type { ChartConfig, ModelConfig, ValidationErrors, CustomProvider } from "./types.js";
+import {
+  chartConfigToYaml,
+  yamlToChartConfig,
+  saveConfigToStorage,
+  loadConfigFromStorage,
+  slugify,
+} from "@/lib/config-serializer.js";
 
 // Utilities
 function generateId(): string {
@@ -68,7 +75,7 @@ const defaultModels: ModelConfig[] = [
 
 const defaultChartConfig: ChartConfig = {
   title: "Example Benchmark",
-  subtitle: "Model Performance Comparison",
+  description: "Model Performance Comparison",
   sponsoredBy: "",
   showRankings: false,
   percentPrecision: 0,
@@ -192,7 +199,7 @@ function toRenderConfig(config: ChartConfig): InputConfig {
 
   return {
     title: config.title,
-    subtitle: config.subtitle || undefined,
+    description: config.description || undefined,
     sponsoredBy: config.sponsoredBy || undefined,
     showRankings: config.showRankings,
     percentPrecision: config.percentPrecision,
@@ -203,7 +210,12 @@ function toRenderConfig(config: ChartConfig): InputConfig {
 
 // Main hook
 export function useChartConfig() {
-  const [chartConfig, setChartConfig] = useState<ChartConfig>(defaultChartConfig);
+  // Initialize from localStorage, falling back to default config
+  const [chartConfig, setChartConfig] = useState<ChartConfig>(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return defaultChartConfig;
+    return loadConfigFromStorage() ?? defaultChartConfig;
+  });
   const [errors, setErrors] = useState<ValidationErrors>({ models: {} });
   // Track which fields have been touched by the user
   const [touched, setTouched] = useState<Record<string, Record<string, boolean>>>({});
@@ -225,7 +237,7 @@ export function useChartConfig() {
   const chartFingerprint = useMemo(() => {
     const relevantData = {
       title: chartConfig.title,
-      subtitle: chartConfig.subtitle,
+      description: chartConfig.description,
       sponsoredBy: chartConfig.sponsoredBy,
       showRankings: chartConfig.showRankings,
       percentPrecision: chartConfig.percentPrecision,
@@ -272,7 +284,7 @@ export function useChartConfig() {
       const renderConfig = toRenderConfig(currentConfig);
       const models = processModels(renderConfig);
       
-      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.subtitle, !!renderConfig.sponsoredBy, renderConfig.showRankings);
+      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.description, !!renderConfig.sponsoredBy, renderConfig.showRankings);
       const scale = containerWidth > 0 ? containerWidth / dimensions.backgroundWidth : 1;
       
       const html = renderChart(renderConfig, models, { mode: 'web', scale });
@@ -325,6 +337,48 @@ export function useChartConfig() {
       };
     }
   }, [containerWidth, chartFingerprint, generateChart]);
+
+  // Auto-save to localStorage when config changes (debounced)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      saveConfigToStorage(chartConfig);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [chartFingerprint]);
+
+  // Export config as YAML string
+  const exportYaml = useCallback((): string => {
+    return chartConfigToYaml(configRef.current);
+  }, []);
+
+  // Export YAML and trigger download
+  const downloadYaml = useCallback(() => {
+    const yaml = chartConfigToYaml(configRef.current);
+    const filename = `${slugify(configRef.current.title)}.yaml`;
+    
+    const blob = new Blob([yaml], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // Import config from YAML string
+  // Returns { success: true } or { success: false, error: string }
+  const importYaml = useCallback((yamlString: string): { success: boolean; error?: string } => {
+    try {
+      const newConfig = yamlToChartConfig(yamlString);
+      setChartConfig(newConfig);
+      setTouched({});
+      setShowAllErrors(false);
+      return { success: true };
+    } catch (e) {
+      const error = e instanceof Error ? e.message : "Failed to parse YAML";
+      return { success: false, error };
+    }
+  }, []);
 
   const markTouched = useCallback((modelId: string, field: string) => {
     setTouched((prev) => ({
@@ -422,5 +476,8 @@ export function useChartConfig() {
     addCustomProvider,
     removeCustomProvider,
     downloadHtml,
+    exportYaml,
+    downloadYaml,
+    importYaml,
   };
 }

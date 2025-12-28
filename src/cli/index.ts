@@ -48,7 +48,7 @@ async function main(): Promise<void> {
       // PNG or SVG export via Puppeteer
       const dimensions = calculateLayoutDimensions(
         models.length,
-        !!config.subtitle,
+        !!config.description,
         !!config.sponsoredBy,
         config.showRankings
       );

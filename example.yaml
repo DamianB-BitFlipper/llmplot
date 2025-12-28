@@ -1,5 +1,5 @@
 title: "SWE-bench Leaderboards"
-subtitle: "Bash Only evaluates each LLM with a minimal agent on SWE-bench Verified · 500 instances"
+description: "Bash Only evaluates each LLM with a minimal agent on SWE-bench Verified · 500 instances"
 sponsoredBy: "DamianB-BitFlipper"
 showRankings: true
 percentPrecision: 1

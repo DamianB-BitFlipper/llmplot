@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ChartGenerator from "../components/ChartGenerator";
+import { Toaster } from "../components/ui/sonner";
 ---
 
 <Layout title="LLM Plot - Generate Beautiful LLM Benchmark Charts">
@@ -9,4 +10,5 @@ import ChartGenerator from "../components/ChartGenerator";
       <ChartGenerator client:load />
     </div>
   </main>
+  <Toaster client:load richColors position="bottom-right" />
 </Layout>

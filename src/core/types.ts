@@ -24,7 +24,7 @@ import type { FontFamily } from "./assets.js";
 
 export interface InputConfig {
   title: string;
-  subtitle?: string;
+  description?: string;
   sponsoredBy?: string;
   showRankings: boolean; // default: false
   percentPrecision: number; // default: 0, controls decimal places in percentage display

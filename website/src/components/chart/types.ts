@@ -39,7 +39,7 @@ export const fontConfig: Record<FontFamily, { display: string; css: string }> = 
 
 export interface ChartConfig {
   title: string;
-  subtitle: string;
+  description: string;
   sponsoredBy: string;
   showRankings: boolean;
   percentPrecision: number;

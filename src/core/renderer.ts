@@ -39,7 +39,7 @@ const BAR_HEIGHT = 28; // The actual bar height
 
 // Header/footer heights (approximate)
 const TITLE_HEIGHT = 36; // h1 text-3xl
-const SUBTITLE_HEIGHT = 24; // p text
+const DESCRIPTION_HEIGHT = 24; // p text
 
 // Target output width - layout is scaled to achieve this
 export const TARGET_OUTPUT_WIDTH = 1280;
@@ -144,13 +144,13 @@ function renderHorizontalChart(
  */
 export function calculateLayoutDimensions(
   modelCount: number,
-  hasSubtitle: boolean,
+  hasDescription: boolean,
   hasFooter: boolean,
   showRankings: boolean
 ): { barContainerWidth: number; cardWidth: number; cardHeight: number; backgroundWidth: number; backgroundHeight: number } {
   // Calculate content height
-  const headerHeight = TITLE_HEIGHT + (hasSubtitle ? GAP_TITLE_SUBTITLE + SUBTITLE_HEIGHT : 0);
-  const footerHeight = hasFooter ? SUBTITLE_HEIGHT : 0;
+  const headerHeight = TITLE_HEIGHT + (hasDescription ? GAP_TITLE_SUBTITLE + DESCRIPTION_HEIGHT : 0);
+  const footerHeight = hasFooter ? DESCRIPTION_HEIGHT : 0;
   
   // Each bar row: label + gap + bar
   const barRowHeight = BAR_LABEL_HEIGHT + GAP_LABEL_BAR + BAR_HEIGHT;
@@ -219,7 +219,7 @@ export function renderChart(
   // Calculate layout dimensions based on content
   const { barContainerWidth, cardWidth, backgroundWidth, backgroundHeight } = calculateLayoutDimensions(
     models.length,
-    !!config.subtitle,
+    !!config.description,
     !!config.sponsoredBy,
     showRankings
   );
@@ -247,7 +247,7 @@ export function renderChart(
     <!-- Header -->
     <div style="margin-bottom: ${GAP_HEADER_CHART}px;">
       <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
-      ${config.subtitle ? `<p class="text-gray-500" style="margin-top: ${GAP_TITLE_SUBTITLE}px;">${escapeHtml(config.subtitle)}</p>` : ""}
+      ${config.description ? `<p class="text-gray-500" style="margin-top: ${GAP_TITLE_SUBTITLE}px;">${escapeHtml(config.description)}</p>` : ""}
     </div>
     
     <!-- Chart -->

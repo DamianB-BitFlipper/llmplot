@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { Download, PlusCircle } from "lucide-react";
+import { useState, useRef } from "react";
+import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save } from "lucide-react";
+import { toast } from "sonner";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dropdown,
   DropdownContent,
@@ -42,15 +44,72 @@ export default function ChartGenerator() {
     addCustomProvider,
     removeCustomProvider,
     downloadHtml,
+    downloadYaml,
+    importYaml,
   } = useChartConfig();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const result = importYaml(text);
+      if (!result.success) {
+        toast.error("Import failed", {
+          description: result.error,
+        });
+      }
+    } catch {
+      toast.error("Import failed", {
+        description: "Could not read file",
+      });
+    }
+
+    // Reset the input so the same file can be selected again
+    e.target.value = "";
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr] gap-8">
       {/* Form Panel */}
       <div className="space-y-4">
         {/* Chart Section */}
-        <div className="space-y-2">
+        <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Chart Details</h2>
+          <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".yaml,.yml"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleImportClick}
+            >
+              <ArrowDownToLine className="w-4 h-4 mr-1" />
+              Import
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={downloadYaml}
+            >
+              <Save className="w-4 h-4 mr-1" />
+              Save Config
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-2">
           <ConfigCard>
             <ConfigCardColumn gap="sm">
               {/* Title + Font Row */}
@@ -91,8 +150,8 @@ export default function ChartGenerator() {
               <ConfigCardColumn>
                 <ConfigLabel>Description</ConfigLabel>
                 <ConfigTextarea
-                  value={chartConfig.subtitle}
-                  onChange={(e) => updateConfig({ subtitle: e.target.value })}
+                  value={chartConfig.description}
+                  onChange={(e) => updateConfig({ description: e.target.value })}
                   placeholder="Optional description"
                   maxRows={3}
                 />
@@ -206,15 +265,39 @@ export default function ChartGenerator() {
             <div className="absolute inset-0 bg-muted/50 z-20" />
           )}
           {chartHtml && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={downloadHtml}
-              className="absolute top-3 right-3 z-10 bg-background/80 hover:bg-background"
-              title="Download HTML"
-            >
-              <Download className="w-5 h-5" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-3 right-3 z-10 bg-background/80 hover:bg-background"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Download as...
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-40 p-1">
+                <button
+                  onClick={downloadHtml}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground"
+                >
+                  HTML
+                </button>
+                <button
+                  onClick={() => toast.info("PNG export coming soon")}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                >
+                  PNG
+                </button>
+                <button
+                  onClick={() => toast.info("SVG export coming soon")}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                >
+                  SVG
+                </button>
+              </PopoverContent>
+            </Popover>
           )}
           {chartHtml ? (
             <div 
