@@ -86,16 +86,16 @@ export function ModelCard({ model, index, errors, canRemove, customProviders, on
           {model.scoreMode === 'fraction' ? (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Positive</Label>
+                <Label className="text-xs text-muted-foreground">Passed</Label>
                 <Input
                   type="number"
-                  value={model.positive}
-                  onChange={(e) => onUpdate({ positive: e.target.value })}
-                  className={cn(errors.positive && "border-destructive bg-destructive/10")}
+                  value={model.passed}
+                  onChange={(e) => onUpdate({ passed: e.target.value })}
+                  className={cn(errors.passed && "border-destructive bg-destructive/10")}
                   placeholder="e.g., 92"
                   min="0"
                 />
-                {errors.positive && <p className="text-xs text-destructive">{errors.positive}</p>}
+                {errors.passed && <p className="text-xs text-destructive">{errors.passed}</p>}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">Total</Label>

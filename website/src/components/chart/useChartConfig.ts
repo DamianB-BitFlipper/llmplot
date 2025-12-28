@@ -14,7 +14,7 @@ export function createEmptyModel(): ModelConfig {
     provider: "",
     modelName: "",
     scoreMode: 'fraction',
-    positive: "",
+    passed: "",
     total: "",
     percent: "",
     displayName: "",
@@ -31,7 +31,7 @@ const defaultModels: ModelConfig[] = [
     provider: "anthropic",
     modelName: "claude-opus-4.5",
     scoreMode: 'fraction',
-    positive: "75",
+    passed: "75",
     total: "100",
     percent: "",
     displayName: "Claude Opus 4.5",
@@ -42,13 +42,13 @@ const defaultModels: ModelConfig[] = [
   },
   {
     id: generateId(),
-    provider: "google",
-    modelName: "gemini-3-pro-preview",
+    provider: "openai",
+    modelName: "gpt-5.2-high",
     scoreMode: 'percent',
-    positive: "",
+    passed: "",
     total: "",
     percent: "74.2",
-    displayName: "Gemini 3 Pro",
+    displayName: "GPT 5.2 High",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -56,13 +56,13 @@ const defaultModels: ModelConfig[] = [
   },
   {
     id: generateId(),
-    provider: "openai",
-    modelName: "gpt-5.2-high",
+    provider: "google",
+    modelName: "gemini-3-pro-preview",
     scoreMode: 'percent',
-    positive: "",
+    passed: "",
     total: "",
     percent: "71.8",
-    displayName: "GPT 5.2 High",
+    displayName: "Gemini 3 Pro",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -101,17 +101,17 @@ function validateConfig(config: ChartConfig): ValidationErrors {
     }
 
     if (model.scoreMode === 'fraction') {
-      const positive = parseInt(model.positive, 10);
+      const passed = parseInt(model.passed, 10);
       const total = parseInt(model.total, 10);
 
-      if (model.positive === "" || isNaN(positive) || positive < 0) {
-        modelErrors.positive = "Must be >= 0";
+      if (model.passed === "" || isNaN(passed) || passed < 0) {
+        modelErrors.passed = "Must be >= 0";
       }
       if (model.total === "" || isNaN(total) || total <= 0) {
         modelErrors.total = "Must be > 0";
       }
-      if (!isNaN(positive) && !isNaN(total) && positive > total) {
-        modelErrors.positive = "Cannot exceed total";
+      if (!isNaN(passed) && !isNaN(total) && passed > total) {
+        modelErrors.passed = "Cannot exceed total";
       }
     } else {
       const percent = parseFloat(model.percent);
@@ -161,7 +161,7 @@ function toRenderConfig(config: ChartConfig): InputConfig {
     };
 
     if (m.scoreMode === 'fraction') {
-      base.positive = parseInt(m.positive, 10);
+      base.passed = parseInt(m.passed, 10);
       base.total = parseInt(m.total, 10);
     } else {
       base.percent = parseFloat(m.percent);
@@ -231,7 +231,7 @@ export function useChartConfig() {
         provider: m.provider,
         modelName: m.modelName,
         scoreMode: m.scoreMode,
-        positive: m.positive,
+        passed: m.passed,
         total: m.total,
         percent: m.percent,
         displayName: m.displayName,
@@ -270,7 +270,7 @@ export function useChartConfig() {
       const renderConfig = toRenderConfig(currentConfig);
       const models = processModels(renderConfig);
       
-      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.subtitle, !!renderConfig.sponsoredBy);
+      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.subtitle, !!renderConfig.sponsoredBy, renderConfig.showRankings);
       const scale = containerWidth > 0 ? containerWidth / dimensions.backgroundWidth : 1;
       
       const html = renderChart(renderConfig, models, { mode: 'web', scale });

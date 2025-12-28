@@ -12,7 +12,7 @@ export interface ModelConfig {
   provider: string;
   modelName: string;
   scoreMode: 'fraction' | 'percent';
-  positive: string;
+  passed: string;
   total: string;
   percent: string;
   displayName: string;
@@ -36,7 +36,7 @@ export interface ChartConfig {
 export interface ModelValidationErrors {
   provider?: string;
   modelName?: string;
-  positive?: string;
+  passed?: string;
   total?: string;
   percent?: string;
   totalParams?: string;

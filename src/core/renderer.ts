@@ -114,7 +114,7 @@ function renderHorizontalChart(
               style="width: ${m.percentage.toFixed(1)}%; background-color: ${m.color ?? m.providerConfig.color};"
             >
               ${!m.usePercent ? `<span class="text-xs font-medium text-white drop-shadow-sm">
-                ${m.positive}/${m.total}
+                ${m.passed}/${m.total}
               </span>` : ""}
             </div>
           </div>

@@ -73,7 +73,7 @@ export function processModels(config: InputConfig): ProcessedModel[] {
       const [provider, ...rest] = m.model.split("/");
       const modelName = rest.join("/"); // handle case of multiple slashes
       const usePercent = m.percent !== undefined;
-      const percentage = usePercent ? m.percent! : (m.positive! / m.total!) * 100;
+      const percentage = usePercent ? m.percent! : (m.passed! / m.total!) * 100;
       
       // Validate custom icon is a valid data URL
       if (m.iconDataUrl !== undefined) {

@@ -37,7 +37,7 @@ async function readIconFile(iconPath: string, basePath: string, index: number): 
 
 interface RawModelData {
   model: string;
-  positive?: number;
+  passed?: number;
   total?: number;
   percent?: number;
   displayName?: string;
@@ -62,16 +62,16 @@ function validateModelData(model: unknown, index: number): RawModelData {
     throw new ParseError(`models[${index}].model must be in format "provider/model-name" (e.g., "anthropic/claude-opus-4.5")`);
   }
 
-  // Check for percent vs positive/total
+  // Check for percent vs passed/total
   const hasPercent = m.percent !== undefined;
-  const hasPositiveTotal = m.positive !== undefined || m.total !== undefined;
+  const hasPassedTotal = m.passed !== undefined || m.total !== undefined;
 
-  if (hasPercent && hasPositiveTotal) {
-    throw new ParseError(`models[${index}] cannot have both 'percent' and 'positive/total' - use one or the other`);
+  if (hasPercent && hasPassedTotal) {
+    throw new ParseError(`models[${index}] cannot have both 'percent' and 'passed/total' - use one or the other`);
   }
 
-  if (!hasPercent && !hasPositiveTotal) {
-    throw new ParseError(`models[${index}] must have either 'percent' or both 'positive' and 'total'`);
+  if (!hasPercent && !hasPassedTotal) {
+    throw new ParseError(`models[${index}] must have either 'percent' or both 'passed' and 'total'`);
   }
 
   if (hasPercent) {
@@ -79,16 +79,16 @@ function validateModelData(model: unknown, index: number): RawModelData {
       throw new ParseError(`models[${index}].percent must be a number between 0 and 100`);
     }
   } else {
-    if (typeof m.positive !== "number" || !Number.isInteger(m.positive) || m.positive < 0) {
-      throw new ParseError(`models[${index}].positive must be a non-negative integer`);
+    if (typeof m.passed !== "number" || !Number.isInteger(m.passed) || m.passed < 0) {
+      throw new ParseError(`models[${index}].passed must be a non-negative integer`);
     }
 
     if (typeof m.total !== "number" || !Number.isInteger(m.total) || m.total <= 0) {
       throw new ParseError(`models[${index}].total must be a positive integer`);
     }
 
-    if (m.positive > m.total) {
-      throw new ParseError(`models[${index}].positive (${m.positive}) cannot exceed total (${m.total})`);
+    if (m.passed > m.total) {
+      throw new ParseError(`models[${index}].passed (${m.passed}) cannot exceed total (${m.total})`);
     }
   }
 
@@ -125,7 +125,7 @@ function validateModelData(model: unknown, index: number): RawModelData {
 
   return {
     model: m.model,
-    positive: m.positive as number | undefined,
+    passed: m.passed as number | undefined,
     total: m.total as number | undefined,
     percent: m.percent as number | undefined,
     displayName: m.displayName as string | undefined,
@@ -228,7 +228,7 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
 
       return {
         model: m.model,
-        positive: m.positive,
+        passed: m.passed,
         total: m.total,
         percent: m.percent,
         displayName: m.displayName,

@@ -138,7 +138,7 @@ export class ParseError extends Error {
 }
 
 // Usage
-throw new ParseError(`models[${index}].positive must be a non-negative integer`);
+throw new ParseError(`models[${index}].passed must be a non-negative integer`);
 ```
 
 ### Async/Await
@@ -205,7 +205,7 @@ sponsoredBy: "Company"            # optional (footer)
 
 models:
   - model: "provider/model-name"  # required, format: provider/name
-    positive: 45                  # required, integer >= 0
+    passed: 45                  # required, integer >= 0
     total: 50                     # required, integer > 0
 ```
 

@@ -32,11 +32,11 @@ orientation: horizontal                 # optional, horizontal (default) or vert
 
 models:
   - model: "anthropic/claude-opus-4.5"
-    positive: 19
+    passed: 19
     total: 20
 
   - model: "openai/gpt-5.2-codex-max"
-    positive: 18
+    passed: 18
     total: 20
 ```
 

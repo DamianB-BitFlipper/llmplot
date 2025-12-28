@@ -1,8 +1,8 @@
 export interface ModelData {
   model: string; // format: provider/model-name (e.g., "anthropic/claude-opus-4.5")
-  positive?: number;     // required if percent not set
+  passed?: number;       // required if percent not set
   total?: number;        // required if percent not set
-  percent?: number;      // alternative to positive/total (0-100)
+  percent?: number;      // alternative to passed/total (0-100)
   displayName?: string;  // optional override for display (e.g., "Opus 4.5" instead of "claude-opus-4.5")
   totalParams?: number;  // billions (e.g., 123 for 123B)
   activeParams?: number; // billions (e.g., 32 for 32B) - for MoE models

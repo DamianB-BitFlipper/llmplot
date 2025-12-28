@@ -111,17 +111,17 @@ export default function ChartGenerator() {
               value={chartConfig.font}
               onValueChange={(value) => updateConfig({ font: value })}
             >
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Geist Sans">Geist Sans</SelectItem>
-                <SelectItem value="Inter">Inter</SelectItem>
-                <SelectItem value="Roboto">Roboto</SelectItem>
-                <SelectItem value="Open Sans">Open Sans</SelectItem>
-                <SelectItem value="Lato">Lato</SelectItem>
-                <SelectItem value="Montserrat">Montserrat</SelectItem>
-                <SelectItem value=" ">System Default</SelectItem>
+                <SelectItem value="Geist Sans" style={{ fontFamily: "'Geist Sans', sans-serif" }}>Geist Sans</SelectItem>
+                <SelectItem value="Inter" style={{ fontFamily: "'Inter', sans-serif" }}>Inter</SelectItem>
+                <SelectItem value="Roboto" style={{ fontFamily: "'Roboto', sans-serif" }}>Roboto</SelectItem>
+                <SelectItem value="Open Sans" style={{ fontFamily: "'Open Sans', sans-serif" }}>Open Sans</SelectItem>
+                <SelectItem value="Lato" style={{ fontFamily: "'Lato', sans-serif" }}>Lato</SelectItem>
+                <SelectItem value="Montserrat" style={{ fontFamily: "'Montserrat', sans-serif" }}>Montserrat</SelectItem>
+                <SelectItem value=" " style={{ fontFamily: "system-ui, sans-serif" }}>System Default</SelectItem>
               </SelectContent>
             </Select>
           </div>
