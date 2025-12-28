@@ -14,8 +14,7 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
   ],
-  site: "https://www.damianb.dev",
-  base: "/llmplot",
+  site: "https://www.llmplot.com",
   outDir: "../../dist/website",
   vite: {
     resolve: {
