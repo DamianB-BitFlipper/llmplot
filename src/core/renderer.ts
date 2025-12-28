@@ -36,6 +36,10 @@ export const TARGET_OUTPUT_WIDTH = 1280;
 // Aspect ratio (4:5)
 const ASPECT_RATIO = 4 / 5;
 
+// Minimum bar container width as percentage of TARGET_OUTPUT_WIDTH
+const MIN_BAR_CONTAINER_WIDTH_RATIO = 0.3;
+const MIN_BAR_CONTAINER_WIDTH = TARGET_OUTPUT_WIDTH * MIN_BAR_CONTAINER_WIDTH_RATIO; // 384px
+
 export type RenderMode = 'cli' | 'web';
 
 export interface RenderOptions {
@@ -136,13 +140,16 @@ function renderHorizontalChart(
  * Height is determined by content (fixed elements + number of bars).
  * Width is calculated from height to achieve 4:5 aspect ratio.
  * Bar container width is the variable that adjusts.
+ * 
+ * If the bar container width would be too narrow, we enforce a minimum
+ * and add extra vertical padding to maintain the 4:5 aspect ratio.
  */
 export function calculateLayoutDimensions(
   modelCount: number,
   hasSubtitle: boolean,
   hasFooter: boolean,
   showRankings: boolean
-): { barContainerWidth: number; cardWidth: number; cardHeight: number } {
+): { barContainerWidth: number; cardWidth: number; cardHeight: number; extraVerticalPadding: number } {
   // Calculate content height
   const headerHeight = TITLE_HEIGHT + (hasSubtitle ? GAP_TITLE_SUBTITLE + SUBTITLE_HEIGHT : 0);
   const footerHeight = hasFooter ? SUBTITLE_HEIGHT : 0;
@@ -152,28 +159,37 @@ export function calculateLayoutDimensions(
   // Total chart height: bars + gaps between them
   const chartHeight = (barRowHeight * modelCount) + (GAP_BETWEEN_BARS * (modelCount - 1));
   
-  // Total card content height
+  // Total card content height (without padding)
   const contentHeight = 
     headerHeight + 
     GAP_HEADER_CHART + 
     chartHeight + 
     (hasFooter ? GAP_CHART_FOOTER + footerHeight : 0);
   
-  // Card height = content + inner padding
-  const cardHeight = contentHeight + (PADDING_INNER * 2);
-  
-  // Card width from aspect ratio (width = height * aspect_ratio)
-  const cardWidth = cardHeight * ASPECT_RATIO;
-  
-  // Calculate bar container width from card width
+  // Fixed row width (icon + optional rank badge)
   const fixedRowWidth = 
     (showRankings ? RANK_BADGE_SIZE + GAP_RANK_ICON : 0) +
     ICON_SIZE +
     GAP_ICON_CONTENT;
   
-  const barContainerWidth = cardWidth - (PADDING_INNER * 2) - fixedRowWidth;
+  // Initial calculation based on content height
+  let cardHeight = contentHeight + (PADDING_INNER * 2);
+  let cardWidth = cardHeight * ASPECT_RATIO;
+  let barContainerWidth = cardWidth - (PADDING_INNER * 2) - fixedRowWidth;
+  let extraVerticalPadding = 0;
   
-  return { barContainerWidth, cardWidth, cardHeight };
+  // If bar container is too narrow, enforce minimum and expand card height
+  if (barContainerWidth < MIN_BAR_CONTAINER_WIDTH) {
+    barContainerWidth = MIN_BAR_CONTAINER_WIDTH;
+    cardWidth = barContainerWidth + fixedRowWidth + (PADDING_INNER * 2);
+    cardHeight = cardWidth / ASPECT_RATIO;
+    
+    // Calculate extra vertical space and distribute evenly top/bottom
+    const minCardHeight = contentHeight + (PADDING_INNER * 2);
+    extraVerticalPadding = (cardHeight - minCardHeight) / 2;
+  }
+  
+  return { barContainerWidth, cardWidth, cardHeight, extraVerticalPadding };
 }
 
 /**
@@ -194,12 +210,15 @@ export function renderChart(
   const percentPrecision = config.percentPrecision ?? 0;
   
   // Calculate layout dimensions based on content
-  const { barContainerWidth, cardWidth, cardHeight } = calculateLayoutDimensions(
+  const { barContainerWidth, cardWidth, cardHeight, extraVerticalPadding } = calculateLayoutDimensions(
     models.length,
     !!config.subtitle,
     !!config.sponsoredBy,
     showRankings
   );
+  
+  // Calculate vertical padding (inner padding + extra padding for aspect ratio)
+  const verticalPadding = PADDING_INNER + extraVerticalPadding;
   
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
@@ -246,7 +265,7 @@ export function renderChart(
       <div 
         id="llmplot-chart" 
         class="bg-white rounded-xl shadow-sm flex flex-col" 
-        style="font-family: ${fontFamily}; width: ${cardWidth}px; min-height: ${cardHeight}px; padding: ${PADDING_INNER}px;"
+        style="font-family: ${fontFamily}; width: ${cardWidth}px; min-height: ${cardHeight}px; padding: ${verticalPadding}px ${PADDING_INNER}px;"
       >
         ${cardContent}
       </div>
@@ -283,7 +302,7 @@ export function renderChart(
   <style>${fontFaceRule}</style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center" style="font-family: ${fontFamily}; padding: ${PADDING_OUTER}px;">
-  <div id="llmplot-chart" class="bg-white rounded-xl shadow-sm flex flex-col" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: ${PADDING_INNER}px;">
+  <div id="llmplot-chart" class="bg-white rounded-xl shadow-sm flex flex-col" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: ${verticalPadding}px ${PADDING_INNER}px;">
     ${cardContent}
   </div>
 </body>
