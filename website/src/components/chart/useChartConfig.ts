@@ -74,7 +74,7 @@ const defaultModels: ModelConfig[] = [
 ];
 
 const defaultChartConfig: ChartConfig = {
-  title: "Example Benchmark",
+  title: "Sample Plot",
   description: "Model Performance Comparison",
   sponsoredBy: "",
   showRankings: false,

@@ -2,11 +2,22 @@
 import Layout from "../layouts/Layout.astro";
 import ChartGenerator from "../components/ChartGenerator";
 import { Toaster } from "../components/ui/sonner";
+
+const faviconUrl = `${import.meta.env.BASE_URL}/favicon.svg`;
 ---
 
 <Layout title="LLM Plot - Generate Beautiful LLM Benchmark Charts">
   <main class="min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-4 py-12">
+    <header class="bg-white border-b border-gray-200">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <img src={faviconUrl} alt="LLM Plot" class="w-11 h-11" />
+        <div class="flex items-baseline gap-2.5">
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">LLM Plot</h1>
+          <span class="text-slate-500 italic text-[15px]">Making LLM eval plots no longer ugly.</span>
+        </div>
+      </div>
+    </header>
+    <div class="max-w-6xl mx-auto px-4 py-4">
       <ChartGenerator client:only="react" />
     </div>
   </main>
