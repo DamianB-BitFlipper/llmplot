@@ -46,9 +46,27 @@ git commit --no-verify
 
 ```
 src/
-├── index.ts      # CLI entry point
-├── types.ts      # TypeScript interfaces
-├── parser.ts     # YAML parsing & validation
-├── renderer.ts   # HTML generation
-└── providers.ts  # Provider colors (edit to customize)
+├── index.ts              # CLI entry point
+├── core/                 # Pure core library (browser-compatible)
+│   ├── index.ts          # Public API exports
+│   ├── types.ts          # TypeScript interfaces
+│   ├── providers.ts      # Provider colors & inline icons
+│   ├── parser.ts         # YAML parsing & validation (no file I/O)
+│   ├── renderer.ts       # HTML generation with Twind
+│   └── assets.ts         # Bundled SVG icons & Geist font (auto-generated)
+├── cli/                  # CLI-specific code (Bun runtime)
+│   ├── index.ts          # Commander.js wrapper & file I/O
+│   └── screenshot.ts     # Puppeteer PNG/SVG export
+assets/
+├── icons/                # SVG icons per provider (source files)
+└── fonts/                # Geist font (source file)
+website/                  # Astro static site (uses core library)
+```
+
+## Website development
+
+```bash
+cd website
+bun install
+bun dev
 ```

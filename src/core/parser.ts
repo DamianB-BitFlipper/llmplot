@@ -170,31 +170,26 @@ function calculateRanks(models: ProcessedModel[]): void {
 }
 
 /**
- * Parse and validate a YAML input file.
- * Returns processed models sorted by percentage (best to worst).
+ * Parse a YAML string into an InputConfig.
+ * Throws ParseError if the YAML is invalid or doesn't match the expected schema.
  */
-export async function parseInputFile(filePath: string): Promise<{
-  config: InputConfig;
-  models: ProcessedModel[];
-}> {
-  const file = Bun.file(filePath);
-
-  if (!(await file.exists())) {
-    throw new ParseError(`Input file not found: ${filePath}`);
-  }
-
-  const content = await file.text();
+export function parseYaml(yamlString: string): InputConfig {
   let data: unknown;
 
   try {
-    data = parse(content);
+    data = parse(yamlString);
   } catch (e) {
     throw new ParseError(`Invalid YAML: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  const config = validateInputConfig(data);
+  return validateInputConfig(data);
+}
 
-  // Process and sort models by percentage (descending)
+/**
+ * Process and sort models by percentage (best to worst).
+ * Calculates ranks with tie handling.
+ */
+export function processModels(config: InputConfig): ProcessedModel[] {
   const models: ProcessedModel[] = config.models
     .map((m) => {
       const [provider, ...rest] = m.model.split("/");
@@ -218,5 +213,5 @@ export async function parseInputFile(filePath: string): Promise<{
   // Calculate ranks with tie handling
   calculateRanks(models);
 
-  return { config, models };
+  return models;
 }

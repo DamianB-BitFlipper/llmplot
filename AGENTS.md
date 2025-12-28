@@ -38,13 +38,26 @@ Husky runs `typecheck` and `lint` on every commit. Commits will fail if either c
 
 ```
 src/
-├── index.ts      # CLI entry point (Commander.js)
-├── parser.ts     # YAML parsing & validation
-├── renderer.ts   # HTML generation with Twind
-├── providers.ts  # Provider colors & icon paths
-└── types.ts      # TypeScript interfaces
+├── index.ts              # CLI entry point
+├── core/                 # Pure core library (browser-compatible)
+│   ├── index.ts          # Public API exports
+│   ├── types.ts          # TypeScript interfaces
+│   ├── providers.ts      # Provider colors & inline icons
+│   ├── parser.ts         # YAML parsing & validation (no file I/O)
+│   ├── renderer.ts       # HTML generation with Twind
+│   └── assets.ts         # Bundled SVG icons & Geist font (auto-generated)
+├── cli/                  # CLI-specific code (Bun runtime)
+│   ├── index.ts          # Commander.js wrapper & file I/O
+│   └── screenshot.ts     # Puppeteer PNG/SVG export
 assets/
-└── icons/        # SVG icons per provider
+├── icons/                # SVG icons per provider (source files)
+└── fonts/                # Geist font (source file)
+website/                  # Astro static site
+├── src/
+│   ├── pages/
+│   ├── components/
+│   └── layouts/
+└── package.json
 ```
 
 ## Code Style Guidelines
@@ -170,14 +183,14 @@ style="width: ${percentage}%; background-color: ${color};"
 
 ## Adding a New Provider
 
-1. Add entry to `providers` object in `src/providers.ts`
-2. Add SVG icon to `assets/icons/{provider}.svg`
+1. Add SVG icon to `assets/icons/{provider}.svg`
+2. Run `bun run generate:assets` to regenerate `src/core/assets.ts`
+3. Add entry to `providers` object in `src/core/providers.ts`
 
 ```typescript
-// src/providers.ts
+// src/core/providers.ts
 "new-provider": {
   color: "#HEX_COLOR",
-  iconPath: "assets/icons/new-provider.svg",
 },
 ```
 

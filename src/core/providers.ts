@@ -1,53 +1,54 @@
 import type { ProviderConfig } from "./types.js";
+import { getIcon } from "./assets.js";
 
 /**
- * Provider configuration with colors and icon paths.
- * Fill in the colors and icon paths for each provider.
+ * Provider configuration with colors.
+ * Icons are loaded from bundled assets.
  */
-export const providers: Record<string, ProviderConfig> = {
+export const providers: Record<string, Omit<ProviderConfig, "iconPath"> & { iconKey: string }> = {
   anthropic: {
     color: "#DA7757",
-    iconPath: "assets/icons/anthropic.svg",
+    iconKey: "anthropic",
   },
   openai: {
     color: "#4BA080",
-    iconPath: "assets/icons/openai.svg",
+    iconKey: "openai",
   },
   google: {
     color: "#3186FF",
-    iconPath: "assets/icons/gemini.svg",
+    iconKey: "gemini",
   },
   meta: {
     color: "#0DACF1",
-    iconPath: "assets/icons/meta.svg",
+    iconKey: "meta",
   },
   mistralai: {
     color: "#FFAF02",
-    iconPath: "assets/icons/mistral.svg",
+    iconKey: "mistral",
   },
   "x-ai": {
     color: "#000000",
-    iconPath: "assets/icons/xai.svg",
+    iconKey: "xai",
   },
   "z-ai": {
     color: "#3859FF",
-    iconPath: "assets/icons/zhipu.svg",
+    iconKey: "zhipu",
   },
   "prime-intellect": {
     color: "#4D7B4D",
-    iconPath: "assets/icons/prime-intellect.svg",
+    iconKey: "prime-intellect",
   },
   qwen: {
     color: "#6336E8",
-    iconPath: "assets/icons/qwen.svg",
+    iconKey: "qwen",
   },
   deepseek: {
     color: "#4D6BFE",
-    iconPath: "assets/icons/deepseek.svg",
+    iconKey: "deepseek",
   },
   cohere: {
     color: "#D18EE2",
-    iconPath: "assets/icons/cohere.svg",
+    iconKey: "cohere",
   },
 };
 
@@ -71,7 +72,10 @@ export function getProviderConfig(provider: string): ProviderConfig {
 
   // 1. Exact match (case-insensitive)
   const exactMatch = keys.find((k) => k.toLowerCase() === input);
-  if (exactMatch) return providers[exactMatch];
+  if (exactMatch) {
+    const p = providers[exactMatch];
+    return { color: p.color, iconSvg: getIcon(p.iconKey) };
+  }
 
   // 2. Fuzzy match
   const matches = keys.filter((k) => {
@@ -93,9 +97,10 @@ export function getProviderConfig(provider: string): ProviderConfig {
 
   // 3. Single fuzzy match found
   if (matches.length === 1) {
-    return providers[matches[0]];
+    const p = providers[matches[0]];
+    return { color: p.color, iconSvg: getIcon(p.iconKey) };
   }
 
-  // 4. No match - fallback
-  return defaultConfig;
+  // 4. No match - fallback with placeholder icon
+  return { ...defaultConfig, iconSvg: getIcon(provider) };
 }
