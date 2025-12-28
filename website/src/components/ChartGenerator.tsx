@@ -93,7 +93,7 @@ export default function ChartGenerator({ publicAssetsBaseUrl = "/" }: ChartGener
 
   const shouldShowSupportModal = () => {
     if (typeof window === "undefined") return true;
-    return localStorage.getItem("llmplot-hide-support") !== "true";
+    return localStorage.getItem("llmplot-hide-support-modal") !== "true";
   };
 
   const handleDownloadHtml = () => {

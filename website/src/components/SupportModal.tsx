@@ -30,18 +30,32 @@ export function SupportModal({ isOpen, onClose, publicAssetsBaseUrl = "/" }: Sup
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
-        <div className="flex flex-col items-center text-center pt-2 pb-4">
+      <DialogContent className="sm:max-w-md" hideCloseButton>
+        <div className="flex flex-col items-center text-center pt-2 pb-1">
+          {/* Profile image */}
+          <div className="w-44 h-44 rounded-full overflow-hidden border-4 border-gray-200 mb-4">
+            <img
+              src={`${publicAssetsBaseUrl.replace(/\/$/, "")}/damian.jpg`}
+              alt="Damian Barabonkov"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Made by text */}
+          <p className="text-xl text-gray-500 mb-3">
+            made by <span className="font-bold text-gray-900">Damian Barabonkov</span>
+          </p>
+
           {/* Main text */}
-          <p className="text-lg text-gray-900 mb-1">
+          <p className="text-lg text-gray-900 leading-snug">
             The <span className="underline font-semibold">best way you can support me for free</span> is by
           </p>
-          <p className="text-lg text-gray-900 mb-4">
-            following me on X and starring this repo.
+          <p className="text-lg text-gray-900 leading-snug">
+            following me on and starring this repo.
           </p>
 
           {/* Secondary text */}
-          <p className="text-gray-500 mb-6 flex items-center gap-1">
+          <p className="text-sm text-gray-500 mt-1 mb-5 flex items-center gap-1 leading-snug">
             Not into socials? A coffee will do instead.
             <Heart className="w-4 h-4 text-gray-400" />
           </p>
