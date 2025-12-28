@@ -44,6 +44,12 @@ export interface RenderOptions {
    * 'web' - Self-contained fragment (<style> + <div>) for embedding, with inlined CSS and embedded font
    */
   mode: RenderMode;
+  /**
+   * Scale factor for the chart (default: 1.0).
+   * In web mode, wraps the chart in a CSS transform container.
+   * The chart is rendered at full size internally, then scaled via CSS transform.
+   */
+  scale?: number;
 }
 
 function escapeHtml(str: string): string {
@@ -183,7 +189,7 @@ export function renderChart(
   models: ProcessedModel[],
   options: RenderOptions
 ): string {
-  const { mode } = options;
+  const { mode, scale = 1 } = options;
   const showRankings = config.showRankings ?? false;
   const percentPrecision = config.percentPrecision ?? 0;
   
@@ -236,8 +242,7 @@ export function renderChart(
 
   if (mode === 'web') {
     // Web mode: Self-contained fragment with inlined CSS and embedded font
-    const rawHtml = `
-      <style>${fontFaceRule}</style>
+    const chartDiv = `
       <div 
         id="llmplot-chart" 
         class="bg-white rounded-xl shadow-sm flex flex-col" 
@@ -245,6 +250,25 @@ export function renderChart(
       >
         ${cardContent}
       </div>
+    `;
+
+    // Apply scale wrapper if scale !== 1
+    const needsScaling = scale !== 1;
+    const scaledWidth = cardWidth * scale;
+    const scaledHeight = cardHeight * scale;
+
+    const rawHtml = needsScaling
+      ? `
+      <style>${fontFaceRule}</style>
+      <div style="width: ${scaledWidth}px; height: ${scaledHeight}px; overflow: hidden;">
+        <div style="transform: scale(${scale}); transform-origin: top left;">
+          ${chartDiv}
+        </div>
+      </div>
+    `
+      : `
+      <style>${fontFaceRule}</style>
+      ${chartDiv}
     `;
     return inline(rawHtml);
   }

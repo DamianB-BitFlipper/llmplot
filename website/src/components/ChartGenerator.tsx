@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { parseYaml, processModels, renderChart, ParseError } from "../../../src/core/index.js";
+import { useState, useRef, useEffect } from "react";
+import { parseYaml, processModels, renderChart, ParseError, TARGET_OUTPUT_WIDTH, calculateLayoutDimensions } from "../../../src/core/index.js";
 
 const defaultYaml = `title: "Example Benchmark"
 subtitle: "Model Performance Comparison"
@@ -20,12 +20,30 @@ export default function ChartGenerator() {
   const [yaml, setYaml] = useState(defaultYaml);
   const [error, setError] = useState<string | null>(null);
   const [chartHtml, setChartHtml] = useState<string>("");
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Track container width with ResizeObserver
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver((entries) => {
+      setContainerWidth(entries[0].contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const generateChart = () => {
     try {
       const config = parseYaml(yaml);
       const models = processModels(config);
-      const html = renderChart(config, models, { mode: 'web' });
+      
+      // Calculate scale based on container width
+      const scale = containerWidth > 0 ? containerWidth / TARGET_OUTPUT_WIDTH : 1;
+      
+      const html = renderChart(config, models, { mode: 'web', scale });
       setChartHtml(html);
       setError(null);
     } catch (e) {
@@ -100,7 +118,10 @@ export default function ChartGenerator() {
           )}
         </div>
         
-        <div className="min-h-96 p-8 border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
+        <div 
+          ref={containerRef}
+          className="min-h-96 p-8 border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100"
+        >
           {chartHtml ? (
             <div 
               id="chart-preview"
