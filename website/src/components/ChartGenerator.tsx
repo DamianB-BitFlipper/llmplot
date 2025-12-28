@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Plus } from "lucide-react";
+import { Download, PlusCircle } from "lucide-react";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
@@ -150,8 +150,19 @@ export default function ChartGenerator() {
         </div>
 
         {/* Models Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Models</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Models</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addModel}
+              className="border-dashed"
+            >
+              <PlusCircle className="w-4 h-4 mr-1" />
+              Add Model
+            </Button>
+          </div>
           
           {chartConfig.models.map((model, index) => (
             <ModelCard
@@ -169,15 +180,6 @@ export default function ChartGenerator() {
               onMarkTouched={(field) => markTouched(model.id, field)}
             />
           ))}
-
-          <Button
-            variant="outline"
-            onClick={addModel}
-            className="w-full border-dashed"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Model
-          </Button>
         </div>
       </div>
 

@@ -374,7 +374,7 @@ export function useChartConfig() {
     setShowAllErrors(false);
     setChartConfig((prev) => ({
       ...prev,
-      models: [...prev.models, createEmptyModel()],
+      models: [createEmptyModel(), ...prev.models],
     }));
   }, []);
 
