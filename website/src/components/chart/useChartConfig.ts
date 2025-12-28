@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
-import { processModels, renderChart, calculateLayoutDimensions } from "../../../../src/core/index.js";
-import type { InputConfig, ModelData } from "../../../../src/core/index.js";
+import { processModels, renderChart, calculateLayoutDimensions } from "@core/index.js";
+import type { InputConfig, ModelData } from "@core/index.js";
 import type { ChartConfig, ModelConfig, ValidationErrors, CustomProvider } from "./types.js";
 import {
   chartConfigToYaml,

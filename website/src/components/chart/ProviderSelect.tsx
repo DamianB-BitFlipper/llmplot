@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
-import { getProviderGroups, getIcon, providers } from "../../../../src/core/index.js";
+import { getProviderGroups, getIcon, providers } from "@core/index.js";
 import type { CustomProvider } from "./types.js";
 import {
   Dropdown,

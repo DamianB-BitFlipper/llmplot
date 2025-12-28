@@ -20,6 +20,15 @@ const fontUrl = fonts["geist"];
     <link rel="icon" type="image/svg+xml" href={faviconIcon.src} />
     <title>{title}</title>
     
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FYGC7FZRM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1FYGC7FZRM');
+    </script>
+    
     <!-- Bundled Geist font -->
     <style set:html={`
       @font-face {
