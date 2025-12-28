@@ -125,11 +125,21 @@ function validateInputConfig(data: unknown): InputConfig {
     throw new ParseError("sponsoredBy must be a string");
   }
 
+  // Validate optional showRankings
+  if (d.showRankings !== undefined && typeof d.showRankings !== "boolean") {
+    throw new ParseError("showRankings must be a boolean");
+  }
+
   // Validate optional percentPrecision
   if (d.percentPrecision !== undefined) {
     if (typeof d.percentPrecision !== "number" || !Number.isInteger(d.percentPrecision) || d.percentPrecision < 0) {
       throw new ParseError("percentPrecision must be a non-negative integer");
     }
+  }
+
+  // Validate optional font
+  if (d.font !== undefined && typeof d.font !== "string") {
+    throw new ParseError("font must be a string");
   }
 
   if (!Array.isArray(d.models) || d.models.length === 0) {
@@ -142,9 +152,9 @@ function validateInputConfig(data: unknown): InputConfig {
     title: d.title,
     subtitle: d.subtitle as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
-    showRankings: d.showRankings === true,
-    percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
-    font: typeof d.font === "string" ? d.font : undefined,
+    showRankings: d.showRankings ?? false,
+    percentPrecision: d.percentPrecision ?? 0,
+    font: d.font as string | undefined,
     models,
   };
 }

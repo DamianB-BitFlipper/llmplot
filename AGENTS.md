@@ -202,7 +202,6 @@ YAML with required `title` and `models` array:
 title: "Benchmark Name"           # required
 subtitle: "Description"           # optional
 sponsoredBy: "Company"            # optional (footer)
-orientation: horizontal           # optional (horizontal|vertical)
 
 models:
   - model: "provider/model-name"  # required, format: provider/name

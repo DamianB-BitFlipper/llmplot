@@ -13,7 +13,6 @@ import {
   ParseError,
 } from "../core/index.js";
 import { renderToImage, getExportFormat } from "./screenshot.js";
-import type { ExportFormat } from "./screenshot.js";
 
 async function main(): Promise<void> {
   program
@@ -51,7 +50,7 @@ async function main(): Promise<void> {
         models.length,
         !!config.subtitle,
         !!config.sponsoredBy,
-        config.showRankings ?? false
+        config.showRankings
       );
 
       await renderToImage(html, outputPath, exportFormat, {
@@ -76,7 +75,3 @@ async function main(): Promise<void> {
 }
 
 main();
-
-// Re-export for programmatic CLI use
-export { renderToImage, getExportFormat };
-export type { ExportFormat };

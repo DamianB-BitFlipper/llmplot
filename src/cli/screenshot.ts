@@ -7,7 +7,7 @@ import puppeteer from "puppeteer";
 
 export type ExportFormat = "png" | "svg";
 
-export interface ImageDimensions {
+interface ImageDimensions {
   width: number;
   height: number;
   scaleFactor?: number;
@@ -42,10 +42,6 @@ export async function renderToImage(
       waitUntil: "networkidle0",
     });
 
-    // Output dimensions after scaling
-    const outputWidth = Math.round(width * scaleFactor);
-    const outputHeight = Math.round(height * scaleFactor);
-
     const clip = {
       x: 0,
       y: 0,
@@ -54,6 +50,9 @@ export async function renderToImage(
     };
 
     if (format === "svg") {
+      // Output dimensions after scaling
+      const outputWidth = Math.round(width * scaleFactor);
+      const outputHeight = Math.round(height * scaleFactor);
       // SVG export: Embed a high-resolution PNG as base64 inside an SVG
       // This ensures perfect rendering while providing a scalable format
       const pngBuffer = await page.screenshot({
@@ -80,7 +79,7 @@ export async function renderToImage(
       await page.screenshot({
         path: outputPath,
         type: "png",
-        fullPage: true,
+        clip,
       });
     }
   } finally {

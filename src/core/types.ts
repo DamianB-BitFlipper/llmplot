@@ -13,8 +13,8 @@ export interface InputConfig {
   title: string;
   subtitle?: string;
   sponsoredBy?: string;
-  showRankings?: boolean; // default: false
-  percentPrecision?: number; // default: 0, controls decimal places in percentage display
+  showRankings: boolean; // default: false
+  percentPrecision: number; // default: 0, controls decimal places in percentage display
   font?: string; // optional font family (e.g., "SF Pro"), defaults to system font
   models: ModelData[];
 }

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { parseYaml, processModels, renderChart, ParseError, TARGET_OUTPUT_WIDTH, calculateLayoutDimensions } from "../../../src/core/index.js";
+import { parseYaml, processModels, renderChart, ParseError, TARGET_OUTPUT_WIDTH } from "../../../src/core/index.js";
 
 const defaultYaml = `title: "Example Benchmark"
 subtitle: "Model Performance Comparison"
@@ -70,7 +70,11 @@ export default function ChartGenerator() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-      // Error already shown via generateChart
+      if (e instanceof ParseError) {
+        setError(e.message);
+      } else {
+        setError("An unexpected error occurred while generating download");
+      }
     }
   };
 

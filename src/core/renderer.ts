@@ -2,7 +2,7 @@ import { inline, install } from "@twind/core";
 import presetAutoprefix from "@twind/preset-autoprefix";
 import presetTailwind from "@twind/preset-tailwind";
 import type { InputConfig, ProcessedModel } from "./types.js";
-import { getIcon, geistFontBase64 } from "./assets.js";
+import { geistFontBase64 } from "./assets.js";
 
 // Initialize Twind once
 install({
@@ -64,18 +64,7 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/**
- * Get the icon SVG for a provider.
- * Uses bundled icons from assets.ts.
- */
-function loadIcon(provider: string): string {
-  const icon = getIcon(provider);
-  // getIcon returns a placeholder span if not found, otherwise returns SVG
-  if (icon.startsWith("<span")) {
-    return icon;
-  }
-  return icon;
-}
+
 
 function getRankBadge(rank: number): { bg: string; text: string } {
   if (rank === 1) return { bg: "#F59E0B", text: "white" }; // gold
@@ -104,7 +93,7 @@ function renderHorizontalChart(
         ` : ""}
         <!-- Icon -->
         <div class="shrink-0 flex items-center justify-center" style="width: ${ICON_SIZE}px; height: ${ICON_SIZE}px;">
-          ${m.providerConfig.iconSvg || loadIcon(m.provider)}
+          ${m.providerConfig.iconSvg}
         </div>
         
         <!-- Name + Bar stacked -->
@@ -206,8 +195,8 @@ export function renderChart(
   options: RenderOptions
 ): string {
   const { mode, scale = 1 } = options;
-  const showRankings = config.showRankings ?? false;
-  const percentPrecision = config.percentPrecision ?? 0;
+  const showRankings = config.showRankings;
+  const percentPrecision = config.percentPrecision;
   
   // Calculate layout dimensions based on content
   const { barContainerWidth, cardWidth, cardHeight, extraVerticalPadding } = calculateLayoutDimensions(
@@ -222,12 +211,14 @@ export function renderChart(
   
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
-  const requestedFont = config.font ?? "Geist Sans";
-  const fontFamily = `'${requestedFont}', ui-sans-serif, system-ui, sans-serif`;
+  const useCustomFont = !!config.font;
+  const fontName = config.font ?? "Geist Sans";
+  const fontFamily = `'${fontName}', ui-sans-serif, system-ui, sans-serif`;
   
-  const fontFaceRule = `
+  // Only embed Geist font if using the default font
+  const fontFaceRule = useCustomFont ? "" : `
     @font-face {
-      font-family: '${requestedFont}';
+      font-family: 'Geist Sans';
       src: url(data:font/woff2;base64,${geistFontBase64}) format('woff2');
       font-weight: 400;
       font-style: normal;

@@ -5,7 +5,7 @@ import { getIcon } from "./assets.js";
  * Provider configuration with colors.
  * Icons are loaded from bundled assets.
  */
-export const providers: Record<string, Omit<ProviderConfig, "iconPath"> & { iconKey: string }> = {
+export const providers: Record<string, { color: string; iconKey: string }> = {
   anthropic: {
     color: "#DA7757",
     iconKey: "anthropic",
@@ -52,55 +52,22 @@ export const providers: Record<string, Omit<ProviderConfig, "iconPath"> & { icon
   },
 };
 
-const defaultConfig: ProviderConfig = {
-  color: "#666666",
-};
+const DEFAULT_COLOR = "#666666";
 
 /**
- * Get provider configuration with fuzzy matching.
- * Matches are case-insensitive and support:
- * 1. Exact match
- * 2. Input starts with key (e.g., "meta-llama" matches "meta")
- * 3. Key starts with input
- * 4. Input contains key or key contains input
- *
- * Throws an error if multiple providers match (ambiguous).
+ * Get provider configuration with contains matching.
+ * Matches the first provider key contained in the input (case-insensitive).
+ * e.g., "meta-llama/model" matches "meta", "anthropic/claude" matches "anthropic"
  */
 export function getProviderConfig(provider: string): ProviderConfig {
   const input = provider.toLowerCase();
-  const keys = Object.keys(providers);
 
-  // 1. Exact match (case-insensitive)
-  const exactMatch = keys.find((k) => k.toLowerCase() === input);
-  if (exactMatch) {
-    const p = providers[exactMatch];
+  const match = Object.keys(providers).find((k) => input.includes(k.toLowerCase()));
+  if (match) {
+    const p = providers[match];
     return { color: p.color, iconSvg: getIcon(p.iconKey) };
   }
 
-  // 2. Fuzzy match
-  const matches = keys.filter((k) => {
-    const key = k.toLowerCase();
-    return (
-      input.startsWith(key) ||
-      key.startsWith(input) ||
-      input.includes(key) ||
-      key.includes(input)
-    );
-  });
-
-  // Error if multiple matches (ambiguous)
-  if (matches.length > 1) {
-    throw new Error(
-      `Ambiguous provider "${provider}" matches multiple: ${matches.join(", ")}`
-    );
-  }
-
-  // 3. Single fuzzy match found
-  if (matches.length === 1) {
-    const p = providers[matches[0]];
-    return { color: p.color, iconSvg: getIcon(p.iconKey) };
-  }
-
-  // 4. No match - fallback with placeholder icon
-  return { ...defaultConfig, iconSvg: getIcon(provider) };
+  // No match - fallback with placeholder icon
+  return { color: DEFAULT_COLOR, iconSvg: getIcon(provider) };
 }

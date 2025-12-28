@@ -18,15 +18,4 @@ export {
 export type { RenderOptions, RenderMode } from "./renderer.js";
 
 // Types
-export type {
-  InputConfig,
-  ModelData,
-  ProcessedModel,
-  ProviderConfig,
-} from "./types.js";
-
-// Assets (for advanced use cases)
-export { icons, geistFontBase64, getIcon } from "./assets.js";
-
-// Providers (for advanced use cases)
-export { providers, getProviderConfig } from "./providers.js";
+export type { InputConfig, ProcessedModel } from "./types.js";
