@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { parseYaml, processModels, renderChart, ParseError, TARGET_OUTPUT_WIDTH } from "../../../src/core/index.js";
+import { parseYaml, processModels, renderChart, calculateLayoutDimensions, ParseError } from "../../../src/core/index.js";
 
 const defaultYaml = `title: "Example Benchmark"
 subtitle: "Model Performance Comparison"
@@ -35,13 +35,21 @@ export default function ChartGenerator() {
     return () => observer.disconnect();
   }, []);
 
+  // Re-render chart when container width changes
+  useEffect(() => {
+    if (containerWidth > 0 && yaml) {
+      generateChart();
+    }
+  }, [containerWidth]);
+
   const generateChart = () => {
     try {
       const config = parseYaml(yaml);
       const models = processModels(config);
       
-      // Calculate scale based on container width
-      const scale = containerWidth > 0 ? containerWidth / TARGET_OUTPUT_WIDTH : 1;
+      // Calculate the actual background width for proper scaling
+      const dimensions = calculateLayoutDimensions(models.length, !!config.subtitle, !!config.sponsoredBy);
+      const scale = containerWidth > 0 ? containerWidth / dimensions.backgroundWidth : 1;
       
       const html = renderChart(config, models, { mode: 'web', scale });
       setChartHtml(html);
@@ -124,7 +132,7 @@ export default function ChartGenerator() {
         
         <div 
           ref={containerRef}
-          className="min-h-96 p-8 border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100"
+          className="border border-gray-300 rounded-lg overflow-hidden"
         >
           {chartHtml ? (
             <div 
