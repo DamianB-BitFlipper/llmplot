@@ -1,4 +1,4 @@
-import type { InputConfig, ProcessedModel } from "./types.js";
+import type { InputConfig, ProcessedModel, CustomProvider } from "./types.js";
 import { getProviderConfig } from "./providers.js";
 
 export class ValidationError extends Error {
@@ -66,8 +66,21 @@ function calculateRanks(models: ProcessedModel[]): void {
 /**
  * Process and sort models by percentage (best to worst).
  * Calculates ranks with tie handling.
+ * Custom providers override built-in providers when matching by key.
  */
 export function processModels(config: InputConfig): ProcessedModel[] {
+  // Build a lookup map for custom providers
+  const customProviderMap = new Map<string, CustomProvider>();
+  if (config.customProviders) {
+    for (const cp of config.customProviders) {
+      // Validate custom provider icon if present
+      if (cp.iconDataUrl !== undefined) {
+        validateIconDataUrl(cp.iconDataUrl, `customProviders[${cp.key}].iconDataUrl`);
+      }
+      customProviderMap.set(cp.key.toLowerCase(), cp);
+    }
+  }
+
   const models: ProcessedModel[] = config.models
     .map((m, index) => {
       const parts = m.model.split("/");
@@ -81,8 +94,13 @@ export function processModels(config: InputConfig): ProcessedModel[] {
         validateIconDataUrl(m.iconDataUrl, `models[${index}].iconDataUrl`);
       }
       
-      // Get default provider config
+      // Check for custom provider first (case-insensitive), then fall back to built-in
+      const customProvider = customProviderMap.get(provider.toLowerCase());
       const defaultConfig = getProviderConfig(provider);
+      
+      // Priority: model override > custom provider > built-in provider
+      const resolvedColor = m.color ?? customProvider?.color ?? defaultConfig.color;
+      const resolvedIconUrl = m.iconDataUrl ?? customProvider?.iconDataUrl ?? defaultConfig.iconUrl;
       
       return {
         ...m,
@@ -90,10 +108,9 @@ export function processModels(config: InputConfig): ProcessedModel[] {
         modelName,
         displayLabel: m.displayName ?? modelName ?? provider,
         percentage,
-        // Use model's custom color/icon if provided, otherwise use provider defaults
         providerConfig: {
-          color: m.color ?? defaultConfig.color,
-          iconUrl: m.iconDataUrl ?? defaultConfig.iconUrl,
+          color: resolvedColor,
+          iconUrl: resolvedIconUrl,
         },
         rank: 0, // will be calculated after sorting
         paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),

@@ -20,7 +20,7 @@ export function AdvancedContent({
     <Collapsible open={open}>
       <CollapsibleContent className="pt-2">
         <div className={cn(
-          "bg-muted/20 p-2 rounded-md border border-dashed",
+          "bg-muted/20 p-2 rounded-md border",
           className
         )}>
           {children}

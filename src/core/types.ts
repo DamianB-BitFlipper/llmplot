@@ -10,6 +10,16 @@ export interface ModelData {
   iconDataUrl?: string;  // optional base64 data URL for custom icon (data:image/svg+xml;base64,... or data:image/png;base64,...)
 }
 
+/**
+ * Custom provider definition for use in YAML config.
+ * Allows defining new providers beyond the built-in ones.
+ */
+export interface CustomProvider {
+  key: string;           // provider key used in model strings (e.g., "my-company")
+  color: string;         // hex color (e.g., "#FF5733")
+  iconDataUrl?: string;  // base64 data URL for icon (resolved from file path in CLI)
+}
+
 import type { FontFamily } from "./assets.js";
 
 export interface InputConfig {
@@ -19,6 +29,7 @@ export interface InputConfig {
   showRankings: boolean; // default: false
   percentPrecision: number; // default: 0, controls decimal places in percentage display
   font?: FontFamily; // optional font family, defaults to "sora"
+  customProviders?: CustomProvider[]; // optional custom provider definitions
   models: ModelData[];
 }
 

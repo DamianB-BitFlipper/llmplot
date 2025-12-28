@@ -164,7 +164,6 @@ export default function ChartGenerator() {
               variant="outline"
               size="sm"
               onClick={addModel}
-              className="border-dashed"
             >
               <PlusCircle className="w-4 h-4 mr-1" />
               Add Model

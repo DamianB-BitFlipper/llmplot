@@ -188,6 +188,7 @@ export function ModelCard({
                 size="small"
                 suffix="B"
                 placeholder="-"
+                optional
               />
             </ConfigCardColumn>
             <ConfigCardColumn>
@@ -199,6 +200,7 @@ export function ModelCard({
                 size="small"
                 suffix="B"
                 placeholder="-"
+                optional
               />
             </ConfigCardColumn>
             <ConfigCardColumn>

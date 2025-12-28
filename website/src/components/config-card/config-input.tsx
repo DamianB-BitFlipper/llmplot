@@ -6,12 +6,14 @@ interface ConfigInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEleme
   error?: string;
   suffix?: string;
   size?: 'normal' | 'small';
+  optional?: boolean;
 }
 
 export function ConfigInput({ 
   error,
   suffix,
   size = 'normal',
+  optional = false,
   value,
   className,
   ...props 
@@ -23,7 +25,7 @@ export function ConfigInput({
       value={value}
       className={cn(
         size === 'normal' ? "h-8 text-sm" : "h-7 text-xs bg-background",
-        isEmpty && "border-dashed",
+        isEmpty && !optional && "border-dashed",
         error && "border-destructive bg-destructive/5",
         suffix && (size === 'normal' ? "pr-6" : "pr-5"),
         className

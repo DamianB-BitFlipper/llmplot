@@ -1,6 +1,6 @@
 import { parse } from "yaml";
 import { resolve, extname } from "path";
-import type { InputConfig, ModelData } from "../core/types.js";
+import type { InputConfig, ModelData, CustomProvider } from "../core/types.js";
 import { fontFamilies, type FontFamily } from "../core/assets.js";
 
 export class ParseError extends Error {
@@ -34,6 +34,87 @@ async function readIconFile(iconPath: string, basePath: string, index: number): 
   } else {
     throw new ParseError(`models[${index}].icon: unsupported format "${ext}" (use .svg or .png)`);
   }
+}
+
+/**
+ * Raw custom provider from YAML before icon resolution.
+ */
+interface RawCustomProvider {
+  key: string;
+  color: string;
+  iconPath?: string; // file path before resolution to iconDataUrl
+}
+
+/**
+ * Regex for valid provider keys: lowercase alphanumeric with hyphens.
+ * Examples: "my-company", "acme", "foo-bar-123"
+ */
+const PROVIDER_KEY_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+/**
+ * Regex for valid hex colors.
+ */
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
+/**
+ * Read a custom provider icon file and return it as a base64 data URL.
+ */
+async function readProviderIconFile(iconPath: string, basePath: string, index: number): Promise<string> {
+  const fullPath = resolve(basePath, iconPath);
+  const file = Bun.file(fullPath);
+
+  if (!await file.exists()) {
+    throw new ParseError(`customProviders[${index}].icon: file not found: ${fullPath}`);
+  }
+
+  const ext = extname(iconPath).toLowerCase();
+  if (ext === ".svg") {
+    const svg = await file.text();
+    const base64 = Buffer.from(svg).toString("base64");
+    return `data:image/svg+xml;base64,${base64}`;
+  } else if (ext === ".png") {
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    return `data:image/png;base64,${base64}`;
+  } else {
+    throw new ParseError(`customProviders[${index}].icon: unsupported format "${ext}" (use .svg or .png)`);
+  }
+}
+
+/**
+ * Validate a single custom provider entry.
+ */
+function validateCustomProvider(provider: unknown, index: number): RawCustomProvider {
+  if (typeof provider !== "object" || provider === null) {
+    throw new ParseError(`customProviders[${index}] must be an object`);
+  }
+
+  const p = provider as Record<string, unknown>;
+
+  // Validate key (required)
+  if (typeof p.key !== "string" || !PROVIDER_KEY_PATTERN.test(p.key)) {
+    throw new ParseError(
+      `customProviders[${index}].key must be a lowercase string with alphanumeric characters and hyphens (e.g., "my-provider")`
+    );
+  }
+
+  // Validate color (required)
+  if (typeof p.color !== "string" || !HEX_COLOR_PATTERN.test(p.color)) {
+    throw new ParseError(
+      `customProviders[${index}].color must be a valid hex color (e.g., "#FF5733")`
+    );
+  }
+
+  // Validate optional icon (file path)
+  if (p.icon !== undefined && typeof p.icon !== "string") {
+    throw new ParseError(`customProviders[${index}].icon must be a string (file path)`);
+  }
+
+  return {
+    key: p.key,
+    color: p.color,
+    iconPath: p.icon as string | undefined,
+  };
 }
 
 interface RawModelData {
@@ -141,6 +222,7 @@ interface RawInputConfig {
   showRankings: boolean;
   percentPrecision: number;
   font?: FontFamily;
+  customProviders: RawCustomProvider[];
   models: RawModelData[];
 }
 
@@ -208,6 +290,15 @@ function validateInputConfig(data: unknown): RawInputConfig {
 
   const models = d.models.map((m, i) => validateModelData(m, i));
 
+  // Validate optional customProviders array
+  let customProviders: RawCustomProvider[] = [];
+  if (d.customProviders !== undefined) {
+    if (!Array.isArray(d.customProviders)) {
+      throw new ParseError("customProviders must be an array");
+    }
+    customProviders = d.customProviders.map((p, i) => validateCustomProvider(p, i));
+  }
+
   return {
     title: d.title,
     subtitle: d.subtitle as string | undefined,
@@ -215,6 +306,7 @@ function validateInputConfig(data: unknown): RawInputConfig {
     showRankings: (d.showRankings as boolean | undefined) ?? false,
     percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
     font: normalizedFont,
+    customProviders,
     models,
   };
 }
@@ -260,6 +352,22 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
     })
   );
 
+  // Resolve custom provider icon file paths
+  const customProviders: CustomProvider[] = await Promise.all(
+    rawConfig.customProviders.map(async (p, index) => {
+      let iconDataUrl: string | undefined;
+      if (p.iconPath) {
+        iconDataUrl = await readProviderIconFile(p.iconPath, resolvedBasePath, index);
+      }
+
+      return {
+        key: p.key,
+        color: p.color,
+        iconDataUrl,
+      };
+    })
+  );
+
   return {
     title: rawConfig.title,
     subtitle: rawConfig.subtitle,
@@ -267,6 +375,7 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
     showRankings: rawConfig.showRankings,
     percentPrecision: rawConfig.percentPrecision,
     font: rawConfig.font,
+    customProviders: customProviders.length > 0 ? customProviders : undefined,
     models,
   };
 }

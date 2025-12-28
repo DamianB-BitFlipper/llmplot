@@ -69,7 +69,7 @@ export function ProviderSelect({
               <span className="truncate">{currentDisplay.name}</span>
             </span>
           ) : (
-            <span className="text-muted-foreground">Select provider...</span>
+            <span className="text-muted-foreground">Select...</span>
           )}
         </DropdownTrigger>
         <DropdownContent>
