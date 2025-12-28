@@ -4,6 +4,7 @@
  */
 
 import { program } from "commander";
+import { dirname } from "path";
 import {
   processModels,
   renderChart,
@@ -32,7 +33,8 @@ async function main(): Promise<void> {
     }
 
     const yamlContent = await file.text();
-    const config = parseYaml(yamlContent);
+    const basePath = dirname(inputPath);
+    const config = await parseYaml(yamlContent, basePath);
     const models = processModels(config);
 
     // Render HTML (CLI mode with full document, embedded CSS/fonts)

@@ -46,13 +46,21 @@ export function processModels(config: InputConfig): ProcessedModel[] {
       const modelName = rest.join("/"); // handle case of multiple slashes
       const usePercent = m.percent !== undefined;
       const percentage = usePercent ? m.percent! : (m.positive! / m.total!) * 100;
+      
+      // Get default provider config
+      const defaultConfig = getProviderConfig(provider);
+      
       return {
         ...m,
         provider,
         modelName,
         displayLabel: m.displayName ?? modelName,
         percentage,
-        providerConfig: getProviderConfig(provider),
+        // Use model's custom color/icon if provided, otherwise use provider defaults
+        providerConfig: {
+          color: m.color ?? defaultConfig.color,
+          iconSvg: m.icon ?? defaultConfig.iconSvg,
+        },
         rank: 0, // will be calculated after sorting
         paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),
         usePercent,

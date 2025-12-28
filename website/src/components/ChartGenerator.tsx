@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Download, Plus } from "lucide-react";
 import { useChartForm, hasErrors } from "./chart/useChartForm.js";
 import { ModelCard } from "./chart/ModelCard.js";
+import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 
 const inputClass = (hasError: boolean) =>
   `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -8,6 +10,8 @@ const inputClass = (hasError: boolean) =>
   }`;
 
 export default function ChartGenerator() {
+  const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
+  
   const {
     form,
     errors,
@@ -18,6 +22,7 @@ export default function ChartGenerator() {
     updateModel,
     addModel,
     removeModel,
+    addCustomProvider,
     downloadHtml,
   } = useChartForm();
 
@@ -113,8 +118,10 @@ export default function ChartGenerator() {
               index={index}
               errors={errors.models[model.id] || {}}
               canRemove={form.models.length > 1}
+              customProviders={form.customProviders}
               onUpdate={(updates) => updateModel(model.id, updates)}
               onRemove={() => removeModel(model.id)}
+              onAddCustomProvider={() => setShowCustomProviderModal(true)}
             />
           ))}
 
@@ -158,6 +165,13 @@ export default function ChartGenerator() {
           )}
         </div>
       </div>
+
+      {/* Custom Provider Modal */}
+      <AddCustomProviderModal
+        isOpen={showCustomProviderModal}
+        onClose={() => setShowCustomProviderModal(false)}
+        onAdd={addCustomProvider}
+      />
     </div>
   );
 }

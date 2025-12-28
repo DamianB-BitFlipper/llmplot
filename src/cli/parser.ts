@@ -1,4 +1,5 @@
 import { parse } from "yaml";
+import { resolve, extname } from "path";
 import type { InputConfig, ModelData } from "../core/types.js";
 
 export class ParseError extends Error {
@@ -8,7 +9,43 @@ export class ParseError extends Error {
   }
 }
 
-function validateModelData(model: unknown, index: number): ModelData {
+/**
+ * Read an icon file and return it as an inline string.
+ * SVG files are returned as-is, PNG files are converted to base64 data URLs.
+ */
+async function readIconFile(iconPath: string, basePath: string, index: number): Promise<string> {
+  const fullPath = resolve(basePath, iconPath);
+  const file = Bun.file(fullPath);
+
+  if (!await file.exists()) {
+    throw new ParseError(`models[${index}].icon: file not found: ${fullPath}`);
+  }
+
+  const ext = extname(iconPath).toLowerCase();
+  if (ext === ".svg") {
+    return await file.text();
+  } else if (ext === ".png") {
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    return `data:image/png;base64,${base64}`;
+  } else {
+    throw new ParseError(`models[${index}].icon: unsupported format "${ext}" (use .svg or .png)`);
+  }
+}
+
+interface RawModelData {
+  model: string;
+  positive?: number;
+  total?: number;
+  percent?: number;
+  displayName?: string;
+  totalParams?: number;
+  activeParams?: number;
+  color?: string;
+  icon?: string; // file path before resolution
+}
+
+function validateModelData(model: unknown, index: number): RawModelData {
   if (typeof model !== "object" || model === null) {
     throw new ParseError(`models[${index}] must be an object`);
   }
@@ -79,19 +116,37 @@ function validateModelData(model: unknown, index: number): ModelData {
     }
   }
 
+  // Validate optional icon (file path)
+  if (m.icon !== undefined) {
+    if (typeof m.icon !== "string" || m.icon.trim() === "") {
+      throw new ParseError(`models[${index}].icon must be a non-empty string (file path)`);
+    }
+  }
+
   return {
     model: m.model,
-    positive: m.positive,
-    total: m.total,
-    percent: m.percent,
-    displayName: m.displayName,
-    totalParams: m.totalParams,
-    activeParams: m.activeParams,
-    color: m.color,
-  } as ModelData;
+    positive: m.positive as number | undefined,
+    total: m.total as number | undefined,
+    percent: m.percent as number | undefined,
+    displayName: m.displayName as string | undefined,
+    totalParams: m.totalParams as number | undefined,
+    activeParams: m.activeParams as number | undefined,
+    color: m.color as string | undefined,
+    icon: m.icon as string | undefined,
+  };
 }
 
-function validateInputConfig(data: unknown): InputConfig {
+interface RawInputConfig {
+  title: string;
+  subtitle?: string;
+  sponsoredBy?: string;
+  showRankings: boolean;
+  percentPrecision: number;
+  font?: string;
+  models: RawModelData[];
+}
+
+function validateInputConfig(data: unknown): RawInputConfig {
   if (typeof data !== "object" || data === null) {
     throw new ParseError("Input file must contain a YAML object");
   }
@@ -137,8 +192,8 @@ function validateInputConfig(data: unknown): InputConfig {
     title: d.title,
     subtitle: d.subtitle as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
-    showRankings: d.showRankings ?? false,
-    percentPrecision: d.percentPrecision ?? 0,
+    showRankings: (d.showRankings as boolean | undefined) ?? false,
+    percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
     font: d.font as string | undefined,
     models,
   };
@@ -147,8 +202,11 @@ function validateInputConfig(data: unknown): InputConfig {
 /**
  * Parse a YAML string into an InputConfig.
  * Throws ParseError if the YAML is invalid or doesn't match the expected schema.
+ * 
+ * @param yamlString - The YAML content to parse
+ * @param basePath - Base directory for resolving relative icon paths (defaults to cwd)
  */
-export function parseYaml(yamlString: string): InputConfig {
+export async function parseYaml(yamlString: string, basePath?: string): Promise<InputConfig> {
   let data: unknown;
 
   try {
@@ -157,5 +215,38 @@ export function parseYaml(yamlString: string): InputConfig {
     throw new ParseError(`Invalid YAML: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  return validateInputConfig(data);
+  const rawConfig = validateInputConfig(data);
+  const resolvedBasePath = basePath ?? process.cwd();
+
+  // Resolve icon file paths to inline strings
+  const models: ModelData[] = await Promise.all(
+    rawConfig.models.map(async (m, index) => {
+      let icon: string | undefined;
+      if (m.icon) {
+        icon = await readIconFile(m.icon, resolvedBasePath, index);
+      }
+
+      return {
+        model: m.model,
+        positive: m.positive,
+        total: m.total,
+        percent: m.percent,
+        displayName: m.displayName,
+        totalParams: m.totalParams,
+        activeParams: m.activeParams,
+        color: m.color,
+        icon,
+      };
+    })
+  );
+
+  return {
+    title: rawConfig.title,
+    subtitle: rawConfig.subtitle,
+    sponsoredBy: rawConfig.sponsoredBy,
+    showRankings: rawConfig.showRankings,
+    percentPrecision: rawConfig.percentPrecision,
+    font: rawConfig.font,
+    models,
+  };
 }

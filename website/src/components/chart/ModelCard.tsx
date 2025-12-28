@@ -1,13 +1,16 @@
 import { ChevronDown, ChevronRight, X } from "lucide-react";
-import type { ModelFormData, ModelValidationErrors } from "./types.js";
+import type { ModelFormData, ModelValidationErrors, CustomProvider } from "./types.js";
+import { ProviderSelect } from "./ProviderSelect.js";
 
 interface ModelCardProps {
   model: ModelFormData;
   index: number;
   errors: ModelValidationErrors;
   canRemove: boolean;
+  customProviders: CustomProvider[];
   onUpdate: (updates: Partial<ModelFormData>) => void;
   onRemove: () => void;
+  onAddCustomProvider: () => void;
 }
 
 const inputClass = (hasError: boolean) =>
@@ -15,7 +18,7 @@ const inputClass = (hasError: boolean) =>
     hasError ? "border-red-500 bg-red-50" : "border-gray-300"
   }`;
 
-export function ModelCard({ model, index, errors, canRemove, onUpdate, onRemove }: ModelCardProps) {
+export function ModelCard({ model, index, errors, canRemove, customProviders, onUpdate, onRemove, onAddCustomProvider }: ModelCardProps) {
   return (
     <div className="p-4 border border-gray-200 rounded-lg space-y-3 bg-white">
       <div className="flex items-center justify-between">
@@ -34,14 +37,13 @@ export function ModelCard({ model, index, errors, canRemove, onUpdate, onRemove 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Provider</label>
-          <input
-            type="text"
+          <ProviderSelect
             value={model.provider}
-            onChange={(e) => onUpdate({ provider: e.target.value })}
-            className={inputClass(!!errors.provider)}
-            placeholder="e.g., openai"
+            onChange={(value) => onUpdate({ provider: value })}
+            customProviders={customProviders}
+            onAddCustomClick={onAddCustomProvider}
+            error={errors.provider}
           />
-          {errors.provider && <p className="mt-1 text-xs text-red-600">{errors.provider}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Model Name</label>

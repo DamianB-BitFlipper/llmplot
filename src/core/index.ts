@@ -8,6 +8,13 @@
 // Parser
 export { processModels } from "./parser.js";
 
+// Providers
+export { getProviderGroups } from "./providers.js";
+export type { ProviderGroup, ProviderEntry } from "./providers.js";
+
+// Assets
+export { getIcon } from "./assets.js";
+
 // Renderer
 export {
   renderChart,

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { processModels, renderChart, calculateLayoutDimensions } from "../../../../src/core/index.js";
 import type { InputConfig, ModelData } from "../../../../src/core/index.js";
-import type { FormState, ModelFormData, ValidationErrors } from "./types.js";
+import type { FormState, ModelFormData, ValidationErrors, CustomProvider } from "./types.js";
 
 // Utilities
 function generateId(): string {
@@ -78,6 +78,7 @@ const defaultFormState: FormState = {
   percentPrecision: 0,
   font: "",
   models: defaultModels,
+  customProviders: [],
 };
 
 // Validation
@@ -152,6 +153,9 @@ export function hasErrors(errors: ValidationErrors): boolean {
 // Convert form state to InputConfig
 function formToConfig(form: FormState): InputConfig {
   const models: ModelData[] = form.models.map((m) => {
+    // Find custom provider if this model uses one
+    const customProvider = form.customProviders.find(cp => cp.key === m.provider);
+    
     const base: ModelData = {
       model: `${m.provider}/${m.modelName}`,
     };
@@ -172,8 +176,17 @@ function formToConfig(form: FormState): InputConfig {
     if (m.activeParams) {
       base.activeParams = parseInt(m.activeParams, 10);
     }
+    
+    // Use model's color override, or custom provider's color
     if (m.color) {
       base.color = m.color;
+    } else if (customProvider?.color) {
+      base.color = customProvider.color;
+    }
+    
+    // Use custom provider's icon if available
+    if (customProvider?.icon) {
+      base.icon = customProvider.icon;
     }
 
     return base;
@@ -298,6 +311,13 @@ export function useChartForm() {
     });
   }, []);
 
+  const addCustomProvider = useCallback((provider: CustomProvider) => {
+    setForm((prev) => ({
+      ...prev,
+      customProviders: [...prev.customProviders, provider],
+    }));
+  }, []);
+
   return {
     form,
     errors,
@@ -308,6 +328,7 @@ export function useChartForm() {
     updateModel,
     addModel,
     removeModel,
+    addCustomProvider,
     downloadHtml,
   };
 }
