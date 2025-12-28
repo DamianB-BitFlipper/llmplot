@@ -417,13 +417,13 @@ export function useChartConfig() {
     }));
   }, []);
 
-  const downloadHtml = useCallback(() => {
+  const downloadHtml = useCallback((): boolean => {
     const currentConfig = configRef.current;
     const validationErrors = validateConfig(currentConfig);
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
       setShowAllErrors(true);
-      return;
+      return false;
     }
 
     const toastId = toast.info("Downloading HTML...");
@@ -431,7 +431,7 @@ export function useChartConfig() {
     try {
       const renderConfig = toRenderConfig(currentConfig);
       const models = processModels(renderConfig);
-      const html = renderChart(renderConfig, models, { mode: 'web' });
+      const html = renderChart(renderConfig, models, { mode: 'cli' });
       
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -441,24 +441,26 @@ export function useChartConfig() {
       a.click();
       URL.revokeObjectURL(url);
       toast.success("HTML downloaded", { id: toastId });
+      return true;
     } catch {
       toast.error("Export failed", { id: toastId, description: "Could not generate HTML" });
+      return false;
     }
   }, []);
 
-  const downloadPng = useCallback(async () => {
+  const downloadPng = useCallback(async (): Promise<boolean> => {
     const currentConfig = configRef.current;
     const validationErrors = validateConfig(currentConfig);
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
       setShowAllErrors(true);
-      return;
+      return false;
     }
 
     const element = document.getElementById("chart-preview");
     if (!element) {
       toast.error("Export failed", { description: "Chart not found" });
-      return;
+      return false;
     }
 
     const toastId = toast.info("Downloading PNG...");
@@ -470,24 +472,26 @@ export function useChartConfig() {
       link.href = dataUrl;
       link.click();
       toast.success("PNG downloaded", { id: toastId });
+      return true;
     } catch {
       toast.error("Export failed", { id: toastId, description: "Could not generate PNG" });
+      return false;
     }
   }, []);
 
-  const downloadSvg = useCallback(async () => {
+  const downloadSvg = useCallback(async (): Promise<boolean> => {
     const currentConfig = configRef.current;
     const validationErrors = validateConfig(currentConfig);
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
       setShowAllErrors(true);
-      return;
+      return false;
     }
 
     const element = document.getElementById("chart-preview");
     if (!element) {
       toast.error("Export failed", { description: "Chart not found" });
-      return;
+      return false;
     }
 
     const toastId = toast.info("Downloading SVG...");
@@ -519,8 +523,10 @@ const width = Math.round(rect.width * 3);
       link.click();
       URL.revokeObjectURL(url);
       toast.success("SVG downloaded", { id: toastId });
+      return true;
     } catch {
       toast.error("Export failed", { id: toastId, description: "Could not generate SVG" });
+      return false;
     }
   }, []);
 

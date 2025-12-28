@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useChartConfig, hasErrors, formatErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
+import { SupportModal } from "./SupportModal.js";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,10 +30,15 @@ import { AdvancedContent } from "@/components/common/advanced-content";
 
 import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
 
-export default function ChartGenerator() {
+interface ChartGeneratorProps {
+  publicAssetsBaseUrl?: string;
+}
+
+export default function ChartGenerator({ publicAssetsBaseUrl = "/" }: ChartGeneratorProps) {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
   const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   
   const {
     chartConfig,
@@ -83,6 +89,32 @@ export default function ChartGenerator() {
 
     // Reset the input so the same file can be selected again
     e.target.value = "";
+  };
+
+  const shouldShowSupportModal = () => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("llmplot-hide-support") !== "true";
+  };
+
+  const handleDownloadHtml = () => {
+    const success = downloadHtml();
+    if (success && shouldShowSupportModal()) {
+      setShowSupportModal(true);
+    }
+  };
+
+  const handleDownloadPng = async () => {
+    const success = await downloadPng();
+    if (success && shouldShowSupportModal()) {
+      setShowSupportModal(true);
+    }
+  };
+
+  const handleDownloadSvg = async () => {
+    const success = await downloadSvg();
+    if (success && shouldShowSupportModal()) {
+      setShowSupportModal(true);
+    }
   };
 
   return (
@@ -299,7 +331,7 @@ export default function ChartGenerator() {
               <Button
                 variant="outline"
                 className="rounded-r-none border-r-0 bg-background/80 hover:bg-background backdrop-blur-sm focus:z-10 h-auto py-2 px-3"
-                onClick={downloadPng}
+                    onClick={handleDownloadPng}
               >
                 <Download className="w-4 h-4 mr-3" />
 <div className="flex flex-col items-center leading-tight">
@@ -318,21 +350,21 @@ export default function ChartGenerator() {
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-auto p-1">
                   <button
-                    onClick={downloadPng}
+                onClick={handleDownloadPng}
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                   >
                     <ImageIcon className="w-4 h-4" />
                     PNG
                   </button>
                   <button
-                    onClick={downloadSvg}
+                    onClick={handleDownloadSvg}
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                   >
                     <Shapes className="w-4 h-4" />
                     SVG
                   </button>
                   <button
-                    onClick={downloadHtml}
+                    onClick={handleDownloadHtml}
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                   >
                     <FileCode className="w-4 h-4" />
@@ -386,6 +418,13 @@ export default function ChartGenerator() {
           setShowCustomProviderModal(false);
           setCustomProviderTargetModelId(null);
         }}
+      />
+
+      {/* Support Modal */}
+      <SupportModal
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        publicAssetsBaseUrl={publicAssetsBaseUrl}
       />
     </div>
   );

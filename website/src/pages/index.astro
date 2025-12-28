@@ -2,9 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 import ChartGenerator from "../components/ChartGenerator";
 import { Toaster } from "../components/ui/sonner";
-import { StarIcon } from "../components/StarIcon";
+import { XFollowBadge } from "../components/badges/XFollowBadge";
+import { GitHubStarBadge } from "../components/badges/GitHubStarBadge";
+import { BuyMeCoffeeBadge } from "../components/badges/BuyMeCoffeeBadge";
 
 const faviconUrl = `${import.meta.env.BASE_URL}/favicon.svg`;
+const publicAssetsBaseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="LLM Plot - Generate Beautiful LLM Benchmark Charts">
@@ -20,45 +23,18 @@ const faviconUrl = `${import.meta.env.BASE_URL}/favicon.svg`;
         </div>
         
         <div class="flex items-center gap-2">
-          <!-- X (Twitter) Follow Badge -->
-          <a
-            href="https://x.com/TheBitFlipper"
-            target="_blank"
-            class="hidden md:flex h-9 items-center gap-2 px-3 bg-gray-100 border border-gray-300 rounded-full hover:border-gray-400 transition-colors"
-          >
-            <img src={`${import.meta.env.BASE_URL}/x-logo.svg`} alt="X" class="w-4 h-4" />
-            <span class="text-gray-700 text-sm font-medium hidden lg:inline">Follow</span>
-          </a>
-
-          <!-- GitHub Stars Badge -->
-          <a
-            href="https://github.com/DamianB-BitFlipper/llmplot"
-            target="_blank"
-            class="hidden md:flex h-9 items-center gap-2 px-3 bg-gray-100 border border-gray-300 rounded-full hover:border-gray-400 transition-colors group"
-          >
-            <img src={`${import.meta.env.BASE_URL}/github.svg`} alt="GitHub" class="w-4 h-4" />
-            <span class="text-gray-700 text-sm font-medium hidden lg:inline">GitHub</span>
-            <StarIcon client:load />
-            <img
-              src="https://img.shields.io/github/stars/DamianB-BitFlipper/llmplot?style=flat&label=&color=f3f4f6"
-              alt="Stars"
-              class="h-5"
-            />
-          </a>
-
-          <!-- Buy Me a Coffee -->
-          <a href="https://www.buymeacoffee.com/thebitflipper" target="_blank">
-            <img
-              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-              alt="Buy Me A Coffee"
-              class="h-9 w-auto"
-            />
-          </a>
+          <div class="hidden md:block">
+            <XFollowBadge publicAssetsBaseUrl={publicAssetsBaseUrl} client:load />
+          </div>
+          <div class="hidden md:block">
+            <GitHubStarBadge publicAssetsBaseUrl={publicAssetsBaseUrl} client:load />
+          </div>
+          <BuyMeCoffeeBadge client:load />
         </div>
       </div>
     </header>
     <div class="max-w-6xl mx-auto px-4 py-4">
-      <ChartGenerator client:only="react" />
+      <ChartGenerator publicAssetsBaseUrl={publicAssetsBaseUrl} client:only="react" />
     </div>
   </main>
   <Toaster client:load richColors position="bottom-right" />
