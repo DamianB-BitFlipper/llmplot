@@ -10,13 +10,15 @@ export interface ModelData {
   iconDataUrl?: string;  // optional base64 data URL for custom icon (data:image/svg+xml;base64,... or data:image/png;base64,...)
 }
 
+import type { FontFamily } from "./assets.js";
+
 export interface InputConfig {
   title: string;
   subtitle?: string;
   sponsoredBy?: string;
   showRankings: boolean; // default: false
   percentPrecision: number; // default: 0, controls decimal places in percentage display
-  font?: string; // optional font family (e.g., "SF Pro"), defaults to system font
+  font?: FontFamily; // optional font family, defaults to "sora"
   models: ModelData[];
 }
 

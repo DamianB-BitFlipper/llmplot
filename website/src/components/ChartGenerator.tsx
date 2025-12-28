@@ -16,6 +16,19 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+import { fontFamilies, fontDisplayNames, type FontFamily } from "./chart/types.js";
+
+// Map font family keys to their CSS font-family values
+const fontCssFamily: Record<FontFamily, string> = {
+  "geist": "'Geist', sans-serif",
+  "inter": "'Inter', sans-serif",
+  "ibm-plex-sans": "'IBM Plex Sans', sans-serif",
+  "libre-baskerville": "'Libre Baskerville', serif",
+  "manrope": "'Manrope', sans-serif",
+  "sora": "'Sora', sans-serif",
+  "space-grotesk": "'Space Grotesk', sans-serif",
+};
+
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   
@@ -109,19 +122,21 @@ export default function ChartGenerator() {
             <Label>Font:</Label>
             <Select
               value={chartConfig.font}
-              onValueChange={(value) => updateConfig({ font: value })}
+              onValueChange={(value) => updateConfig({ font: value as FontFamily })}
             >
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-44" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Geist Sans" style={{ fontFamily: "'Geist Sans', sans-serif" }}>Geist Sans</SelectItem>
-                <SelectItem value="Inter" style={{ fontFamily: "'Inter', sans-serif" }}>Inter</SelectItem>
-                <SelectItem value="Roboto" style={{ fontFamily: "'Roboto', sans-serif" }}>Roboto</SelectItem>
-                <SelectItem value="Open Sans" style={{ fontFamily: "'Open Sans', sans-serif" }}>Open Sans</SelectItem>
-                <SelectItem value="Lato" style={{ fontFamily: "'Lato', sans-serif" }}>Lato</SelectItem>
-                <SelectItem value="Montserrat" style={{ fontFamily: "'Montserrat', sans-serif" }}>Montserrat</SelectItem>
-                <SelectItem value=" " style={{ fontFamily: "system-ui, sans-serif" }}>System Default</SelectItem>
+                {fontFamilies.map((font) => (
+                  <SelectItem 
+                    key={font} 
+                    value={font}
+                    style={{ fontFamily: fontCssFamily[font] }}
+                  >
+                    {fontDisplayNames[font]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

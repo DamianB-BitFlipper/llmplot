@@ -76,7 +76,7 @@ const defaultChartConfig: ChartConfig = {
   sponsoredBy: "",
   showRankings: false,
   percentPrecision: 0,
-  font: "Geist Sans",
+  font: "sora",
   models: defaultModels,
   customProviders: [],
 };
@@ -198,7 +198,7 @@ function toRenderConfig(config: ChartConfig): InputConfig {
     sponsoredBy: config.sponsoredBy || undefined,
     showRankings: config.showRankings,
     percentPrecision: config.percentPrecision,
-    font: config.font || undefined,
+    font: config.font,
     models,
   };
 }
@@ -280,15 +280,47 @@ export function useChartConfig() {
     }
   }, [containerWidth]);
 
-  // Re-render chart when container width changes or chart-affecting data changes (debounced)
+  // Track last change time for leading-edge debounce
+  const lastChangeTimeRef = useRef<number>(0);
+  const isWaitingRef = useRef<boolean>(false);
+
+  // Re-render chart when container width changes or chart-affecting data changes
+  // Leading-edge debounce: render immediately on first change, then batch until 100ms pause
   useEffect(() => {
     if (containerWidth > 0) {
-      setIsGenerating(true);
-      const timeout = setTimeout(() => {
+      const now = Date.now();
+      const timeSinceLastChange = now - lastChangeTimeRef.current;
+      lastChangeTimeRef.current = now;
+
+      const doRender = () => {
+        isWaitingRef.current = false;
         generateChart();
         setIsGenerating(false);
-      }, 1000);
-      return () => clearTimeout(timeout);
+      };
+
+      // If not currently waiting and last change was > 100ms ago, render immediately
+      if (!isWaitingRef.current && timeSinceLastChange > 100) {
+        doRender();
+        return;
+      }
+
+      // Otherwise, debounce: wait for 100ms pause before rendering
+      isWaitingRef.current = true;
+
+      // Only show loading indicator if render takes longer than 250ms
+      const loadingTimeout = setTimeout(() => {
+        setIsGenerating(true);
+      }, 250);
+      
+      const renderTimeout = setTimeout(() => {
+        clearTimeout(loadingTimeout);
+        doRender();
+      }, 100);
+      
+      return () => {
+        clearTimeout(loadingTimeout);
+        clearTimeout(renderTimeout);
+      };
     }
   }, [containerWidth, chartFingerprint, generateChart]);
 

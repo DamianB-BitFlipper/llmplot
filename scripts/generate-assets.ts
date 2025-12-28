@@ -9,8 +9,19 @@ import { watch } from "fs";
 
 const ASSETS_DIR = "./assets";
 const ICONS_DIR = `${ASSETS_DIR}/icons`;
-const FONT_PATH = `${ASSETS_DIR}/fonts/Geist-Regular.woff2`;
+const FONTS_DIR = `${ASSETS_DIR}/fonts`;
 const OUTPUT_PATH = "./src/core/assets.ts";
+
+// Font files to bundle (order matters for the exported type)
+const FONT_FILES = [
+  { name: "geist", file: "Geist.ttf" },
+  { name: "ibm-plex-sans", file: "IBMPlexSans.ttf" },
+  { name: "inter", file: "Inter.ttf" },
+  { name: "libre-baskerville", file: "LibreBaskerville.ttf" },
+  { name: "manrope", file: "Manrope.ttf" },
+  { name: "sora", file: "Sora.ttf" },
+  { name: "space-grotesk", file: "SpaceGrotesk.ttf" },
+] as const;
 
 async function getIconFiles(): Promise<{ name: string; path: string }[]> {
   const glob = new Bun.Glob("*.svg");
@@ -37,7 +48,7 @@ function fontToDataUrl(buffer: ArrayBuffer): string {
     binary += String.fromCharCode(bytes[i]);
   }
   const base64 = btoa(binary);
-  return `data:font/woff2;base64,${base64}`;
+  return `data:font/ttf;base64,${base64}`;
 }
 
 async function generate(): Promise<void> {
@@ -53,10 +64,24 @@ async function generate(): Promise<void> {
     icons[name] = svgToDataUrl(svg);
   }
 
-  // Read font file
-  const fontFile = Bun.file(FONT_PATH);
-  const fontBuffer = await fontFile.arrayBuffer();
-  const fontDataUrl = fontToDataUrl(fontBuffer);
+  // Read all font files
+  const fonts: Record<string, string> = {};
+  for (const { name, file } of FONT_FILES) {
+    const fontFile = Bun.file(`${FONTS_DIR}/${file}`);
+    const fontBuffer = await fontFile.arrayBuffer();
+    fonts[name] = fontToDataUrl(fontBuffer);
+  }
+
+  // Generate font family names for CSS
+  const fontFamilyNames: Record<string, string> = {
+    "geist": "Geist",
+    "ibm-plex-sans": "IBM Plex Sans",
+    "inter": "Inter",
+    "libre-baskerville": "Libre Baskerville",
+    "manrope": "Manrope",
+    "sora": "Sora",
+    "space-grotesk": "Space Grotesk",
+  };
 
   // Generate TypeScript code
   const code = `/**
@@ -70,7 +95,36 @@ ${Object.entries(icons)
   .join("\n")}
 };
 
-export const geistFontDataUrl = "${fontDataUrl}";
+/** Available font families */
+export const fontFamilies = ["geist", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
+export type FontFamily = typeof fontFamilies[number];
+
+/** Font data URLs keyed by font family */
+export const fonts: Record<FontFamily, string> = {
+${Object.entries(fonts)
+  .map(([name, dataUrl]) => `  "${name}": "${dataUrl}",`)
+  .join("\n")}
+};
+
+/** CSS font-family names for each font */
+export const fontFamilyNames: Record<FontFamily, string> = {
+${Object.entries(fontFamilyNames)
+  .map(([name, family]) => `  "${name}": "${family}",`)
+  .join("\n")}
+};
+
+/** Default font family */
+export const defaultFont: FontFamily = "sora";
+
+/** Get font data URL by font family name */
+export function getFontUrl(font: FontFamily = defaultFont): string {
+  return fonts[font] ?? fonts[defaultFont];
+}
+
+/** Get CSS font-family name */
+export function getFontFamilyName(font: FontFamily = defaultFont): string {
+  return fontFamilyNames[font] ?? fontFamilyNames[defaultFont];
+}
 
 /**
  * Create a placeholder SVG with provider initials as a data URL.
@@ -101,7 +155,7 @@ export function getIcon(provider: string): string {
   await Bun.write(OUTPUT_PATH, code);
 
   const elapsed = (performance.now() - startTime).toFixed(0);
-  console.log(`Generated ${OUTPUT_PATH} (${iconFiles.length} icons, 1 font) in ${elapsed}ms`);
+  console.log(`Generated ${OUTPUT_PATH} (${iconFiles.length} icons, ${FONT_FILES.length} fonts) in ${elapsed}ms`);
 }
 
 // Main

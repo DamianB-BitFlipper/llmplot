@@ -22,13 +22,28 @@ export interface ModelConfig {
   showAdvanced: boolean;
 }
 
+/** Available font families */
+export const fontFamilies = ["geist", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
+export type FontFamily = typeof fontFamilies[number];
+
+/** Map font family keys to display names */
+export const fontDisplayNames: Record<FontFamily, string> = {
+  "geist": "Geist",
+  "ibm-plex-sans": "IBM Plex Sans",
+  "inter": "Inter",
+  "libre-baskerville": "Libre Baskerville",
+  "manrope": "Manrope",
+  "sora": "Sora",
+  "space-grotesk": "Space Grotesk",
+};
+
 export interface ChartConfig {
   title: string;
   subtitle: string;
   sponsoredBy: string;
   showRankings: boolean;
   percentPrecision: number;
-  font: string;
+  font: FontFamily;
   models: ModelConfig[];
   customProviders: CustomProvider[];
 }

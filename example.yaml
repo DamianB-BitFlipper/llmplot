@@ -3,7 +3,6 @@ subtitle: "Bash Only evaluates each LLM with a minimal agent on SWE-bench Verifi
 sponsoredBy: "DamianB-BitFlipper"
 showRankings: true
 percentPrecision: 1
-font: "Geist Sans"
 
 models:
   - model: "anthropic/claude-opus-4.5"

@@ -1,6 +1,7 @@
 import { parse } from "yaml";
 import { resolve, extname } from "path";
 import type { InputConfig, ModelData } from "../core/types.js";
+import { fontFamilies, type FontFamily } from "../core/assets.js";
 
 export class ParseError extends Error {
   constructor(message: string) {
@@ -142,7 +143,7 @@ interface RawInputConfig {
   sponsoredBy?: string;
   showRankings: boolean;
   percentPrecision: number;
-  font?: string;
+  font?: FontFamily;
   models: RawModelData[];
 }
 
@@ -177,9 +178,31 @@ function validateInputConfig(data: unknown): RawInputConfig {
     }
   }
 
-  // Validate optional font
-  if (d.font !== undefined && typeof d.font !== "string") {
-    throw new ParseError("font must be a string");
+  // Validate and normalize optional font
+  let normalizedFont: FontFamily | undefined;
+  if (d.font !== undefined) {
+    if (typeof d.font !== "string") {
+      throw new ParseError("font must be a string");
+    }
+    // Normalize: lowercase and handle common variations
+    const fontLower = d.font.toLowerCase().replace(/\s+/g, "-");
+    // Map common variations to canonical names
+    const fontMap: Record<string, FontFamily> = {
+      "geist": "geist",
+      "inter": "inter",
+      "ibm-plex-sans": "ibm-plex-sans",
+      "ibmplexsans": "ibm-plex-sans",
+      "plex-sans": "ibm-plex-sans",
+      "plexsans": "ibm-plex-sans",
+      "manrope": "manrope",
+      "sora": "sora",
+      "space-grotesk": "space-grotesk",
+      "spacegrotesk": "space-grotesk",
+    };
+    normalizedFont = fontMap[fontLower];
+    if (!normalizedFont) {
+      throw new ParseError(`font must be one of: ${fontFamilies.join(", ")}`);
+    }
   }
 
   if (!Array.isArray(d.models) || d.models.length === 0) {
@@ -194,7 +217,7 @@ function validateInputConfig(data: unknown): RawInputConfig {
     sponsoredBy: d.sponsoredBy as string | undefined,
     showRankings: (d.showRankings as boolean | undefined) ?? false,
     percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
-    font: d.font as string | undefined,
+    font: normalizedFont,
     models,
   };
 }

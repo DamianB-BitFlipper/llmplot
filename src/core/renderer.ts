@@ -2,7 +2,18 @@ import { inline, install } from "@twind/core";
 import presetAutoprefix from "@twind/preset-autoprefix";
 import presetTailwind from "@twind/preset-tailwind";
 import type { InputConfig, ProcessedModel } from "./types.js";
-import { geistFontDataUrl } from "./assets.js";
+import { fonts, type FontFamily } from "./assets.js";
+
+/** Map font family keys to display names */
+const fontDisplayNames: Record<FontFamily, string> = {
+  "geist": "Geist Sans",
+  "ibm-plex-sans": "IBM Plex Sans",
+  "inter": "Inter",
+  "libre-baskerville": "Libre Baskerville",
+  "manrope": "Manrope",
+  "sora": "Sora",
+  "space-grotesk": "Space Grotesk",
+};
 
 // Initialize Twind once
 install({
@@ -215,14 +226,16 @@ export function renderChart(
   
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
-  const fontName = config.font ?? "Geist Sans";
+  const fontKey: FontFamily = config.font ?? "sora";
+  const fontName = fontDisplayNames[fontKey];
+  const fontDataUrl = fonts[fontKey];
   const fontFamily = `'${fontName}', ui-sans-serif, system-ui, sans-serif`;
   
-  // Only embed Geist font if using the default font
-  const fontFaceRule = config.font ? "" : `
+  // Always embed the selected font
+  const fontFaceRule = `
     @font-face {
-      font-family: 'Geist Sans';
-      src: url(${geistFontDataUrl}) format('woff2');
+      font-family: '${fontName}';
+      src: url(${fontDataUrl}) format('truetype');
       font-weight: 400;
       font-style: normal;
       font-display: swap;

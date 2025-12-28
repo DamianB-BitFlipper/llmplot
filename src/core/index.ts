@@ -13,7 +13,8 @@ export { getProviderGroups } from "./providers.js";
 export type { ProviderGroup, ProviderEntry } from "./providers.js";
 
 // Assets
-export { getIcon } from "./assets.js";
+export { getIcon, fontFamilies, fonts } from "./assets.js";
+export type { FontFamily } from "./assets.js";
 
 // Renderer
 export {
