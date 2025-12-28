@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Download, PlusCircle } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { Download, PlusCircle, ChevronRight } from "lucide-react";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
@@ -14,6 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 import { fontFamilies, fontDisplayNames, type FontFamily } from "./chart/types.js";
@@ -31,6 +36,8 @@ const fontCssFamily: Record<FontFamily, string> = {
 
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
+  const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
+  const subtitleRef = useRef<HTMLTextAreaElement>(null);
   
   const {
     chartConfig,
@@ -54,99 +61,122 @@ export default function ChartGenerator() {
       {/* Form Panel */}
       <div className="space-y-4">
         {/* Header & Options Compact Section */}
-        <div className="p-3 border rounded-lg bg-card space-y-3">
-          <div className="grid grid-cols-12 gap-3">
-            <div className="col-span-12 md:col-span-4 space-y-1">
-              <Label htmlFor="title" className="text-[10px] uppercase text-muted-foreground font-semibold">
-                Title <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={chartConfig.title}
-                onChange={(e) => updateConfig({ title: e.target.value })}
-                className={cn("h-8 text-sm", errors.title && "border-destructive bg-destructive/10")}
-                placeholder="Benchmark Title"
-              />
-            </div>
-
-            <div className="col-span-6 md:col-span-4 space-y-1">
-              <Label htmlFor="subtitle" className="text-[10px] uppercase text-muted-foreground font-semibold">Subtitle</Label>
-              <Input
-                id="subtitle"
-                value={chartConfig.subtitle}
-                onChange={(e) => updateConfig({ subtitle: e.target.value })}
-                placeholder="Optional description"
-                className="h-8 text-sm"
-              />
-            </div>
-
-            <div className="col-span-6 md:col-span-4 space-y-1">
-              <Label htmlFor="sponsoredBy" className="text-[10px] uppercase text-muted-foreground font-semibold">Sponsored By</Label>
-              <Input
-                id="sponsoredBy"
-                value={chartConfig.sponsoredBy}
-                onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
-                placeholder="Optional sponsor"
-                className="h-8 text-sm"
-              />
-            </div>
+        <div className="pt-2 pb-3 px-3 border rounded-lg bg-card space-y-2">
+          {/* Title - Full Row */}
+          <div>
+            <Label htmlFor="title" className="text-xs text-muted-foreground font-medium">
+              Title
+            </Label>
+            <Input
+              id="title"
+              value={chartConfig.title}
+              onChange={(e) => updateConfig({ title: e.target.value })}
+              className={cn("h-8 text-sm mt-1", !chartConfig.title && "border-dashed")}
+              placeholder="Benchmark Title"
+            />
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="showRankings"
-                checked={chartConfig.showRankings}
-                onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
-              />
-              <Label htmlFor="showRankings" className="text-xs cursor-pointer font-medium">
-                Show Rankings
-              </Label>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-xs font-medium text-muted-foreground">Precision</Label>
-                <Select
-                  value={String(chartConfig.percentPrecision)}
-                  onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
-                >
-                  <SelectTrigger className="w-12 h-7 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0</SelectItem>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Label className="text-xs font-medium text-muted-foreground">Font</Label>
-                <Select
-                  value={chartConfig.font}
-                  onValueChange={(value) => updateConfig({ font: value as FontFamily })}
-                >
-                  <SelectTrigger className="w-32 h-7 text-xs" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fontFamilies.map((font) => (
-                      <SelectItem 
-                        key={font} 
-                        value={font}
-                        style={{ fontFamily: fontCssFamily[font] }}
-                      >
-                        {fontDisplayNames[font]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          {/* Subtitle - Full Row, Auto-growing Textarea */}
+          <div>
+            <Label htmlFor="subtitle" className="text-xs text-muted-foreground font-medium">Subtitle</Label>
+            <textarea
+              ref={subtitleRef}
+              id="subtitle"
+              value={chartConfig.subtitle}
+              onChange={(e) => {
+                updateConfig({ subtitle: e.target.value });
+                // Auto-grow logic
+                const textarea = e.target;
+                textarea.style.height = 'auto';
+                const lineHeight = 20;
+                const maxHeight = lineHeight * 3; // 3 rows max before scroll
+                textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+              }}
+              placeholder="Optional description"
+              rows={1}
+              className={cn(
+                "flex w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto mt-1",
+                !chartConfig.subtitle && "border-dashed"
+              )}
+              style={{ minHeight: '32px', maxHeight: '60px' }}
+            />
           </div>
+
+          {/* Advanced Section - Collapsible, styled like ModelCard */}
+          <Collapsible open={headerAdvancedOpen} onOpenChange={setHeaderAdvancedOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 -ml-2">
+                <span className="font-medium">Advanced</span>
+                <ChevronRight className={cn("h-3 w-3 transition-transform", headerAdvancedOpen && "rotate-90")} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2">
+              <div className="flex flex-wrap gap-x-4 gap-y-3 items-end bg-muted/20 p-2 rounded-md border border-dashed">
+                <div className="space-y-1">
+                  <Label htmlFor="sponsoredBy" className="text-[9px] text-muted-foreground uppercase font-semibold">Sponsored By</Label>
+                  <Input
+                    id="sponsoredBy"
+                    value={chartConfig.sponsoredBy}
+                    onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
+                    placeholder="Optional"
+                    className={cn("h-7 text-xs w-32 bg-background", !chartConfig.sponsoredBy && "border-dashed")}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 h-7">
+                  <Checkbox
+                    id="showRankings"
+                    checked={chartConfig.showRankings}
+                    onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
+                  />
+                  <Label htmlFor="showRankings" className="text-xs cursor-pointer font-medium">
+                    Show Rankings
+                  </Label>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-[9px] text-muted-foreground uppercase font-semibold">Precision</Label>
+                  <Select
+                    value={String(chartConfig.percentPrecision)}
+                    onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
+                  >
+                    <SelectTrigger className="w-14 h-7 text-xs bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0</SelectItem>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-[9px] text-muted-foreground uppercase font-semibold">Font</Label>
+                  <Select
+                    value={chartConfig.font}
+                    onValueChange={(value) => updateConfig({ font: value as FontFamily })}
+                  >
+                    <SelectTrigger className="w-28 h-7 text-xs bg-background" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fontFamilies.map((font) => (
+                        <SelectItem 
+                          key={font} 
+                          value={font}
+                          style={{ fontFamily: fontCssFamily[font] }}
+                        >
+                          {fontDisplayNames[font]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
         {/* Models Section */}
