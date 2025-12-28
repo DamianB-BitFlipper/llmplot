@@ -44,8 +44,24 @@ Models are automatically sorted by score (best first).
 
 ## Adding Provider Colors
 
-Edit `src/providers.ts` to customize colors for each provider.
+Edit `src/core/providers.ts` to customize colors for each provider.
 
 ## Adding Provider Icons
 
-Add SVG files to `common_assets/provider_logos/` named `{provider}.svg` (e.g., `anthropic.svg`).
+Add SVG files to `common_assets/provider_logos/` named `{provider}.svg` (e.g., `anthropic.svg`), then run:
+
+```bash
+bun run generate:assets
+```
+
+## Website
+
+The interactive chart generator website is located at `src/website/`.
+
+```bash
+# Development
+bun run website:dev
+
+# Build for production
+bun run website:build
+```

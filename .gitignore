@@ -7,4 +7,4 @@ dist/
 my_*
 
 # Astro cache
-website/.astro/
+src/website/.astro/

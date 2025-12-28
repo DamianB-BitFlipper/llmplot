@@ -28,6 +28,11 @@ bun run lint:fix    # auto-fix issues
 
 # Build for distribution
 bun run build
+
+# Website commands
+bun run website:dev      # Start dev server
+bun run website:build    # Build for production
+bun run website:preview  # Preview production build
 ```
 
 ### Pre-commit Hooks
@@ -43,21 +48,24 @@ src/
 │   ├── index.ts          # Public API exports
 │   ├── types.ts          # TypeScript interfaces
 │   ├── providers.ts      # Provider colors & inline icons
-│   ├── parser.ts         # YAML parsing & validation (no file I/O)
+│   ├── preprocessor.ts   # YAML parsing & validation (no file I/O)
 │   ├── renderer.ts       # HTML generation with Twind
-│   └── assets.ts         # Bundled SVG icons & Geist font (auto-generated)
+│   └── assets.ts         # Bundled SVG icons & fonts (auto-generated)
 ├── cli/                  # CLI-specific code (Bun runtime)
 │   ├── index.ts          # Commander.js wrapper & file I/O
+│   ├── parser.ts         # File I/O for YAML parsing
 │   └── screenshot.ts     # Puppeteer PNG/SVG export
-assets/
-├── icons/                # SVG icons per provider (source files)
-└── fonts/                # Geist font (source file)
-website/                  # Astro static site
-├── src/
-│   ├── pages/
-│   ├── components/
-│   └── layouts/
-└── package.json
+└── website/              # Astro static site (uses core library)
+    ├── src/
+    │   ├── pages/
+    │   ├── components/
+    │   └── layouts/
+    ├── public/
+    ├── astro.config.mjs
+    └── tailwind.config.mjs
+common_assets/
+├── provider_logos/       # SVG icons per provider (source files)
+└── fonts/                # Font files (source files)
 ```
 
 ## Code Style Guidelines
@@ -83,7 +91,7 @@ const fullPath = new URL(`../${relativePath}`, import.meta.url).pathname;
 
 - Use `.js` extensions for local imports (ESM requirement)
 - Use `type` keyword for type-only imports
-- Order: external deps → local imports → types
+- Order: external deps -> local imports -> types
 
 ```typescript
 import { program } from "commander";
@@ -215,3 +223,17 @@ Self-contained HTML with:
 - Inlined CSS (extracted by Twind)
 - Inlined SVG icons (read from assets/ at build time)
 - No external dependencies required to view
+
+## Website Development
+
+The website is at `src/website/` and shares the root `package.json` dependencies.
+
+```bash
+# Development
+bun run website:dev
+
+# Production build
+bun run website:build
+```
+
+The website imports from `src/core/` using the `@core/*` path alias configured in `src/website/tsconfig.json` and `src/website/astro.config.mjs`.
