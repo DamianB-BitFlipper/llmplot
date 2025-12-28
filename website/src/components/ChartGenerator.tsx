@@ -34,6 +34,7 @@ const fontCssFamily: Record<FontFamily, string> = {
 
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
+  const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
   const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
   
   const {
@@ -193,7 +194,10 @@ export default function ChartGenerator() {
               customProviders={chartConfig.customProviders}
               onUpdate={(updates) => updateModel(model.id, updates)}
               onRemove={() => removeModel(model.id)}
-              onAddCustomProvider={() => setShowCustomProviderModal(true)}
+              onAddCustomProvider={() => {
+                setCustomProviderTargetModelId(model.id);
+                setShowCustomProviderModal(true);
+              }}
               onDeleteCustomProvider={removeCustomProvider}
               onMarkTouched={(field) => markTouched(model.id, field)}
             />
@@ -240,8 +244,19 @@ export default function ChartGenerator() {
       {/* Custom Provider Modal */}
       <AddCustomProviderModal
         isOpen={showCustomProviderModal}
-        onClose={() => setShowCustomProviderModal(false)}
-        onAdd={addCustomProvider}
+        onClose={() => {
+          setShowCustomProviderModal(false);
+          setCustomProviderTargetModelId(null);
+        }}
+        onAdd={(provider) => {
+          addCustomProvider(provider);
+          // Auto-select the new provider for the model that triggered the modal
+          if (customProviderTargetModelId) {
+            updateModel(customProviderTargetModelId, { provider: provider.key });
+          }
+          setShowCustomProviderModal(false);
+          setCustomProviderTargetModelId(null);
+        }}
       />
     </div>
   );

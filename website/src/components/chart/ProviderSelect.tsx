@@ -56,7 +56,7 @@ export function ProviderSelect({
   return (
     <div className="space-y-1">
       <Dropdown value={value} onValueChange={onChange}>
-        <DropdownTrigger className={cn("h-8 text-sm", error && "border-destructive", className)}>
+        <DropdownTrigger className={cn("h-8 text-sm", !currentDisplay && "border-dashed", error && "border-destructive", className)}>
           {currentDisplay ? (
             <span className="flex items-center gap-2">
               <img
@@ -122,7 +122,7 @@ export function ProviderSelect({
 
           {/* Add custom option */}
           <DropdownSeparator />
-          <DropdownItem value="__add_custom__" onSelect={onAddCustomClick}>
+          <DropdownItem value="__add_custom__" onSelect={onAddCustomClick} keepOpen>
             <span className="flex items-center gap-2 text-muted-foreground">
               <Plus className="w-4 h-4" />
               <span>Custom...</span>
