@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
-import { getProviderGroups, getIcon } from "../../../../src/core/index.js";
+import { getProviderGroups, getIcon, providers } from "../../../../src/core/index.js";
 import type { CustomProvider } from "./types.js";
 import {
   Dropdown,
@@ -38,10 +38,15 @@ export function ProviderSelect({
 
   // Find current selection display info
   const getCurrentDisplay = () => {
-    // Check built-in providers
+    // Check built-in providers - first try exact match on group keys
     const builtIn = providerGroups.find((p) => p.key === value);
     if (builtIn) {
       return { name: builtIn.group, iconKey: builtIn.iconKey, color: builtIn.color };
+    }
+    // Check all provider keys (handles aliases like "meta-llama" -> "Meta" group)
+    const providerEntry = providers[value];
+    if (providerEntry) {
+      return { name: providerEntry.group, iconKey: providerEntry.iconKey, color: providerEntry.color };
     }
     // Check custom providers
     const custom = customProviders.find((p) => p.key === value);

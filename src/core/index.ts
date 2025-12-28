@@ -9,7 +9,7 @@
 export { processModels, ValidationError } from "./preprocessor.js";
 
 // Providers
-export { getProviderGroups } from "./providers.js";
+export { getProviderGroups, providers } from "./providers.js";
 export type { ProviderGroup, ProviderEntry } from "./providers.js";
 
 // Assets
