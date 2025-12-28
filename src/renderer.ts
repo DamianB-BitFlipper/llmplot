@@ -162,51 +162,6 @@ async function renderHorizontalChart(
   return `<div class="flex flex-col">${rows.join("\n")}</div>`;
 }
 
-async function renderVerticalChart(models: ProcessedModel[], showRankings: boolean, percentPrecision: number): Promise<string> {
-  const columns = await Promise.all(
-    models.map(
-      async (m) => `
-        <div class="flex flex-col items-center gap-2" style="width: 70px; flex-shrink: 0;">
-          <!-- Bar container -->
-          <div class="w-10 bg-gray-200 rounded-full flex flex-col justify-end overflow-hidden" style="height: 200px;">
-            <div 
-              class="w-full rounded-full flex items-start justify-center pt-2"
-              style="height: ${m.percentage.toFixed(1)}%; background-color: ${m.color ?? m.providerConfig.color};"
-            >
-              <span class="text-xs font-semibold text-white drop-shadow-sm">
-                ${m.percentage.toFixed(percentPrecision)}%
-              </span>
-            </div>
-          </div>
-          
-          ${showRankings ? `
-          <!-- Rank badge -->
-          <div 
-            class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
-            style="background-color: ${getRankBadge(m.rank).bg}; color: ${getRankBadge(m.rank).text};"
-          >
-            ${m.rank}
-          </div>
-          ` : ""}
-          
-          <!-- Icon -->
-          <div class="w-8 h-8 flex items-center justify-center shrink-0">
-            ${await loadIcon(m.providerConfig.iconPath, m.provider)}
-          </div>
-          
-          <!-- Model name -->
-          <div class="text-xs text-gray-600 text-center overflow-hidden" style="width: 70px;" title="${escapeHtml(m.displayLabel)}">
-            <span class="block truncate">${escapeHtml(m.displayLabel)}</span>
-          </div>
-        </div>`
-    )
-  );
-  return `
-    <div class="flex items-end justify-start gap-2 overflow-x-auto pb-2">
-      ${columns.join("\n")}
-    </div>`;
-}
-
 function getRankBadge(rank: number): { bg: string; text: string } {
   if (rank === 1) return { bg: "#F59E0B", text: "white" }; // gold
   if (rank === 2) return { bg: "#9CA3AF", text: "white" }; // silver
@@ -287,7 +242,6 @@ export function calculateLayoutDimensions(
 }
 
 export async function renderHtml(config: InputConfig, models: ProcessedModel[]): Promise<string> {
-  const isVertical = config.orientation === "vertical";
   const showRankings = config.showRankings ?? false;
   
   // Default font is Geist Sans
@@ -329,9 +283,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   );
   
   const percentPrecision = config.percentPrecision ?? 0;
-  const chartHtml = isVertical 
-    ? await renderVerticalChart(models, showRankings, percentPrecision) 
-    : await renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
+  const chartHtml = await renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">

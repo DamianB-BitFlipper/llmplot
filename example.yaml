@@ -1,7 +1,6 @@
 title: "SWE-bench Leaderboards"
 subtitle: "Bash Only evaluates each LLM with a minimal agent on SWE-bench Verified · 500 instances"
 sponsoredBy: "DamianB-BitFlipper"
-orientation: horizontal
 showRankings: true
 percentPrecision: 1
 font: "Geist Sans"

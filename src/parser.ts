@@ -125,10 +125,6 @@ function validateInputConfig(data: unknown): InputConfig {
     throw new ParseError("sponsoredBy must be a string");
   }
 
-  if (d.orientation !== undefined && d.orientation !== "horizontal" && d.orientation !== "vertical") {
-    throw new ParseError('orientation must be "horizontal" or "vertical"');
-  }
-
   // Validate optional percentPrecision
   if (d.percentPrecision !== undefined) {
     if (typeof d.percentPrecision !== "number" || !Number.isInteger(d.percentPrecision) || d.percentPrecision < 0) {
@@ -146,7 +142,6 @@ function validateInputConfig(data: unknown): InputConfig {
     title: d.title,
     subtitle: d.subtitle as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
-    orientation: (d.orientation as "horizontal" | "vertical") ?? "horizontal",
     showRankings: d.showRankings === true,
     percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
     font: typeof d.font === "string" ? d.font : undefined,

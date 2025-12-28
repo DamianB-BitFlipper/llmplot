@@ -9,13 +9,10 @@ export interface ModelData {
   color?: string;        // optional hex color override (e.g., "#FF5733")
 }
 
-export type Orientation = "horizontal" | "vertical";
-
 export interface InputConfig {
   title: string;
   subtitle?: string;
   sponsoredBy?: string;
-  orientation?: Orientation;
   showRankings?: boolean; // default: false
   percentPrecision?: number; // default: 0, controls decimal places in percentage display
   font?: string; // optional font family (e.g., "SF Pro"), defaults to system font
