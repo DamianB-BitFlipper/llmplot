@@ -17,9 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./website
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,12 +30,12 @@ jobs:
         run: bun install
 
       - name: Build Astro site
-        run: bun run build
+        run: bun run website:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./website/dist
+          path: ./dist/website
 
   deploy:
     needs: build
