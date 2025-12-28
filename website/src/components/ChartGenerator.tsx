@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save } from "lucide-react";
+import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes } from "lucide-react";
 import { toast } from "sonner";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
@@ -265,39 +265,52 @@ export default function ChartGenerator() {
             <div className="absolute inset-0 bg-muted/50 z-20" />
           )}
           {chartHtml && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="absolute top-3 right-3 z-10 bg-background/80 hover:bg-background"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  Download as...
-                  <ChevronDown className="w-4 h-4 ml-1" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-40 p-1">
-                <button
-                  onClick={downloadHtml}
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground"
-                >
-                  HTML
-                </button>
-                <button
-                  onClick={() => toast.info("PNG export coming soon")}
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                >
-                  PNG
-                </button>
-                <button
-                  onClick={() => toast.info("SVG export coming soon")}
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                >
-                  SVG
-                </button>
-              </PopoverContent>
-            </Popover>
+            <div className="absolute top-3 right-3 z-10 flex rounded-md shadow-sm isolate">
+              <Button
+                variant="outline"
+                className="rounded-r-none border-r-0 bg-background/80 hover:bg-background backdrop-blur-sm focus:z-10 h-auto py-2 px-3"
+                onClick={() => toast.info("PNG export coming soon")}
+              >
+                <Download className="w-4 h-4 mr-3" />
+<div className="flex flex-col items-center leading-tight">
+                                  <span className="text-sm font-medium">Download</span>
+                                  <span className="text-[11px] text-muted-foreground">PNG</span>
+                                </div>
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="rounded-l-none px-2 bg-background/80 hover:bg-background backdrop-blur-sm [&[data-state=open]_.chevron]:rotate-180 transition-all focus:z-10 h-auto py-2"
+                  >
+                    <ChevronDown className="w-4 h-4 chevron transition-transform duration-200" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-1">
+                  <button
+                    onClick={() => toast.info("PNG export coming soon")}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    PNG
+                  </button>
+                  <button
+                    onClick={() => toast.info("SVG export coming soon")}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  >
+                    <Shapes className="w-4 h-4" />
+                    SVG
+                  </button>
+                  <button
+                    onClick={downloadHtml}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                  >
+                    <FileCode className="w-4 h-4" />
+                    HTML
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </div>
           )}
           {chartHtml ? (
             <div 
