@@ -342,6 +342,7 @@ export default function ChartGenerator() {
           {chartHtml ? (
             <div 
               id="chart-preview"
+              className="flex justify-center"
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
           ) : chartHtml === null ? (
