@@ -33,6 +33,30 @@ Now you can run `llmplot` from anywhere. Changes to source files take effect imm
 | `bun run lint` | ESLint |
 | `bun run lint:fix` | ESLint with auto-fix |
 | `bun run build` | Build for distribution |
+| `bun run generate:assets` | Regenerate `src/core/assets.ts` from source files |
+| `bun run generate:assets:watch` | Watch mode - regenerate assets on changes |
+
+## Asset development
+
+When modifying icons in `assets/icons/` or fonts in `assets/fonts/`, you need to regenerate `src/core/assets.ts`:
+
+```bash
+bun run generate:assets
+```
+
+For active development, run the asset watcher alongside the website dev server in **two terminals**:
+
+**Terminal 1** - Watch assets and regenerate:
+```bash
+bun run generate:assets:watch
+```
+
+**Terminal 2** - Run website dev server:
+```bash
+cd website && bun dev
+```
+
+The asset watcher regenerates `src/core/assets.ts` when files in `assets/` change, and Vite will hot-reload automatically.
 
 ## Pre-commit hooks
 
