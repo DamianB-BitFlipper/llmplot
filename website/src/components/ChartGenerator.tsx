@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Download } from "lucide-react";
 import { parseYaml, processModels, renderChart, calculateLayoutDimensions, ParseError } from "../../../src/core/index.js";
 
 const defaultYaml = `title: "Example Benchmark"
@@ -35,12 +36,15 @@ export default function ChartGenerator() {
     return () => observer.disconnect();
   }, []);
 
-  // Re-render chart when container width changes
+  // Re-render chart when container width changes or yaml changes (debounced)
   useEffect(() => {
     if (containerWidth > 0 && yaml) {
-      generateChart();
+      const timeout = setTimeout(() => {
+        generateChart();
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [containerWidth]);
+  }, [containerWidth, yaml]);
 
   const generateChart = () => {
     try {
@@ -90,16 +94,6 @@ export default function ChartGenerator() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Editor Panel */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800">YAML Input</h2>
-          <button
-            onClick={generateChart}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Generate Chart
-          </button>
-        </div>
-        
         <textarea
           value={yaml}
           onChange={(e) => setYaml(e.target.value)}
@@ -116,32 +110,27 @@ export default function ChartGenerator() {
 
       {/* Preview Panel */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800">Preview</h2>
-          {chartHtml && (
-            <div className="flex gap-2">
-              <button
-                onClick={downloadHtml}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Download HTML
-              </button>
-            </div>
-          )}
-        </div>
-        
         <div 
           ref={containerRef}
-          className="border border-gray-300 rounded-lg overflow-hidden"
+          className="relative border border-gray-300 rounded-lg overflow-hidden"
         >
+          {chartHtml && (
+            <button
+              onClick={downloadHtml}
+              className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-colors z-10"
+              title="Download HTML"
+            >
+              <Download className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
           {chartHtml ? (
             <div 
               id="chart-preview"
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
           ) : (
-            <div className="text-gray-500">
-              Click "Generate Chart" to preview
+            <div className="text-gray-500 p-8 text-center">
+              Enter YAML to preview chart
             </div>
           )}
         </div>
