@@ -48,7 +48,7 @@ export function ProviderSelect({
     // Check custom providers
     const custom = customProviders.find((p) => p.key === value);
     if (custom) {
-      return { name: custom.name, icon: custom.icon, color: custom.color, isCustom: true };
+      return { name: custom.name, iconDataUrl: custom.iconDataUrl, color: custom.color, isCustom: true };
     }
     return null;
   };
@@ -66,14 +66,12 @@ export function ProviderSelect({
       >
         {currentDisplay ? (
           <>
-            <span
+            <img
+              src={currentDisplay.isCustom && currentDisplay.iconDataUrl
+                ? currentDisplay.iconDataUrl
+                : getProviderIcon(currentDisplay.iconKey || "")}
               className="w-5 h-5 flex-shrink-0"
-              style={{ color: currentDisplay.color }}
-              dangerouslySetInnerHTML={{
-                __html: currentDisplay.isCustom && currentDisplay.icon
-                  ? `<img src="${currentDisplay.icon}" class="w-5 h-5" />`
-                  : getProviderIcon(currentDisplay.iconKey || ""),
-              }}
+              alt=""
             />
             <span className="flex-1 truncate">{currentDisplay.name}</span>
           </>
@@ -100,10 +98,10 @@ export function ProviderSelect({
                 value === provider.key ? "bg-blue-50" : ""
               }`}
             >
-              <span
+              <img
+                src={getProviderIcon(provider.iconKey)}
                 className="w-5 h-5 flex-shrink-0"
-                style={{ color: provider.color }}
-                dangerouslySetInnerHTML={{ __html: getProviderIcon(provider.iconKey) }}
+                alt=""
               />
               <span className="flex-1">{provider.group}</span>
             </button>
@@ -125,8 +123,8 @@ export function ProviderSelect({
                     value === provider.key ? "bg-blue-50" : ""
                   }`}
                 >
-                  {provider.icon ? (
-                    <img src={provider.icon} className="w-5 h-5 flex-shrink-0" alt="" />
+                  {provider.iconDataUrl ? (
+                    <img src={provider.iconDataUrl} className="w-5 h-5 flex-shrink-0" alt="" />
                   ) : (
                     <span
                       className="w-5 h-5 flex-shrink-0 rounded-full"

@@ -62,7 +62,7 @@ export function AddCustomProviderModal({
       key,
       name: name.trim(),
       color,
-      icon,
+      iconDataUrl: icon,
     });
 
     // Reset form

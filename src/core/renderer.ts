@@ -2,7 +2,7 @@ import { inline, install } from "@twind/core";
 import presetAutoprefix from "@twind/preset-autoprefix";
 import presetTailwind from "@twind/preset-tailwind";
 import type { InputConfig, ProcessedModel } from "./types.js";
-import { geistFontUrl } from "./assets.js";
+import { geistFontDataUrl } from "./assets.js";
 
 // Initialize Twind once
 install({
@@ -222,7 +222,7 @@ export function renderChart(
   const fontFaceRule = config.font ? "" : `
     @font-face {
       font-family: 'Geist Sans';
-      src: url(${geistFontUrl}) format('woff2');
+      src: url(${geistFontDataUrl}) format('woff2');
       font-weight: 400;
       font-style: normal;
       font-display: swap;
