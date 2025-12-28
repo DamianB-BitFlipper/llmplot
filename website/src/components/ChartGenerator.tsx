@@ -1,11 +1,9 @@
-import { useState, useRef, useCallback } from "react";
-import { Download, PlusCircle, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Download, PlusCircle } from "lucide-react";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -14,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+import { ConfigCard } from "@/components/ui/config-card";
+import { ConfigCardColumn } from "@/components/ui/config-card-column";
+import { ConfigLabel } from "@/components/ui/config-label";
+import { ConfigInput } from "@/components/ui/config-input";
+import { ConfigTextarea } from "@/components/ui/config-textarea";
+import { AdvancedToggle } from "@/components/ui/advanced-toggle";
+import { AdvancedContent } from "@/components/ui/advanced-content";
 
 import { fontFamilies, fontDisplayNames, type FontFamily } from "./chart/types.js";
 
@@ -37,7 +36,6 @@ const fontCssFamily: Record<FontFamily, string> = {
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
-  const subtitleRef = useRef<HTMLTextAreaElement>(null);
   
   const {
     chartConfig,
@@ -57,108 +55,31 @@ export default function ChartGenerator() {
   } = useChartConfig();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr] gap-8">
       {/* Form Panel */}
       <div className="space-y-4">
-        {/* Header & Options Compact Section */}
-        <div className="pt-2 pb-3 px-3 border rounded-lg bg-card space-y-2">
-          {/* Title - Full Row */}
-          <div>
-            <Label htmlFor="title" className="text-xs text-muted-foreground font-medium">
-              Title
-            </Label>
-            <Input
-              id="title"
-              value={chartConfig.title}
-              onChange={(e) => updateConfig({ title: e.target.value })}
-              className={cn("h-8 text-sm mt-1", !chartConfig.title && "border-dashed")}
-              placeholder="Benchmark Title"
-            />
-          </div>
-
-          {/* Subtitle - Full Row, Auto-growing Textarea */}
-          <div>
-            <Label htmlFor="subtitle" className="text-xs text-muted-foreground font-medium">Subtitle</Label>
-            <textarea
-              ref={subtitleRef}
-              id="subtitle"
-              value={chartConfig.subtitle}
-              onChange={(e) => {
-                updateConfig({ subtitle: e.target.value });
-                // Auto-grow logic
-                const textarea = e.target;
-                textarea.style.height = 'auto';
-                const lineHeight = 20;
-                const maxHeight = lineHeight * 3; // 3 rows max before scroll
-                textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
-              }}
-              placeholder="Optional description"
-              rows={1}
-              className={cn(
-                "flex w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto mt-1",
-                !chartConfig.subtitle && "border-dashed"
-              )}
-              style={{ minHeight: '32px', maxHeight: '60px' }}
-            />
-          </div>
-
-          {/* Advanced Section - Collapsible, styled like ModelCard */}
-          <Collapsible open={headerAdvancedOpen} onOpenChange={setHeaderAdvancedOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 -ml-2">
-                <span className="font-medium">Advanced</span>
-                <ChevronRight className={cn("h-3 w-3 transition-transform", headerAdvancedOpen && "rotate-90")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <div className="flex flex-wrap gap-x-4 gap-y-3 items-end bg-muted/20 p-2 rounded-md border border-dashed">
-                <div className="space-y-1">
-                  <Label htmlFor="sponsoredBy" className="text-[9px] text-muted-foreground uppercase font-semibold">Sponsored By</Label>
-                  <Input
-                    id="sponsoredBy"
-                    value={chartConfig.sponsoredBy}
-                    onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
-                    placeholder="Optional"
-                    className={cn("h-7 text-xs w-32 bg-background", !chartConfig.sponsoredBy && "border-dashed")}
+        {/* Chart Section */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Chart Details</h2>
+          <ConfigCard>
+            <ConfigCardColumn gap="sm">
+              {/* Title + Font Row */}
+              <div className="flex gap-4 items-end">
+                <ConfigCardColumn className="flex-1">
+                  <ConfigLabel>Title</ConfigLabel>
+                  <ConfigInput
+                    value={chartConfig.title}
+                    onChange={(e) => updateConfig({ title: e.target.value })}
+                    placeholder="Benchmark Title"
                   />
-                </div>
-
-                <div className="flex items-center gap-2 h-7">
-                  <Checkbox
-                    id="showRankings"
-                    checked={chartConfig.showRankings}
-                    onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
-                  />
-                  <Label htmlFor="showRankings" className="text-xs cursor-pointer font-medium">
-                    Show Rankings
-                  </Label>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-[9px] text-muted-foreground uppercase font-semibold">Precision</Label>
-                  <Select
-                    value={String(chartConfig.percentPrecision)}
-                    onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
-                  >
-                    <SelectTrigger className="w-14 h-7 text-xs bg-background">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">0</SelectItem>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="2">2</SelectItem>
-                      <SelectItem value="3">3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-[9px] text-muted-foreground uppercase font-semibold">Font</Label>
+                </ConfigCardColumn>
+                <ConfigCardColumn>
+                  <ConfigLabel>Font</ConfigLabel>
                   <Select
                     value={chartConfig.font}
                     onValueChange={(value) => updateConfig({ font: value as FontFamily })}
                   >
-                    <SelectTrigger className="w-28 h-7 text-xs bg-background" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
+                    <SelectTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,10 +94,76 @@ export default function ChartGenerator() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </ConfigCardColumn>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
+
+              {/* Description - Full Row, Auto-growing Textarea */}
+              <ConfigCardColumn>
+                <ConfigLabel>Description</ConfigLabel>
+                <ConfigTextarea
+                  value={chartConfig.subtitle}
+                  onChange={(e) => updateConfig({ subtitle: e.target.value })}
+                  placeholder="Optional description"
+                  maxRows={3}
+                />
+              </ConfigCardColumn>
+
+              {/* Advanced Toggle */}
+              <div className="flex justify-end">
+                <AdvancedToggle 
+                  open={headerAdvancedOpen} 
+                  onOpenChange={setHeaderAdvancedOpen}
+                />
+              </div>
+
+              {/* Advanced Content */}
+              <AdvancedContent open={headerAdvancedOpen}>
+                <div className="flex items-end justify-between gap-4">
+                  <ConfigCardColumn>
+                    <ConfigLabel size="small">Sponsored By</ConfigLabel>
+                    <ConfigInput
+                      value={chartConfig.sponsoredBy}
+                      onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
+                      placeholder="Optional Sponsor"
+                      size="small"
+                      className="w-44"
+                    />
+                  </ConfigCardColumn>
+
+                  <div className="flex items-end gap-4">
+                    <div className="flex items-center gap-2 h-7">
+                      <Checkbox
+                        id="showRankings"
+                        checked={chartConfig.showRankings}
+                        onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
+                      />
+                      <ConfigLabel htmlFor="showRankings" className="cursor-pointer">
+                        Show Rankings
+                      </ConfigLabel>
+                    </div>
+
+                    <ConfigCardColumn>
+                      <ConfigLabel size="small">Precision</ConfigLabel>
+                      <Select
+                        value={String(chartConfig.percentPrecision)}
+                        onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
+                      >
+                        <SelectTrigger className="w-14 h-7 text-xs bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0</SelectItem>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </ConfigCardColumn>
+                  </div>
+                </div>
+              </AdvancedContent>
+            </ConfigCardColumn>
+          </ConfigCard>
         </div>
 
         {/* Models Section */}
@@ -213,11 +200,14 @@ export default function ChartGenerator() {
         </div>
       </div>
 
+      {/* Vertical Divider */}
+      <div className="hidden lg:block mt-4 -mb-4 bg-border" />
+
       {/* Preview Panel */}
-      <div>
+      <div className="pt-8">
         <div 
           ref={containerRef}
-          className="sticky top-4 relative border rounded-lg overflow-hidden"
+          className="sticky top-8 relative border rounded-lg overflow-hidden"
         >
           {isGenerating && (
             <div className="absolute inset-0 bg-muted/50 z-20" />
