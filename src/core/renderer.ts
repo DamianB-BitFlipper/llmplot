@@ -2,7 +2,7 @@ import { inline, install } from "@twind/core";
 import presetAutoprefix from "@twind/preset-autoprefix";
 import presetTailwind from "@twind/preset-tailwind";
 import type { InputConfig, ProcessedModel } from "./types.js";
-import { geistFontBase64 } from "./assets.js";
+import { geistFontUrl } from "./assets.js";
 
 // Initialize Twind once
 install({
@@ -93,7 +93,7 @@ function renderHorizontalChart(
         ` : ""}
         <!-- Icon -->
         <div class="shrink-0 flex items-center justify-center" style="width: ${ICON_SIZE}px; height: ${ICON_SIZE}px;">
-          ${m.providerConfig.iconSvg}
+          <img src="${m.providerConfig.iconUrl}" alt="" style="width: ${ICON_SIZE}px; height: ${ICON_SIZE}px;" />
         </div>
         
         <!-- Name + Bar stacked -->
@@ -222,7 +222,7 @@ export function renderChart(
   const fontFaceRule = config.font ? "" : `
     @font-face {
       font-family: 'Geist Sans';
-      src: url(data:font/woff2;base64,${geistFontBase64}) format('woff2');
+      src: url(${geistFontUrl}) format('woff2');
       font-weight: 400;
       font-style: normal;
       font-display: swap;

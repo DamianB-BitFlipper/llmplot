@@ -59,7 +59,7 @@ export function processModels(config: InputConfig): ProcessedModel[] {
         // Use model's custom color/icon if provided, otherwise use provider defaults
         providerConfig: {
           color: m.color ?? defaultConfig.color,
-          iconSvg: m.icon ?? defaultConfig.iconSvg,
+          iconUrl: m.icon ?? defaultConfig.iconUrl,
         },
         rank: 0, // will be calculated after sorting
         paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),

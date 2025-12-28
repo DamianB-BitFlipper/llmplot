@@ -86,9 +86,9 @@ export function getProviderConfig(provider: string): ProviderConfig {
   const match = Object.keys(providers).find((k) => input.includes(k.toLowerCase()));
   if (match) {
     const p = providers[match];
-    return { color: p.color, iconSvg: getIcon(p.iconKey) };
+    return { color: p.color, iconUrl: getIcon(p.iconKey) };
   }
 
   // No match - fallback with placeholder icon
-  return { color: DEFAULT_COLOR, iconSvg: getIcon(provider) };
+  return { color: DEFAULT_COLOR, iconUrl: getIcon(provider) };
 }

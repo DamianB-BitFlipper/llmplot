@@ -22,7 +22,7 @@ export interface InputConfig {
 
 export interface ProviderConfig {
   color: string;
-  iconSvg?: string; // Inline SVG string for the provider icon
+  iconUrl?: string; // URL to the provider icon (bundled asset)
 }
 
 export interface ProcessedModel extends ModelData {
