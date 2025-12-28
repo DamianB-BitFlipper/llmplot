@@ -93,7 +93,7 @@ function renderHorizontalChart(
         ` : ""}
         <!-- Icon -->
         <div class="shrink-0 flex items-center justify-center" style="width: ${ICON_SIZE}px; height: ${ICON_SIZE}px;">
-          ${loadIcon(m.provider)}
+          ${m.providerConfig.iconSvg || loadIcon(m.provider)}
         </div>
         
         <!-- Name + Bar stacked -->
