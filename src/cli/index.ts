@@ -5,12 +5,11 @@
 
 import { program } from "commander";
 import {
-  parseYaml,
   processModels,
   renderChart,
   calculateLayoutDimensions,
-  ParseError,
 } from "../core/index.js";
+import { parseYaml, ParseError } from "./parser.js";
 import { renderToImage, getExportFormat } from "./screenshot.js";
 
 async function main(): Promise<void> {

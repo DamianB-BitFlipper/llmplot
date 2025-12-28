@@ -6,7 +6,7 @@
  */
 
 // Parser
-export { parseYaml, processModels, ParseError } from "./parser.js";
+export { processModels } from "./parser.js";
 
 // Renderer
 export {
@@ -18,4 +18,4 @@ export {
 export type { RenderOptions, RenderMode } from "./renderer.js";
 
 // Types
-export type { InputConfig, ProcessedModel } from "./types.js";
+export type { InputConfig, ModelData, ProcessedModel } from "./types.js";
