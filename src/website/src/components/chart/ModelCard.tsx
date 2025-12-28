@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 
 interface ModelCardProps {
   model: ModelConfig;
-  index: number;
   errors: ModelValidationErrors;
   touched: Record<string, boolean>;
   showAllErrors: boolean;
@@ -27,7 +26,6 @@ interface ModelCardProps {
 
 export function ModelCard({ 
   model, 
-  index: _index, 
   errors, 
   touched,
   showAllErrors,

@@ -29,9 +29,8 @@ import { AdvancedToggle } from "@/components/common/advanced-toggle";
 import { AdvancedContent } from "@/components/common/advanced-content";
 
 import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
-interface ChartGeneratorProps {}
 
-export default function ChartGenerator({}: ChartGeneratorProps) {
+export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
   const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
@@ -287,11 +286,10 @@ export default function ChartGenerator({}: ChartGeneratorProps) {
             </Button>
           </div>
           
-          {chartConfig.models.map((model, index) => (
+          {chartConfig.models.map((model) => (
             <ModelCard
               key={model.id}
               model={model}
-              index={index}
               errors={errors.models[model.id] || {}}
               touched={touched[model.id] || {}}
               showAllErrors={showAllErrors}
