@@ -1,13 +1,13 @@
 import type { ModelConfig, ModelValidationErrors, CustomProvider } from "./types.js";
 import { ProviderSelect } from "./ProviderSelect.js";
 import { Input } from "@/components/ui/input";
-import { ConfigCard } from "@/components/ui/config-card";
-import { ConfigCardRow } from "@/components/ui/config-card-row";
-import { ConfigCardColumn } from "@/components/ui/config-card-column";
-import { ConfigLabel } from "@/components/ui/config-label";
-import { ConfigInput } from "@/components/ui/config-input";
-import { AdvancedToggle } from "@/components/ui/advanced-toggle";
-import { AdvancedContent } from "@/components/ui/advanced-content";
+import { ConfigCard } from "@/components/config-card/config-card";
+import { ConfigCardRow } from "@/components/config-card/config-card-row";
+import { ConfigCardColumn } from "@/components/config-card/config-card-column";
+import { ConfigLabel } from "@/components/config-card/config-label";
+import { ConfigInput } from "@/components/config-card/config-input";
+import { AdvancedToggle } from "@/components/common/advanced-toggle";
+import { AdvancedContent } from "@/components/common/advanced-content";
 import { cn } from "@/lib/utils";
 
 interface ModelCardProps {

@@ -10,14 +10,14 @@ import {
   DropdownContent,
   DropdownItem,
   DropdownTrigger,
-} from "@/components/ui/dropdown";
-import { ConfigCard } from "@/components/ui/config-card";
-import { ConfigCardColumn } from "@/components/ui/config-card-column";
-import { ConfigLabel } from "@/components/ui/config-label";
-import { ConfigInput } from "@/components/ui/config-input";
-import { ConfigTextarea } from "@/components/ui/config-textarea";
-import { AdvancedToggle } from "@/components/ui/advanced-toggle";
-import { AdvancedContent } from "@/components/ui/advanced-content";
+} from "@/components/common/dropdown";
+import { ConfigCard } from "@/components/config-card/config-card";
+import { ConfigCardColumn } from "@/components/config-card/config-card-column";
+import { ConfigLabel } from "@/components/config-card/config-label";
+import { ConfigInput } from "@/components/config-card/config-input";
+import { ConfigTextarea } from "@/components/config-card/config-textarea";
+import { AdvancedToggle } from "@/components/common/advanced-toggle";
+import { AdvancedContent } from "@/components/common/advanced-content";
 
 import { fontFamilies, fontDisplayNames, type FontFamily } from "./chart/types.js";
 

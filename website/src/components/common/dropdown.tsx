@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Check, ChevronDown } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "./popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 interface DropdownContextValue {

@@ -7,7 +7,7 @@ import {
   DropdownItem,
   DropdownTrigger,
   DropdownSeparator,
-} from "@/components/ui/dropdown";
+} from "@/components/common/dropdown";
 import { cn } from "@/lib/utils";
 
 /** Get inline SVG for a provider by icon key */
