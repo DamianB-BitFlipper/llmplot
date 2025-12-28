@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
+import { useChartConfig, hasErrors, formatErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { Button } from "@/components/ui/button";
@@ -146,7 +146,7 @@ export default function ChartGenerator() {
                   <ConfigInput
                     value={chartConfig.title}
                     onChange={(e) => updateConfig({ title: e.target.value })}
-                    placeholder="Benchmark Title"
+                    placeholder="Graph Title"
                   />
                 </ConfigCardColumn>
                 <ConfigCardColumn>
@@ -179,7 +179,7 @@ export default function ChartGenerator() {
                 <ConfigTextarea
                   value={chartConfig.description}
                   onChange={(e) => updateConfig({ description: e.target.value })}
-                  placeholder="Optional description"
+                  placeholder="Optional Description"
                   maxRows={3}
                 />
               </ConfigCardColumn>
@@ -345,8 +345,17 @@ export default function ChartGenerator() {
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
           ) : (
-            <div className="text-muted-foreground p-8 text-center bg-muted min-h-64 flex items-center justify-center">
-              {hasErrors(errors) ? "Fix validation errors to preview" : "Enter data to preview chart"}
+            <div className="p-8 text-center bg-muted min-h-64 flex items-center justify-center text-muted-foreground">
+              {hasErrors(errors) ? (
+                <div className="text-left">
+                  <p className="font-medium mb-2">Please fix the following errors:</p>
+                  <ul className="list-disc list-inside text-sm space-y-1">
+                    {formatErrors(errors).map((error, i) => (
+                      <li key={i}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : "Enter data to preview chart"}
             </div>
           )}
         </div>

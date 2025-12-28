@@ -153,6 +153,23 @@ export function hasErrors(errors: ValidationErrors): boolean {
   return !!errors.title || Object.keys(errors.models).length > 0;
 }
 
+export function formatErrors(errors: ValidationErrors): string[] {
+  const messages: string[] = [];
+  
+  if (errors.title) {
+    messages.push("Title is required");
+  }
+  
+  const modelCount = Object.keys(errors.models).length;
+  if (modelCount > 0) {
+    const isAre = modelCount === 1 ? "is" : "are";
+    const entryWord = modelCount === 1 ? "entry" : "entries";
+    messages.push(`There ${isAre} ${modelCount} model ${entryWord} with missing or invalid fields`);
+  }
+  
+  return messages;
+}
+
 // Convert chart config to InputConfig for renderer
 function toRenderConfig(config: ChartConfig): InputConfig {
   const models: ModelData[] = config.models.map((m) => {
