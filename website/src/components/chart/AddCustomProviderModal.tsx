@@ -1,6 +1,16 @@
 import { useState, useRef, useCallback } from "react";
 import { X, Upload } from "lucide-react";
 import type { CustomProvider } from "./types.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function generateKey(name: string): string {
   return name
@@ -81,89 +91,73 @@ export function AddCustomProviderModal({
     }
   }, []);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Add Custom Provider</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add Custom Provider</DialogTitle>
+        </DialogHeader>
 
         {/* Form */}
         <div className="space-y-4">
           {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name <span className="text-red-500">*</span>
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="provider-name">
+              Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="provider-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., My Custom LLM"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Key (auto-generated) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Key <span className="text-gray-400">(auto-generated)</span>
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="provider-key">
+              Key <span className="text-muted-foreground">(auto-generated)</span>
+            </Label>
+            <Input
+              id="provider-key"
               type="text"
               value={key}
               disabled
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
+              className="bg-muted text-muted-foreground"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground">
               Used in model string: {key || "..."}/model-name
             </p>
           </div>
 
           {/* Color */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Color <span className="text-red-500">*</span>
-            </label>
+          <div className="space-y-2">
+            <Label>
+              Color <span className="text-destructive">*</span>
+            </Label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-10 h-10 rounded cursor-pointer border border-gray-300"
+                className="w-10 h-10 rounded cursor-pointer border border-input"
               />
-              <input
+              <Input
                 type="text"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
                 pattern="^#[0-9A-Fa-f]{6}$"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className="flex-1 font-mono"
               />
             </div>
           </div>
 
           {/* Icon (optional) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Icon <span className="text-gray-400">(optional)</span>
-            </label>
+          <div className="space-y-2">
+            <Label>
+              Icon <span className="text-muted-foreground">(optional)</span>
+            </Label>
             <input
               ref={fileInputRef}
               type="file"
@@ -173,50 +167,43 @@ export function AddCustomProviderModal({
             />
             
             {icon ? (
-              <div className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg bg-gray-50">
+              <div className="flex items-center gap-3 p-3 border border-input rounded-md bg-muted">
                 <img src={icon} alt="Icon preview" className="w-8 h-8" />
                 <span className="flex-1 text-sm truncate">{iconFileName}</span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={handleClearIcon}
-                  className="p-1 hover:bg-gray-200 rounded"
+                  className="h-8 w-8"
                 >
-                  <X className="w-4 h-4" />
-                </button>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             ) : (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full px-3 py-3 border border-dashed border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-500"
+                className="w-full border-dashed"
               >
-                <Upload className="w-4 h-4" />
-                <span>Choose SVG or PNG file</span>
-              </button>
+                <Upload className="h-4 w-4 mr-2" />
+                Choose SVG or PNG file
+              </Button>
             )}
-            <p className="text-xs text-gray-400 mt-1">Max 100KB</p>
+            <p className="text-xs text-muted-foreground">Max 100KB</p>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!isValid}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          </Button>
+          <Button type="button" onClick={handleSubmit} disabled={!isValid}>
             Add
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

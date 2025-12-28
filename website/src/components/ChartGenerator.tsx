@@ -3,11 +3,18 @@ import { Download, Plus } from "lucide-react";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
-
-const inputClass = (hasError: boolean) =>
-  `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-    hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-  }`;
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
@@ -32,90 +39,97 @@ export default function ChartGenerator() {
       <div className="space-y-6">
         {/* Header Section */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
               value={chartConfig.title}
               onChange={(e) => updateConfig({ title: e.target.value })}
-              className={inputClass(!!errors.title)}
+              className={cn(errors.title && "border-destructive bg-destructive/10")}
               placeholder="Benchmark Title"
             />
-            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
-            <input
-              type="text"
+          <div className="space-y-2">
+            <Label htmlFor="subtitle">Subtitle</Label>
+            <Input
+              id="subtitle"
               value={chartConfig.subtitle}
               onChange={(e) => updateConfig({ subtitle: e.target.value })}
-              className={inputClass(false)}
               placeholder="Optional description"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sponsored By</label>
-            <input
-              type="text"
+          <div className="space-y-2">
+            <Label htmlFor="sponsoredBy">Sponsored By</Label>
+            <Input
+              id="sponsoredBy"
               value={chartConfig.sponsoredBy}
               onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
-              className={inputClass(false)}
               placeholder="Optional sponsor"
             />
           </div>
         </div>
 
         {/* Options Section */}
-        <div className="flex flex-wrap gap-4 items-center p-4 bg-gray-50 rounded-lg">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={chartConfig.showRankings}
-              onChange={(e) => updateConfig({ showRankings: e.target.checked })}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">Show Rankings</span>
-          </label>
-
+        <div className="flex flex-wrap gap-4 items-center p-4 bg-muted rounded-lg">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-700">Precision:</label>
-            <select
-              value={chartConfig.percentPrecision}
-              onChange={(e) => updateConfig({ percentPrecision: parseInt(e.target.value, 10) })}
-              className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={0}>0</option>
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-            </select>
+            <Checkbox
+              id="showRankings"
+              checked={chartConfig.showRankings}
+              onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
+            />
+            <Label htmlFor="showRankings" className="cursor-pointer">
+              Show Rankings
+            </Label>
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-700">Font:</label>
-            <select
-              value={chartConfig.font}
-              onChange={(e) => updateConfig({ font: e.target.value })}
-              className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            <Label>Precision:</Label>
+            <Select
+              value={String(chartConfig.percentPrecision)}
+              onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
             >
-              <option value="Geist Sans">Geist Sans</option>
-              <option value="Inter">Inter</option>
-              <option value="Roboto">Roboto</option>
-              <option value="Open Sans">Open Sans</option>
-              <option value="Lato">Lato</option>
-              <option value="Montserrat">Montserrat</option>
-              <option value="">System Default</option>
-            </select>
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">0</SelectItem>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label>Font:</Label>
+            <Select
+              value={chartConfig.font}
+              onValueChange={(value) => updateConfig({ font: value })}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Geist Sans">Geist Sans</SelectItem>
+                <SelectItem value="Inter">Inter</SelectItem>
+                <SelectItem value="Roboto">Roboto</SelectItem>
+                <SelectItem value="Open Sans">Open Sans</SelectItem>
+                <SelectItem value="Lato">Lato</SelectItem>
+                <SelectItem value="Montserrat">Montserrat</SelectItem>
+                <SelectItem value=" ">System Default</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {/* Models Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Models</h3>
+          <h3 className="text-lg font-semibold">Models</h3>
           
           {chartConfig.models.map((model, index) => (
             <ModelCard
@@ -131,13 +145,14 @@ export default function ChartGenerator() {
             />
           ))}
 
-          <button
+          <Button
+            variant="outline"
             onClick={addModel}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center gap-2"
+            className="w-full border-dashed"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 mr-2" />
             Add Model
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -145,19 +160,21 @@ export default function ChartGenerator() {
       <div>
         <div 
           ref={containerRef}
-          className="sticky top-4 relative border border-gray-300 rounded-lg overflow-hidden"
+          className="sticky top-4 relative border rounded-lg overflow-hidden"
         >
           {isGenerating && (
-            <div className="absolute inset-0 bg-gray-500/20 z-20" />
+            <div className="absolute inset-0 bg-muted/50 z-20" />
           )}
           {chartHtml && (
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               onClick={downloadHtml}
-              className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-colors z-10"
+              className="absolute top-3 right-3 z-10 bg-background/80 hover:bg-background"
               title="Download HTML"
             >
-              <Download className="w-5 h-5 text-gray-600" />
-            </button>
+              <Download className="w-5 h-5" />
+            </Button>
           )}
           {chartHtml ? (
             <div 
@@ -165,7 +182,7 @@ export default function ChartGenerator() {
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
           ) : (
-            <div className="text-gray-500 p-8 text-center bg-gray-50 min-h-64 flex items-center justify-center">
+            <div className="text-muted-foreground p-8 text-center bg-muted min-h-64 flex items-center justify-center">
               {hasErrors(errors) ? "Fix validation errors to preview" : "Enter data to preview chart"}
             </div>
           )}
