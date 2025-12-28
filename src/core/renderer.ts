@@ -1,4 +1,4 @@
-import { inline, install } from "@twind/core";
+import { inline, extract, install } from "@twind/core";
 import presetAutoprefix from "@twind/preset-autoprefix";
 import presetTailwind from "@twind/preset-tailwind";
 import type { InputConfig, ProcessedModel } from "./types.js";
@@ -310,7 +310,10 @@ export function renderChart(
       <style>${fontFaceRule}</style>
       ${backgroundDiv}
     `;
-    return inline(rawHtml);
+    // Use extract() to get CSS separately, then embed it in the HTML
+    // This ensures styles work correctly inside Shadow DOM
+    const { html, css } = extract(rawHtml);
+    return `<style>${css}</style>${html}`;
   }
 
   // CLI mode: Full HTML document with background layer

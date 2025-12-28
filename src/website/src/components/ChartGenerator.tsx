@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useChartConfig, hasErrors, formatErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
+import { ShadowDomChart } from "./chart/ShadowDomChart.js";
 import { SupportModal } from "./SupportModal.js";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -370,11 +371,7 @@ export default function ChartGenerator() {
             </div>
           )}
           {chartHtml ? (
-            <div 
-              id="chart-preview"
-              className="flex justify-center"
-              dangerouslySetInnerHTML={{ __html: chartHtml }} 
-            />
+            <ShadowDomChart id="chart-preview" html={chartHtml} />
           ) : chartHtml === null ? (
             // Not yet generated - show nothing to avoid flash
             null
