@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import { processModels, renderChart, calculateLayoutDimensions } from "../../../../src/core/index.js";
 import type { InputConfig, ModelData } from "../../../../src/core/index.js";
 import type { ChartConfig, ModelConfig, ValidationErrors, CustomProvider } from "./types.js";
@@ -424,6 +426,8 @@ export function useChartConfig() {
       return;
     }
 
+    const toastId = toast.info("Downloading HTML...");
+
     try {
       const renderConfig = toRenderConfig(currentConfig);
       const models = processModels(renderConfig);
@@ -433,11 +437,90 @@ export function useChartConfig() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "chart.html";
+      a.download = `${slugify(currentConfig.title)}.html`;
       a.click();
       URL.revokeObjectURL(url);
+      toast.success("HTML downloaded", { id: toastId });
     } catch {
-      // Ignore errors during download
+      toast.error("Export failed", { id: toastId, description: "Could not generate HTML" });
+    }
+  }, []);
+
+  const downloadPng = useCallback(async () => {
+    const currentConfig = configRef.current;
+    const validationErrors = validateConfig(currentConfig);
+    if (hasErrors(validationErrors)) {
+      setErrors(validationErrors);
+      setShowAllErrors(true);
+      return;
+    }
+
+    const element = document.getElementById("chart-preview");
+    if (!element) {
+      toast.error("Export failed", { description: "Chart not found" });
+      return;
+    }
+
+    const toastId = toast.info("Downloading PNG...");
+
+    try {
+      const dataUrl = await toPng(element, { pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = `${slugify(currentConfig.title)}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("PNG downloaded", { id: toastId });
+    } catch {
+      toast.error("Export failed", { id: toastId, description: "Could not generate PNG" });
+    }
+  }, []);
+
+  const downloadSvg = useCallback(async () => {
+    const currentConfig = configRef.current;
+    const validationErrors = validateConfig(currentConfig);
+    if (hasErrors(validationErrors)) {
+      setErrors(validationErrors);
+      setShowAllErrors(true);
+      return;
+    }
+
+    const element = document.getElementById("chart-preview");
+    if (!element) {
+      toast.error("Export failed", { description: "Chart not found" });
+      return;
+    }
+
+    const toastId = toast.info("Downloading SVG...");
+
+    try {
+      const dataUrl = await toPng(element, { pixelRatio: 2 });
+      
+      // Get dimensions from the element (scaled 2x)
+      const rect = element.getBoundingClientRect();
+      const width = Math.round(rect.width * 2);
+      const height = Math.round(rect.height * 2);
+      
+      // Create SVG with embedded PNG (matches CLI approach)
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="${width}" 
+     height="${height}" 
+     viewBox="0 0 ${width} ${height}">
+  <image width="${width}" height="${height}" 
+         xlink:href="${dataUrl}"/>
+</svg>`;
+      
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = `${slugify(currentConfig.title)}.svg`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("SVG downloaded", { id: toastId });
+    } catch {
+      toast.error("Export failed", { id: toastId, description: "Could not generate SVG" });
     }
   }, []);
 
@@ -515,6 +598,8 @@ export function useChartConfig() {
     addCustomProvider,
     removeCustomProvider,
     downloadHtml,
+    downloadPng,
+    downloadSvg,
     exportYaml,
     downloadYaml,
     importYaml,

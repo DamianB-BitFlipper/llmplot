@@ -50,6 +50,8 @@ export default function ChartGenerator() {
     addCustomProvider,
     removeCustomProvider,
     downloadHtml,
+    downloadPng,
+    downloadSvg,
     downloadYaml,
     importYaml,
     restoreSampleData,
@@ -297,7 +299,7 @@ export default function ChartGenerator() {
               <Button
                 variant="outline"
                 className="rounded-r-none border-r-0 bg-background/80 hover:bg-background backdrop-blur-sm focus:z-10 h-auto py-2 px-3"
-                onClick={() => toast.info("PNG export coming soon")}
+                onClick={downloadPng}
               >
                 <Download className="w-4 h-4 mr-3" />
 <div className="flex flex-col items-center leading-tight">
@@ -316,14 +318,14 @@ export default function ChartGenerator() {
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-auto p-1">
                   <button
-                    onClick={() => toast.info("PNG export coming soon")}
+                    onClick={downloadPng}
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                   >
                     <ImageIcon className="w-4 h-4" />
                     PNG
                   </button>
                   <button
-                    onClick={() => toast.info("SVG export coming soon")}
+                    onClick={downloadSvg}
                     className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                   >
                     <Shapes className="w-4 h-4" />
