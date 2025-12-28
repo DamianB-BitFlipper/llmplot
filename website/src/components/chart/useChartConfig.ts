@@ -464,7 +464,7 @@ export function useChartConfig() {
     const toastId = toast.info("Downloading PNG...");
 
     try {
-      const dataUrl = await toPng(element, { pixelRatio: 2 });
+      const dataUrl = await toPng(element, { pixelRatio: 3 });
       const link = document.createElement("a");
       link.download = `${slugify(currentConfig.title)}.png`;
       link.href = dataUrl;
@@ -493,12 +493,12 @@ export function useChartConfig() {
     const toastId = toast.info("Downloading SVG...");
 
     try {
-      const dataUrl = await toPng(element, { pixelRatio: 2 });
+      const dataUrl = await toPng(element, { pixelRatio: 3 });
       
       // Get dimensions from the element (scaled 2x)
       const rect = element.getBoundingClientRect();
-      const width = Math.round(rect.width * 2);
-      const height = Math.round(rect.height * 2);
+const width = Math.round(rect.width * 3);
+    const height = Math.round(rect.height * 3);
       
       // Create SVG with embedded PNG (matches CLI approach)
       const svg = `<?xml version="1.0" encoding="UTF-8"?>
