@@ -126,19 +126,17 @@ function renderHorizontalChart(
 
 /**
  * Calculate layout dimensions based on content.
- * Height is determined by content (fixed elements + number of bars).
- * Width is calculated from height to achieve 4:5 aspect ratio.
- * Bar container width is the variable that adjusts.
  * 
- * If the bar container width would be too narrow, we enforce a minimum
- * and add extra vertical padding to maintain the 4:5 aspect ratio.
+ * The background layer is always exactly 4:5 aspect ratio.
+ * The card shrinks in width to fit, with fixed padding from background edges.
+ * When min bar width is reached, background grows taller and card is centered via flexbox.
  */
 export function calculateLayoutDimensions(
   modelCount: number,
   hasSubtitle: boolean,
   hasFooter: boolean,
   showRankings: boolean
-): { barContainerWidth: number; cardWidth: number; cardHeight: number; extraVerticalPadding: number } {
+): { barContainerWidth: number; cardWidth: number; cardHeight: number; backgroundWidth: number; backgroundHeight: number } {
   // Calculate content height
   const headerHeight = TITLE_HEIGHT + (hasSubtitle ? GAP_TITLE_SUBTITLE + SUBTITLE_HEIGHT : 0);
   const footerHeight = hasFooter ? SUBTITLE_HEIGHT : 0;
@@ -161,24 +159,33 @@ export function calculateLayoutDimensions(
     ICON_SIZE +
     GAP_ICON_CONTENT;
   
-  // Initial calculation based on content height
-  let cardHeight = contentHeight + (PADDING_INNER * 2);
-  let cardWidth = cardHeight * ASPECT_RATIO;
-  let barContainerWidth = cardWidth - (PADDING_INNER * 2) - fixedRowWidth;
-  let extraVerticalPadding = 0;
+  // Card height is always determined by content (tight fit)
+  const cardHeight = contentHeight + (PADDING_INNER * 2);
   
-  // If bar container is too narrow, enforce minimum and expand card height
+  // Calculate ideal card width based on content height and aspect ratio
+  // The card should be sized so that background (card + outer padding) is 4:5
+  // backgroundWidth = cardWidth + 2*PADDING_OUTER
+  // backgroundHeight = cardHeight + 2*PADDING_OUTER (in ideal case)
+  // For 4:5 ratio: backgroundWidth / backgroundHeight = 4/5
+  // So: (cardWidth + 2*PADDING_OUTER) / (cardHeight + 2*PADDING_OUTER) = 4/5
+  // cardWidth = (cardHeight + 2*PADDING_OUTER) * 4/5 - 2*PADDING_OUTER
+  
+  const idealBackgroundHeight = cardHeight + (PADDING_OUTER * 2);
+  const idealBackgroundWidth = idealBackgroundHeight * ASPECT_RATIO;
+  let cardWidth = idealBackgroundWidth - (PADDING_OUTER * 2);
+  let barContainerWidth = cardWidth - (PADDING_INNER * 2) - fixedRowWidth;
+  
+  // If bar container is too narrow, enforce minimum
   if (barContainerWidth < MIN_BAR_CONTAINER_WIDTH) {
     barContainerWidth = MIN_BAR_CONTAINER_WIDTH;
     cardWidth = barContainerWidth + fixedRowWidth + (PADDING_INNER * 2);
-    cardHeight = cardWidth / ASPECT_RATIO;
-    
-    // Calculate extra vertical space and distribute evenly top/bottom
-    const minCardHeight = contentHeight + (PADDING_INNER * 2);
-    extraVerticalPadding = (cardHeight - minCardHeight) / 2;
   }
   
-  return { barContainerWidth, cardWidth, cardHeight, extraVerticalPadding };
+  // Background is always 4:5, sized to fit the card with outer padding
+  const backgroundWidth = cardWidth + (PADDING_OUTER * 2);
+  const backgroundHeight = backgroundWidth / ASPECT_RATIO;
+  
+  return { barContainerWidth, cardWidth, cardHeight, backgroundWidth, backgroundHeight };
 }
 
 /**
@@ -199,24 +206,20 @@ export function renderChart(
   const percentPrecision = config.percentPrecision;
   
   // Calculate layout dimensions based on content
-  const { barContainerWidth, cardWidth, cardHeight, extraVerticalPadding } = calculateLayoutDimensions(
+  const { barContainerWidth, cardWidth, backgroundWidth, backgroundHeight } = calculateLayoutDimensions(
     models.length,
     !!config.subtitle,
     !!config.sponsoredBy,
     showRankings
   );
   
-  // Calculate vertical padding (inner padding + extra padding for aspect ratio)
-  const verticalPadding = PADDING_INNER + extraVerticalPadding;
-  
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
-  const useCustomFont = !!config.font;
   const fontName = config.font ?? "Geist Sans";
   const fontFamily = `'${fontName}', ui-sans-serif, system-ui, sans-serif`;
   
   // Only embed Geist font if using the default font
-  const fontFaceRule = useCustomFont ? "" : `
+  const fontFaceRule = config.font ? "" : `
     @font-face {
       font-family: 'Geist Sans';
       src: url(data:font/woff2;base64,${geistFontBase64}) format('woff2');
@@ -252,38 +255,40 @@ export function renderChart(
 
   if (mode === 'web') {
     // Web mode: Self-contained fragment with inlined CSS and embedded font
-    const chartDiv = `
+    // Renders the same 4:5 background layer as CLI mode for consistent preview
+    const backgroundDiv = `
       <div 
-        id="llmplot-chart" 
-        class="bg-white rounded-xl shadow-sm flex flex-col" 
-        style="font-family: ${fontFamily}; width: ${cardWidth}px; min-height: ${cardHeight}px; padding: ${verticalPadding}px ${PADDING_INNER}px;"
+        id="llmplot-background"
+        class="bg-gray-100 flex items-center justify-center"
+        style="width: ${backgroundWidth}px; height: ${backgroundHeight}px; padding: ${PADDING_OUTER}px; box-sizing: border-box;"
       >
-        ${cardContent}
+        <div 
+          id="llmplot-chart" 
+          class="bg-white rounded-xl shadow-sm flex flex-col" 
+          style="font-family: ${fontFamily}; width: ${cardWidth}px; padding: ${PADDING_INNER}px;"
+        >
+          ${cardContent}
+        </div>
       </div>
     `;
 
-    // Apply scale wrapper if scale !== 1
-    const needsScaling = scale !== 1;
-    const scaledWidth = cardWidth * scale;
-    const scaledHeight = cardHeight * scale;
-
-    const rawHtml = needsScaling
+    const rawHtml = scale !== 1
       ? `
       <style>${fontFaceRule}</style>
-      <div style="width: ${scaledWidth}px; height: ${scaledHeight}px; overflow: hidden;">
+      <div style="width: ${backgroundWidth * scale}px; height: ${backgroundHeight * scale}px; overflow: hidden;">
         <div style="transform: scale(${scale}); transform-origin: top left;">
-          ${chartDiv}
+          ${backgroundDiv}
         </div>
       </div>
     `
       : `
       <style>${fontFaceRule}</style>
-      ${chartDiv}
+      ${backgroundDiv}
     `;
     return inline(rawHtml);
   }
 
-  // CLI mode: Full HTML document
+  // CLI mode: Full HTML document with background layer
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -292,9 +297,11 @@ export function renderChart(
   <title>${escapeHtml(config.title)}</title>
   <style>${fontFaceRule}</style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center" style="font-family: ${fontFamily}; padding: ${PADDING_OUTER}px;">
-  <div id="llmplot-chart" class="bg-white rounded-xl shadow-sm flex flex-col" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: ${verticalPadding}px ${PADDING_INNER}px;">
-    ${cardContent}
+<body style="margin: 0; padding: 0;">
+  <div id="llmplot-background" class="bg-gray-100 flex items-center justify-center" style="font-family: ${fontFamily}; width: ${backgroundWidth}px; height: ${backgroundHeight}px; padding: ${PADDING_OUTER}px; box-sizing: border-box;">
+    <div id="llmplot-chart" class="bg-white rounded-xl shadow-sm flex flex-col" style="width: ${cardWidth}px; padding: ${PADDING_INNER}px;">
+      ${cardContent}
+    </div>
   </div>
 </body>
 </html>`;

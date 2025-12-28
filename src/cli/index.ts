@@ -9,7 +9,6 @@ import {
   processModels,
   renderChart,
   calculateLayoutDimensions,
-  PADDING_OUTER,
   ParseError,
 } from "../core/index.js";
 import { renderToImage, getExportFormat } from "./screenshot.js";
@@ -54,8 +53,8 @@ async function main(): Promise<void> {
       );
 
       await renderToImage(html, outputPath, exportFormat, {
-        width: dimensions.cardWidth + PADDING_OUTER * 2,
-        height: dimensions.cardHeight + PADDING_OUTER * 2,
+        width: dimensions.backgroundWidth,
+        height: dimensions.backgroundHeight,
         scaleFactor: 2,
       });
 

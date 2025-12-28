@@ -95,15 +95,15 @@ function validateModelData(model: unknown, index: number): ModelData {
   }
 
   return {
-    model: m.model,
-    positive: m.positive as number | undefined,
-    total: m.total as number | undefined,
-    percent: m.percent as number | undefined,
-    displayName: m.displayName as string | undefined,
-    totalParams: m.totalParams as number | undefined,
-    activeParams: m.activeParams as number | undefined,
-    color: m.color as string | undefined,
-  };
+    model: m.model as string,
+    positive: m.positive,
+    total: m.total,
+    percent: m.percent,
+    displayName: m.displayName,
+    totalParams: m.totalParams,
+    activeParams: m.activeParams,
+    color: m.color,
+  } as ModelData;
 }
 
 function validateInputConfig(data: unknown): InputConfig {
