@@ -10,12 +10,11 @@ export interface CustomProvider {
 export interface ModelConfig {
   id: string;
   provider: string;
-  modelName: string;
+  modelName: string;  // Display name for the model (shown in chart)
   scoreMode: 'fraction' | 'percent';
   passed: string;
   total: string;
   percent: string;
-  displayName: string;
   totalParams: string;
   activeParams: string;
   color: string;

@@ -1,5 +1,5 @@
 export interface ModelData {
-  model: string; // format: provider/model-name (e.g., "anthropic/claude-opus-4.5")
+  model: string; // format: provider or provider/model-name (e.g., "anthropic" or "anthropic/claude-opus-4.5")
   passed?: number;       // required if percent not set
   total?: number;        // required if percent not set
   percent?: number;      // alternative to passed/total (0-100)
@@ -29,8 +29,8 @@ export interface ProviderConfig {
 
 export interface ProcessedModel extends ModelData {
   provider: string;      // parsed from model string
-  modelName: string;     // parsed from model string
-  displayLabel: string;  // displayName if set, otherwise modelName
+  modelName?: string;    // parsed from model string (undefined if provider-only)
+  displayLabel: string;  // displayName if set, otherwise modelName, otherwise provider
   percentage: number;
   providerConfig: ProviderConfig;
   rank: number;          // calculated rank with ties (1, 2, 3, 3, 5, 5, 5, 8)

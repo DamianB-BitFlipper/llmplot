@@ -54,13 +54,13 @@ export function ModelCard({ model, index, errors, canRemove, customProviders, on
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Model Name</Label>
+            <Label className="text-xs text-muted-foreground">Name</Label>
             <Input
               type="text"
               value={model.modelName}
               onChange={(e) => onUpdate({ modelName: e.target.value })}
               className={cn(errors.modelName && "border-destructive bg-destructive/10")}
-              placeholder="e.g., gpt-4o"
+              placeholder="e.g., GPT-4o"
             />
             {errors.modelName && <p className="text-xs text-destructive">{errors.modelName}</p>}
           </div>
@@ -138,16 +138,6 @@ export function ModelCard({ model, index, errors, canRemove, customProviders, on
           </CollapsibleTrigger>
 
           <CollapsibleContent className="mt-3 space-y-3 pl-5 border-l-2 border-border">
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Display Name</Label>
-              <Input
-                type="text"
-                value={model.displayName}
-                onChange={(e) => onUpdate({ displayName: e.target.value })}
-                placeholder="Override display label"
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">Total Params (B)</Label>

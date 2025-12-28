@@ -17,7 +17,6 @@ export function createEmptyModel(): ModelConfig {
     passed: "",
     total: "",
     percent: "",
-    displayName: "",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -29,12 +28,11 @@ const defaultModels: ModelConfig[] = [
   {
     id: generateId(),
     provider: "anthropic",
-    modelName: "claude-opus-4.5",
+    modelName: "Claude Opus 4.5",
     scoreMode: 'fraction',
     passed: "75",
     total: "100",
     percent: "",
-    displayName: "Claude Opus 4.5",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -43,12 +41,11 @@ const defaultModels: ModelConfig[] = [
   {
     id: generateId(),
     provider: "openai",
-    modelName: "gpt-5.2-high",
+    modelName: "GPT 5.2 High",
     scoreMode: 'percent',
     passed: "",
     total: "",
     percent: "74.2",
-    displayName: "GPT 5.2 High",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -57,12 +54,11 @@ const defaultModels: ModelConfig[] = [
   {
     id: generateId(),
     provider: "google",
-    modelName: "gemini-3-pro-preview",
+    modelName: "Gemini 3 Pro",
     scoreMode: 'percent',
     passed: "",
     total: "",
     percent: "71.8",
-    displayName: "Gemini 3 Pro",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -156,8 +152,9 @@ function toRenderConfig(config: ChartConfig): InputConfig {
     // Find custom provider if this model uses one
     const customProvider = config.customProviders.find(cp => cp.key === m.provider);
     
+    // Use provider-only format (no slash needed)
     const base: ModelData = {
-      model: `${m.provider}/${m.modelName}`,
+      model: m.provider,
     };
 
     if (m.scoreMode === 'fraction') {
@@ -167,8 +164,9 @@ function toRenderConfig(config: ChartConfig): InputConfig {
       base.percent = parseFloat(m.percent);
     }
 
-    if (m.displayName.trim()) {
-      base.displayName = m.displayName.trim();
+    // Use the modelName field as displayName
+    if (m.modelName.trim()) {
+      base.displayName = m.modelName.trim();
     }
     if (m.totalParams) {
       base.totalParams = parseInt(m.totalParams, 10);
@@ -234,7 +232,6 @@ export function useChartConfig() {
         passed: m.passed,
         total: m.total,
         percent: m.percent,
-        displayName: m.displayName,
         totalParams: m.totalParams,
         activeParams: m.activeParams,
         color: m.color,

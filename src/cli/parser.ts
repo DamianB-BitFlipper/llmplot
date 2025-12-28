@@ -55,12 +55,9 @@ function validateModelData(model: unknown, index: number): RawModelData {
 
   const m = model as Record<string, unknown>;
 
+  // Provider-only format (e.g., "anthropic") and provider/model-name format are both valid
   if (typeof m.model !== "string" || m.model.trim() === "") {
     throw new ParseError(`models[${index}].model must be a non-empty string`);
-  }
-
-  if (!m.model.includes("/")) {
-    throw new ParseError(`models[${index}].model must be in format "provider/model-name" (e.g., "anthropic/claude-opus-4.5")`);
   }
 
   // Check for percent vs passed/total

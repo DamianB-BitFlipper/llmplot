@@ -70,8 +70,9 @@ function calculateRanks(models: ProcessedModel[]): void {
 export function processModels(config: InputConfig): ProcessedModel[] {
   const models: ProcessedModel[] = config.models
     .map((m, index) => {
-      const [provider, ...rest] = m.model.split("/");
-      const modelName = rest.join("/"); // handle case of multiple slashes
+      const parts = m.model.split("/");
+      const provider = parts[0];
+      const modelName = parts.length > 1 ? parts.slice(1).join("/") : undefined; // handle case of multiple slashes or no slash
       const usePercent = m.percent !== undefined;
       const percentage = usePercent ? m.percent! : (m.passed! / m.total!) * 100;
       
@@ -87,7 +88,7 @@ export function processModels(config: InputConfig): ProcessedModel[] {
         ...m,
         provider,
         modelName,
-        displayLabel: m.displayName ?? modelName,
+        displayLabel: m.displayName ?? modelName ?? provider,
         percentage,
         // Use model's custom color/icon if provided, otherwise use provider defaults
         providerConfig: {
