@@ -185,8 +185,8 @@ function formToConfig(form: FormState): InputConfig {
     }
     
     // Use custom provider's icon if available
-    if (customProvider?.icon) {
-      base.icon = customProvider.icon;
+    if (customProvider?.iconDataUrl) {
+      base.iconDataUrl = customProvider.iconDataUrl;
     }
 
     return base;

@@ -1,6 +1,34 @@
 import type { InputConfig, ProcessedModel } from "./types.js";
 import { getProviderConfig } from "./providers.js";
 
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+/**
+ * Regex pattern for valid icon data URLs.
+ * Matches: data:image/svg+xml;base64,... or data:image/png;base64,...
+ */
+const ICON_DATA_URL_PATTERN = /^data:image\/(svg\+xml|png);base64,[A-Za-z0-9+/]+=*$/;
+
+/**
+ * Validate that an icon is a valid base64 data URL.
+ * Throws ValidationError if the icon is not a valid data URL.
+ * 
+ * @param icon - The icon string to validate
+ * @param context - Context for error messages (e.g., "models[0].icon")
+ */
+function validateIconDataUrl(icon: string, context: string): void {
+  if (!ICON_DATA_URL_PATTERN.test(icon)) {
+    throw new ValidationError(
+      `${context} must be a base64 data URL (data:image/svg+xml;base64,... or data:image/png;base64,...)`
+    );
+  }
+}
+
 /**
  * Format params label based on totalParams and activeParams.
  * - If only totalParams: "123B Dense"
@@ -41,11 +69,16 @@ function calculateRanks(models: ProcessedModel[]): void {
  */
 export function processModels(config: InputConfig): ProcessedModel[] {
   const models: ProcessedModel[] = config.models
-    .map((m) => {
+    .map((m, index) => {
       const [provider, ...rest] = m.model.split("/");
       const modelName = rest.join("/"); // handle case of multiple slashes
       const usePercent = m.percent !== undefined;
       const percentage = usePercent ? m.percent! : (m.positive! / m.total!) * 100;
+      
+      // Validate custom icon is a valid data URL
+      if (m.iconDataUrl !== undefined) {
+        validateIconDataUrl(m.iconDataUrl, `models[${index}].iconDataUrl`);
+      }
       
       // Get default provider config
       const defaultConfig = getProviderConfig(provider);
@@ -59,7 +92,7 @@ export function processModels(config: InputConfig): ProcessedModel[] {
         // Use model's custom color/icon if provided, otherwise use provider defaults
         providerConfig: {
           color: m.color ?? defaultConfig.color,
-          iconUrl: m.icon ?? defaultConfig.iconUrl,
+          iconUrl: m.iconDataUrl ?? defaultConfig.iconUrl,
         },
         rank: 0, // will be calculated after sorting
         paramsLabel: formatParamsLabel(m.totalParams, m.activeParams),

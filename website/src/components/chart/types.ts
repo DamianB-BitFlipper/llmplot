@@ -4,7 +4,7 @@ export interface CustomProvider {
   key: string;        // auto-generated from name, e.g., "my-provider"
   name: string;       // display name, e.g., "My Provider"
   color: string;      // hex color
-  icon?: string;      // optional base64 data URL for uploaded SVG/PNG
+  iconDataUrl?: string; // optional base64 data URL for uploaded SVG/PNG
 }
 
 export interface ModelFormData {

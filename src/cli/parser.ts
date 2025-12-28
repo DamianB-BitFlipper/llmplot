@@ -44,7 +44,7 @@ interface RawModelData {
   totalParams?: number;
   activeParams?: number;
   color?: string;
-  icon?: string; // file path before resolution
+  iconPath?: string; // file path before resolution to iconDataUrl
 }
 
 function validateModelData(model: unknown, index: number): RawModelData {
@@ -118,11 +118,9 @@ function validateModelData(model: unknown, index: number): RawModelData {
     }
   }
 
-  // Validate optional icon (file path)
-  if (m.icon !== undefined) {
-    if (typeof m.icon !== "string" || m.icon.trim() === "") {
-      throw new ParseError(`models[${index}].icon must be a non-empty string (file path)`);
-    }
+  // Validate optional icon (file path to be resolved later)
+  if (m.icon !== undefined && typeof m.icon !== "string") {
+    throw new ParseError(`models[${index}].icon must be a string (file path)`);
   }
 
   return {
@@ -134,7 +132,7 @@ function validateModelData(model: unknown, index: number): RawModelData {
     totalParams: m.totalParams as number | undefined,
     activeParams: m.activeParams as number | undefined,
     color: m.color as string | undefined,
-    icon: m.icon as string | undefined,
+    iconPath: m.icon as string | undefined,
   };
 }
 
@@ -223,9 +221,9 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
   // Resolve icon file paths to inline strings
   const models: ModelData[] = await Promise.all(
     rawConfig.models.map(async (m, index) => {
-      let icon: string | undefined;
-      if (m.icon) {
-        icon = await readIconFile(m.icon, resolvedBasePath, index);
+      let iconDataUrl: string | undefined;
+      if (m.iconPath) {
+        iconDataUrl = await readIconFile(m.iconPath, resolvedBasePath, index);
       }
 
       return {
@@ -237,7 +235,7 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
         totalParams: m.totalParams,
         activeParams: m.activeParams,
         color: m.color,
-        icon,
+        iconDataUrl,
       };
     })
   );

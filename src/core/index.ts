@@ -6,7 +6,7 @@
  */
 
 // Preprocessor
-export { processModels } from "./preprocessor.js";
+export { processModels, ValidationError } from "./preprocessor.js";
 
 // Providers
 export { getProviderGroups } from "./providers.js";

@@ -7,7 +7,7 @@ export interface ModelData {
   totalParams?: number;  // billions (e.g., 123 for 123B)
   activeParams?: number; // billions (e.g., 32 for 32B) - for MoE models
   color?: string;        // optional hex color override (e.g., "#FF5733")
-  icon?: string;         // optional inline SVG string or base64 data URL for custom icon
+  iconDataUrl?: string;  // optional base64 data URL for custom icon (data:image/svg+xml;base64,... or data:image/png;base64,...)
 }
 
 export interface InputConfig {
