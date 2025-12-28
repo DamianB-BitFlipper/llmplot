@@ -36,13 +36,14 @@ export const TARGET_OUTPUT_WIDTH = 1280;
 // Aspect ratio (4:5)
 const ASPECT_RATIO = 4 / 5;
 
+export type RenderMode = 'cli' | 'web';
+
 export interface RenderOptions {
   /** 
-   * If true, outputs a full standalone HTML document with inlined CSS and embedded font.
-   * If false, outputs just the chart div with raw Tailwind classes (for web embedding).
-   * Default: true
+   * 'cli' - Full standalone HTML document with gray background, inlined CSS, embedded font
+   * 'web' - Self-contained fragment (<style> + <div>) for embedding, with inlined CSS and embedded font
    */
-  standalone?: boolean;
+  mode: RenderMode;
 }
 
 function escapeHtml(str: string): string {
@@ -180,9 +181,9 @@ export function calculateLayoutDimensions(
 export function renderChart(
   config: InputConfig,
   models: ProcessedModel[],
-  options: RenderOptions = {}
+  options: RenderOptions
 ): string {
-  const { standalone = true } = options;
+  const { mode } = options;
   const showRankings = config.showRankings ?? false;
   const percentPrecision = config.percentPrecision ?? 0;
   
@@ -195,6 +196,19 @@ export function renderChart(
   );
   
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
+
+  const requestedFont = config.font ?? "Geist Sans";
+  const fontFamily = `'${requestedFont}', ui-sans-serif, system-ui, sans-serif`;
+  
+  const fontFaceRule = `
+    @font-face {
+      font-family: '${requestedFont}';
+      src: url(data:font/woff2;base64,${geistFontBase64}) format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+  `;
 
   // Build the card content
   const cardContent = `
@@ -220,33 +234,22 @@ export function renderChart(
     }
   `;
 
-  // For web embedding (non-standalone), return just the chart div with raw Tailwind classes
-  if (!standalone) {
-    return `
+  if (mode === 'web') {
+    // Web mode: Self-contained fragment with inlined CSS and embedded font
+    const rawHtml = `
+      <style>${fontFaceRule}</style>
       <div 
         id="llmplot-chart" 
         class="bg-white rounded-xl shadow-sm flex flex-col" 
-        style="width: ${cardWidth}px; height: ${cardHeight}px; padding: ${PADDING_INNER}px;"
+        style="font-family: ${fontFamily}; width: ${cardWidth}px; min-height: ${cardHeight}px; padding: ${PADDING_INNER}px;"
       >
         ${cardContent}
       </div>
     `;
+    return inline(rawHtml);
   }
 
-  // For standalone (CLI), use Twind to inline CSS and embed font
-  const requestedFont = config.font ?? "Geist Sans";
-  const fontFamily = `'${requestedFont}', ui-sans-serif, system-ui, sans-serif`;
-  
-  const fontFaceRule = `
-    @font-face {
-      font-family: '${requestedFont}';
-      src: url(data:font/woff2;base64,${geistFontBase64}) format('woff2');
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
-    }
-  `;
-
+  // CLI mode: Full HTML document
   const rawHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>

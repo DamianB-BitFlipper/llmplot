@@ -5,3 +5,6 @@ dist/
 
 # My files
 my_*
+
+# Astro cache
+website/.astro/

@@ -38,8 +38,8 @@ async function main(): Promise<void> {
     const config = parseYaml(yamlContent);
     const models = processModels(config);
 
-    // Render HTML (standalone mode with embedded CSS/fonts)
-    const html = renderChart(config, models, { standalone: true });
+    // Render HTML (CLI mode with full document, embedded CSS/fonts)
+    const html = renderChart(config, models, { mode: 'cli' });
 
     // Determine output path and format
     const outputPath = options.output ?? inputPath.replace(/\.ya?ml$/i, ".html");

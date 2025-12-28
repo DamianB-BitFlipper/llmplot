@@ -25,7 +25,7 @@ export default function ChartGenerator() {
     try {
       const config = parseYaml(yaml);
       const models = processModels(config);
-      const html = renderChart(config, models, { standalone: false });
+      const html = renderChart(config, models, { mode: 'web' });
       setChartHtml(html);
       setError(null);
     } catch (e) {
@@ -42,7 +42,7 @@ export default function ChartGenerator() {
     try {
       const config = parseYaml(yaml);
       const models = processModels(config);
-      const html = renderChart(config, models, { standalone: true });
+      const html = renderChart(config, models, { mode: 'web' });
       
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -100,14 +100,14 @@ export default function ChartGenerator() {
           )}
         </div>
         
-        <div className="min-h-96 p-4 bg-white border border-gray-300 rounded-lg">
+        <div className="min-h-96 p-8 border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
           {chartHtml ? (
             <div 
               id="chart-preview"
               dangerouslySetInnerHTML={{ __html: chartHtml }} 
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
+            <div className="text-gray-500">
               Click "Generate Chart" to preview
             </div>
           )}

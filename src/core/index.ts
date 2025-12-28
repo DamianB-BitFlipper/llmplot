@@ -15,7 +15,7 @@ export {
   PADDING_OUTER,
   TARGET_OUTPUT_WIDTH,
 } from "./renderer.js";
-export type { RenderOptions } from "./renderer.js";
+export type { RenderOptions, RenderMode } from "./renderer.js";
 
 // Types
 export type {
