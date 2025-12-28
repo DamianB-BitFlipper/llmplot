@@ -5,6 +5,7 @@ export type ExportFormat = "png" | "svg";
 export interface ImageDimensions {
   width: number;
   height: number;
+  scaleFactor?: number; // Scale factor to achieve target output size
 }
 
 /**
@@ -17,7 +18,10 @@ export async function renderToImage(
   format: ExportFormat,
   dimensions: ImageDimensions
 ): Promise<void> {
-  const { width, height } = dimensions;
+  const { width, height, scaleFactor = 1 } = dimensions;
+  
+  // Device scale factor combines base retina quality (2x) with content scaling
+  const deviceScaleFactor = 2 * scaleFactor;
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -26,11 +30,11 @@ export async function renderToImage(
   try {
     const page = await browser.newPage();
 
-    // Set viewport to requested dimensions
+    // Set viewport to content dimensions (scaling is handled by deviceScaleFactor)
     await page.setViewport({
-      width,
-      height,
-      deviceScaleFactor: 2, // Retina quality
+      width: Math.round(width),
+      height: Math.round(height),
+      deviceScaleFactor,
     });
 
     // Load the HTML content
@@ -42,9 +46,13 @@ export async function renderToImage(
     const clip = {
       x: 0,
       y: 0,
-      width,
-      height,
+      width: Math.round(width),
+      height: Math.round(height),
     };
+    
+    // Output dimensions after scaling
+    const outputWidth = Math.round(width * scaleFactor);
+    const outputHeight = Math.round(height * scaleFactor);
 
     if (format === "png") {
       await page.screenshot({
@@ -67,10 +75,10 @@ export async function renderToImage(
       const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" 
      xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="${clip.width}" 
-     height="${clip.height}" 
-     viewBox="0 0 ${clip.width} ${clip.height}">
-  <image width="${clip.width}" height="${clip.height}" 
+     width="${outputWidth}" 
+     height="${outputHeight}" 
+     viewBox="0 0 ${outputWidth} ${outputHeight}">
+  <image width="${outputWidth}" height="${outputHeight}" 
          xlink:href="data:image/png;base64,${base64Png}"/>
 </svg>`;
 

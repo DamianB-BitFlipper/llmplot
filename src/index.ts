@@ -2,7 +2,7 @@
 
 import { program } from "commander";
 import { parseInputFile, ParseError } from "./parser.js";
-import { renderHtml, calculateLayoutDimensions } from "./renderer.js";
+import { renderHtml, calculateLayoutDimensions, PADDING_OUTER, TARGET_OUTPUT_WIDTH } from "./renderer.js";
 import { renderToImage, getExportFormat } from "./screenshot.js";
 
 program
@@ -30,18 +30,27 @@ program
       const html = await renderHtml(config, models);
 
       if (imageFormat) {
-        // Calculate viewport dimensions based on content for 4:5 aspect ratio
-        const layoutDims = calculateLayoutDimensions(
+        // Calculate layout dimensions based on content
+        const showRankings = config.showRankings ?? false;
+        const { cardWidth, cardHeight } = calculateLayoutDimensions(
           models.length,
           !!config.subtitle,
           !!config.sponsoredBy,
-          config.showRankings ?? false
+          showRankings
         );
-
-        // Export as image (PNG or SVG)
+        
+        // Viewport = card + outer padding on each side
+        const viewportWidth = cardWidth + (PADDING_OUTER * 2);
+        const viewportHeight = cardHeight + (PADDING_OUTER * 2);
+        
+        // Calculate scale factor to achieve target output width
+        const scaleFactor = TARGET_OUTPUT_WIDTH / viewportWidth;
+        
+        // Export as image (PNG or SVG) scaled to target width
         await renderToImage(html, outputPath, imageFormat, {
-          width: Math.round(layoutDims.viewportWidth),
-          height: Math.round(layoutDims.viewportHeight)
+          width: viewportWidth,
+          height: viewportHeight,
+          scaleFactor
         });
       } else {
         // Write HTML output

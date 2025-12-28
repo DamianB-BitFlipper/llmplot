@@ -214,11 +214,12 @@ function getRankBadge(rank: number): { bg: string; text: string } {
   return { bg: "#E6E7EB", text: "#6B7280" }; // light gray with dark text for 4+
 }
 
-// Layout constants (in pixels) - fixed padding for consistent 4:5 aspect ratio
+// Layout constants (in pixels) - fixed padding throughout
 export const PADDING_OUTER = 40; // Padding from viewport edge to white card
 const PADDING_INNER = 40; // Padding inside the white card
 const GAP_HEADER_CHART = 24; // Gap between header and chart area
 const GAP_CHART_FOOTER = 24; // Gap between chart and footer
+const GAP_TITLE_SUBTITLE = 4; // Gap between title and subtitle
 const GAP_BETWEEN_BARS = 12; // Gap between bar rows
 
 // Bar row dimensions
@@ -226,76 +227,63 @@ const ICON_SIZE = 48; // Icon width/height
 const GAP_ICON_CONTENT = 16; // Gap between icon and bar content
 const RANK_BADGE_SIZE = 28; // Rank badge width
 const GAP_RANK_ICON = 16; // Gap between rank badge and icon
+const BAR_LABEL_HEIGHT = 24; // Model name + percentage row height
+const GAP_LABEL_BAR = 4; // Gap between label and bar
+const BAR_HEIGHT = 28; // The actual bar height
 
-// Typography heights (approximate)
-const TITLE_HEIGHT = 36; // h1 line height
-const SUBTITLE_HEIGHT = 24; // subtitle line height
-const GAP_TITLE_SUBTITLE = 4; // gap between title and subtitle
-const FOOTER_HEIGHT = 20; // footer line height
-const BAR_LABEL_HEIGHT = 24; // model name + percentage row
-const GAP_LABEL_BAR = 4; // gap between label and bar
-const BAR_HEIGHT = 28; // the actual bar height
+// Header/footer heights (approximate)
+const TITLE_HEIGHT = 36; // h1 text-3xl
+const SUBTITLE_HEIGHT = 24; // p text
 
-export interface LayoutDimensions {
-  barContainerWidth: number;
-  cardWidth: number;
-  cardHeight: number;
-  viewportWidth: number;
-  viewportHeight: number;
-}
+// Target output width - layout is scaled to achieve this
+export const TARGET_OUTPUT_WIDTH = 1280;
+
+// Aspect ratio (4:5)
+const ASPECT_RATIO = 4 / 5;
 
 /**
- * Calculate dimensions needed for layout.
- * The white card has a 4:5 aspect ratio, and the viewport is sized to fit it.
- * Returns card dimensions, bar container width, and viewport dimensions.
+ * Calculate layout dimensions based on content.
+ * Height is determined by content (fixed elements + number of bars).
+ * Width is calculated from height to achieve 4:5 aspect ratio.
+ * Bar container width is the variable that adjusts.
  */
 export function calculateLayoutDimensions(
   modelCount: number,
   hasSubtitle: boolean,
   hasFooter: boolean,
   showRankings: boolean
-): LayoutDimensions {
-  // Calculate total vertical space used by fixed elements inside the card
+): { barContainerWidth: number; cardWidth: number; cardHeight: number } {
+  // Calculate content height
   const headerHeight = TITLE_HEIGHT + (hasSubtitle ? GAP_TITLE_SUBTITLE + SUBTITLE_HEIGHT : 0);
-  const footerHeight = hasFooter ? FOOTER_HEIGHT : 0;
+  const footerHeight = hasFooter ? SUBTITLE_HEIGHT : 0;
   
   // Each bar row: label + gap + bar
   const barRowHeight = BAR_LABEL_HEIGHT + GAP_LABEL_BAR + BAR_HEIGHT;
-  // Total chart area height: all rows + gaps between them
-  const chartAreaHeight = (barRowHeight * modelCount) + (GAP_BETWEEN_BARS * (modelCount - 1));
+  // Total chart height: bars + gaps between them
+  const chartHeight = (barRowHeight * modelCount) + (GAP_BETWEEN_BARS * (modelCount - 1));
   
-  // Total card height (inner content + inner padding)
-  const cardHeight = 
-    PADDING_INNER * 2 +  // inner padding top + bottom
-    headerHeight +
-    GAP_HEADER_CHART +
-    chartAreaHeight +
+  // Total card content height
+  const contentHeight = 
+    headerHeight + 
+    GAP_HEADER_CHART + 
+    chartHeight + 
     (hasFooter ? GAP_CHART_FOOTER + footerHeight : 0);
   
-  // Width taken by icon and optional rank badge in each row
+  // Card height = content + inner padding
+  const cardHeight = contentHeight + (PADDING_INNER * 2);
+  
+  // Card width from aspect ratio (width = height * aspect_ratio)
+  const cardWidth = cardHeight * ASPECT_RATIO;
+  
+  // Calculate bar container width from card width
   const fixedRowWidth = 
     (showRankings ? RANK_BADGE_SIZE + GAP_RANK_ICON : 0) +
     ICON_SIZE +
     GAP_ICON_CONTENT;
   
-  // Calculate card width based on 4:5 aspect ratio
-  // width / height = 4/5, so width = height * 4/5
-  const cardWidth = cardHeight * (4 / 5);
-  
-  // Bar container width = card inner width - fixed elements
   const barContainerWidth = cardWidth - (PADDING_INNER * 2) - fixedRowWidth;
   
-  // Viewport = card + outer padding on all sides
-  const viewportWidth = cardWidth + (PADDING_OUTER * 2);
-  const viewportHeight = cardHeight + (PADDING_OUTER * 2);
-  
-  return {
-    barContainerWidth: Math.max(200, barContainerWidth),
-    cardWidth,
-    cardHeight,
-    viewportWidth,
-    viewportHeight
-  };
+  return { barContainerWidth, cardWidth, cardHeight };
 }
 
 export async function renderHtml(config: InputConfig, models: ProcessedModel[]): Promise<string> {
@@ -332,7 +320,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
     fontFamily = `ui-sans-serif, system-ui, sans-serif`;
   }
   
-  // Calculate layout dimensions for 4:5 aspect ratio
+  // Calculate layout dimensions based on content
   const { barContainerWidth, cardWidth, cardHeight } = calculateLayoutDimensions(
     models.length,
     !!config.subtitle,
@@ -353,16 +341,16 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
   <title>${escapeHtml(config.title)}</title>
   ${fontFaceRule ? `<style>${fontFaceRule}</style>` : ""}
 </head>
-<body class="h-screen w-screen bg-gray-100 flex items-center justify-center overflow-hidden" style="font-family: ${fontFamily}; padding: ${PADDING_OUTER}px;">
+<body class="bg-gray-100 flex items-center justify-center" style="font-family: ${fontFamily}; padding: ${PADDING_OUTER}px;">
   <div id="llmplot-chart" class="bg-white rounded-xl shadow-sm flex flex-col" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: ${PADDING_INNER}px;">
     <!-- Header -->
     <div style="margin-bottom: ${GAP_HEADER_CHART}px;">
-      <h1 class="text-3xl font-bold text-gray-900" style="line-height: ${TITLE_HEIGHT}px;">${escapeHtml(config.title)}</h1>
-      ${config.subtitle ? `<p class="text-gray-500" style="margin-top: ${GAP_TITLE_SUBTITLE}px; line-height: ${SUBTITLE_HEIGHT}px;">${escapeHtml(config.subtitle)}</p>` : ""}
+      <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(config.title)}</h1>
+      ${config.subtitle ? `<p class="text-gray-500" style="margin-top: ${GAP_TITLE_SUBTITLE}px;">${escapeHtml(config.subtitle)}</p>` : ""}
     </div>
     
     <!-- Chart -->
-    <div>
+    <div class="flex-1">
       ${chartHtml}
     </div>
     
@@ -371,7 +359,7 @@ export async function renderHtml(config: InputConfig, models: ProcessedModel[]):
       config.sponsoredBy
         ? `
     <div style="margin-top: ${GAP_CHART_FOOTER}px;">
-      <p class="text-sm text-gray-400 text-right" style="line-height: ${FOOTER_HEIGHT}px;">Sponsored by <span class="font-semibold text-gray-600">${escapeHtml(config.sponsoredBy)}</span></p>
+      <p class="text-sm text-gray-400 text-right">Sponsored by <span class="font-semibold text-gray-600">${escapeHtml(config.sponsoredBy)}</span></p>
     </div>`
         : ""
     }
