@@ -395,6 +395,17 @@ export function useChartConfig() {
     }));
   }, []);
 
+  const removeCustomProvider = useCallback((key: string) => {
+    setChartConfig((prev) => ({
+      ...prev,
+      customProviders: prev.customProviders.filter((p) => p.key !== key),
+      // Also clear the provider from any models using it
+      models: prev.models.map((m) =>
+        m.provider === key ? { ...m, provider: "" } : m
+      ),
+    }));
+  }, []);
+
   return {
     chartConfig,
     errors,
@@ -409,6 +420,7 @@ export function useChartConfig() {
     addModel,
     removeModel,
     addCustomProvider,
+    removeCustomProvider,
     downloadHtml,
   };
 }

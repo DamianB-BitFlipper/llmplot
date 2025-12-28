@@ -6,12 +6,11 @@ import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownTrigger,
+} from "@/components/ui/dropdown";
 import { ConfigCard } from "@/components/ui/config-card";
 import { ConfigCardColumn } from "@/components/ui/config-card-column";
 import { ConfigLabel } from "@/components/ui/config-label";
@@ -51,6 +50,7 @@ export default function ChartGenerator() {
     addModel,
     removeModel,
     addCustomProvider,
+    removeCustomProvider,
     downloadHtml,
   } = useChartConfig();
 
@@ -75,25 +75,25 @@ export default function ChartGenerator() {
                 </ConfigCardColumn>
                 <ConfigCardColumn>
                   <ConfigLabel>Font</ConfigLabel>
-                  <Select
+                  <Dropdown
                     value={chartConfig.font}
                     onValueChange={(value) => updateConfig({ font: value as FontFamily })}
                   >
-                    <SelectTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+                    <DropdownTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
+                      {fontDisplayNames[chartConfig.font || "sora"]}
+                    </DropdownTrigger>
+                    <DropdownContent>
                       {fontFamilies.map((font) => (
-                        <SelectItem 
+                        <DropdownItem 
                           key={font} 
                           value={font}
                           style={{ fontFamily: fontCssFamily[font] }}
                         >
                           {fontDisplayNames[font]}
-                        </SelectItem>
+                        </DropdownItem>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </DropdownContent>
+                  </Dropdown>
                 </ConfigCardColumn>
               </div>
 
@@ -144,20 +144,20 @@ export default function ChartGenerator() {
 
                     <ConfigCardColumn>
                       <ConfigLabel size="small">Precision</ConfigLabel>
-                      <Select
+                      <Dropdown
                         value={String(chartConfig.percentPrecision)}
                         onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
                       >
-                        <SelectTrigger className="w-14 h-7 text-xs bg-background">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">0</SelectItem>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="2">2</SelectItem>
-                          <SelectItem value="3">3</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        <DropdownTrigger className="w-14 h-7 text-xs bg-background">
+                          {chartConfig.percentPrecision}
+                        </DropdownTrigger>
+                        <DropdownContent>
+                          <DropdownItem value="0">0</DropdownItem>
+                          <DropdownItem value="1">1</DropdownItem>
+                          <DropdownItem value="2">2</DropdownItem>
+                          <DropdownItem value="3">3</DropdownItem>
+                        </DropdownContent>
+                      </Dropdown>
                     </ConfigCardColumn>
                   </div>
                 </div>
@@ -194,6 +194,7 @@ export default function ChartGenerator() {
               onUpdate={(updates) => updateModel(model.id, updates)}
               onRemove={() => removeModel(model.id)}
               onAddCustomProvider={() => setShowCustomProviderModal(true)}
+              onDeleteCustomProvider={removeCustomProvider}
               onMarkTouched={(field) => markTouched(model.id, field)}
             />
           ))}

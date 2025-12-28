@@ -1,14 +1,13 @@
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { getProviderGroups, getIcon } from "../../../../src/core/index.js";
 import type { CustomProvider } from "./types.js";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectSeparator,
-} from "@/components/ui/select";
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownTrigger,
+  DropdownSeparator,
+} from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 
 /** Get inline SVG for a provider by icon key */
@@ -21,6 +20,7 @@ interface ProviderSelectProps {
   onChange: (value: string) => void;
   customProviders: CustomProvider[];
   onAddCustomClick: () => void;
+  onDeleteCustom?: (key: string) => void;
   error?: string;
   className?: string;
 }
@@ -30,6 +30,7 @@ export function ProviderSelect({
   onChange,
   customProviders,
   onAddCustomClick,
+  onDeleteCustom,
   error,
   className,
 }: ProviderSelectProps) {
@@ -52,37 +53,29 @@ export function ProviderSelect({
 
   const currentDisplay = getCurrentDisplay();
 
-  const handleValueChange = (newValue: string) => {
-    if (newValue === "__add_custom__") {
-      onAddCustomClick();
-    } else {
-      onChange(newValue);
-    }
-  };
-
   return (
     <div className="space-y-1">
-      <Select value={value} onValueChange={handleValueChange}>
-        <SelectTrigger className={cn("h-8 text-sm", error && "border-destructive", className)}>
-          <SelectValue placeholder="Select provider...">
-            {currentDisplay && (
-              <span className="flex items-center gap-2">
-                <img
-                  src={currentDisplay.isCustom && currentDisplay.iconDataUrl
-                    ? currentDisplay.iconDataUrl
-                    : getProviderIcon(currentDisplay.iconKey || "")}
-                  className="w-4 h-4 flex-shrink-0"
-                  alt=""
-                />
-                <span className="truncate">{currentDisplay.name}</span>
-              </span>
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
+      <Dropdown value={value} onValueChange={onChange}>
+        <DropdownTrigger className={cn("h-8 text-sm", error && "border-destructive", className)}>
+          {currentDisplay ? (
+            <span className="flex items-center gap-2">
+              <img
+                src={currentDisplay.isCustom && currentDisplay.iconDataUrl
+                  ? currentDisplay.iconDataUrl
+                  : getProviderIcon(currentDisplay.iconKey || "")}
+                className="w-4 h-4 flex-shrink-0"
+                alt=""
+              />
+              <span className="truncate">{currentDisplay.name}</span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">Select provider...</span>
+          )}
+        </DropdownTrigger>
+        <DropdownContent>
           {/* Built-in providers */}
           {providerGroups.map((provider) => (
-            <SelectItem key={provider.key} value={provider.key}>
+            <DropdownItem key={provider.key} value={provider.key}>
               <span className="flex items-center gap-2">
                 <img
                   src={getProviderIcon(provider.iconKey)}
@@ -91,41 +84,52 @@ export function ProviderSelect({
                 />
                 <span>{provider.group}</span>
               </span>
-            </SelectItem>
+            </DropdownItem>
           ))}
 
           {/* Custom providers section */}
           {customProviders.length > 0 && (
             <>
-              <SelectSeparator />
+              <DropdownSeparator />
               {customProviders.map((provider) => (
-                <SelectItem key={provider.key} value={provider.key}>
-                  <span className="flex items-center gap-2">
-                    {provider.iconDataUrl ? (
-                      <img src={provider.iconDataUrl} className="w-4 h-4 flex-shrink-0" alt="" />
-                    ) : (
-                      <span
-                        className="w-4 h-4 flex-shrink-0 rounded-full"
-                        style={{ backgroundColor: provider.color }}
+                <DropdownItem key={provider.key} value={provider.key} className="pr-2">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="flex items-center gap-2">
+                      {provider.iconDataUrl ? (
+                        <img src={provider.iconDataUrl} className="w-4 h-4 flex-shrink-0" alt="" />
+                      ) : (
+                        <span
+                          className="w-4 h-4 flex-shrink-0 rounded-full"
+                          style={{ backgroundColor: provider.color }}
+                        />
+                      )}
+                      <span>{provider.name}</span>
+                    </span>
+                    {onDeleteCustom && (
+                      <Trash2
+                        className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive flex-shrink-0 ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteCustom(provider.key);
+                        }}
                       />
                     )}
-                    <span>{provider.name}</span>
-                  </span>
-                </SelectItem>
+                  </div>
+                </DropdownItem>
               ))}
             </>
           )}
 
           {/* Add custom option */}
-          <SelectSeparator />
-          <SelectItem value="__add_custom__">
+          <DropdownSeparator />
+          <DropdownItem value="__add_custom__" onSelect={onAddCustomClick}>
             <span className="flex items-center gap-2 text-muted-foreground">
               <Plus className="w-4 h-4" />
               <span>Custom...</span>
             </span>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+          </DropdownItem>
+        </DropdownContent>
+      </Dropdown>
       {error && <p className="text-[10px] text-destructive">{error}</p>}
     </div>
   );

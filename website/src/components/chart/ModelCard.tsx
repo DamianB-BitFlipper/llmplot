@@ -21,6 +21,7 @@ interface ModelCardProps {
   onUpdate: (updates: Partial<ModelConfig>) => void;
   onRemove: () => void;
   onAddCustomProvider: () => void;
+  onDeleteCustomProvider?: (key: string) => void;
   onMarkTouched: (field: string) => void;
 }
 
@@ -35,6 +36,7 @@ export function ModelCard({
   onUpdate, 
   onRemove, 
   onAddCustomProvider,
+  onDeleteCustomProvider,
   onMarkTouched
 }: ModelCardProps) {
   const showError = (field: keyof ModelValidationErrors): string | undefined => {
@@ -59,6 +61,7 @@ export function ModelCard({
               }}
               customProviders={customProviders}
               onAddCustomClick={onAddCustomProvider}
+              onDeleteCustom={onDeleteCustomProvider}
               error={showError('provider')}
               className="h-8 text-sm"
             />
