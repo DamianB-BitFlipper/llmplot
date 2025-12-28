@@ -1,4 +1,4 @@
-gtitle: "SWE-bench Leaderboards"
+title: "SWE-bench Leaderboards"
 subtitle: "Bash Only evaluates each LLM with a minimal agent on SWE-bench Verified · 500 instances"
 sponsoredBy: "DamianB-BitFlipper"
 showRankings: true
@@ -18,7 +18,7 @@ models:
     displayName: "GPT 5.2 High"
     percent: 71.8
     color: "#4BA080"
-    icon: "assets/icons/cohere.svg"
+    icon: "assets/icons/openai.svg"
 
   - model: "deepseek/deepseek-v3.2"
     displayName: "DeepSeek V3.2"

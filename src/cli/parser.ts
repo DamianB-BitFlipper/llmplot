@@ -23,7 +23,9 @@ async function readIconFile(iconPath: string, basePath: string, index: number): 
 
   const ext = extname(iconPath).toLowerCase();
   if (ext === ".svg") {
-    return await file.text();
+    const svg = await file.text();
+    const base64 = Buffer.from(svg).toString("base64");
+    return `data:image/svg+xml;base64,${base64}`;
   } else if (ext === ".png") {
     const buffer = await file.arrayBuffer();
     const base64 = Buffer.from(buffer).toString("base64");
