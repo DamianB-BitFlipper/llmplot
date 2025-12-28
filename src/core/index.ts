@@ -5,8 +5,8 @@
  * No file I/O - all assets are bundled inline.
  */
 
-// Parser
-export { processModels } from "./parser.js";
+// Preprocessor
+export { processModels } from "./preprocessor.js";
 
 // Providers
 export { getProviderGroups } from "./providers.js";
