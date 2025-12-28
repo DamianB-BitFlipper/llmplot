@@ -19,18 +19,7 @@ import { ConfigTextarea } from "@/components/config-card/config-textarea";
 import { AdvancedToggle } from "@/components/common/advanced-toggle";
 import { AdvancedContent } from "@/components/common/advanced-content";
 
-import { fontFamilies, fontDisplayNames, type FontFamily } from "./chart/types.js";
-
-// Map font family keys to their CSS font-family values
-const fontCssFamily: Record<FontFamily, string> = {
-  "geist": "'Geist', sans-serif",
-  "inter": "'Inter', sans-serif",
-  "ibm-plex-sans": "'IBM Plex Sans', sans-serif",
-  "libre-baskerville": "'Libre Baskerville', serif",
-  "manrope": "'Manrope', sans-serif",
-  "sora": "'Sora', sans-serif",
-  "space-grotesk": "'Space Grotesk', sans-serif",
-};
+import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
 
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
@@ -80,17 +69,17 @@ export default function ChartGenerator() {
                     value={chartConfig.font}
                     onValueChange={(value) => updateConfig({ font: value as FontFamily })}
                   >
-                    <DropdownTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
-                      {fontDisplayNames[chartConfig.font || "sora"]}
+                    <DropdownTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontConfig[chartConfig.font || "sora"].css }}>
+                      {fontConfig[chartConfig.font || "sora"].display}
                     </DropdownTrigger>
                     <DropdownContent>
                       {fontFamilies.map((font) => (
                         <DropdownItem 
                           key={font} 
                           value={font}
-                          style={{ fontFamily: fontCssFamily[font] }}
+                          style={{ fontFamily: fontConfig[font].css }}
                         >
-                          {fontDisplayNames[font]}
+                          {fontConfig[font].display}
                         </DropdownItem>
                       ))}
                     </DropdownContent>

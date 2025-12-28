@@ -22,18 +22,19 @@ export interface ModelConfig {
 }
 
 /** Available font families */
-export const fontFamilies = ["geist", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
+export const fontFamilies = ["geist", "geist-mono", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
 export type FontFamily = typeof fontFamilies[number];
 
-/** Map font family keys to display names */
-export const fontDisplayNames: Record<FontFamily, string> = {
-  "geist": "Geist",
-  "ibm-plex-sans": "IBM Plex Sans",
-  "inter": "Inter",
-  "libre-baskerville": "Libre Baskerville",
-  "manrope": "Manrope",
-  "sora": "Sora",
-  "space-grotesk": "Space Grotesk",
+/** Font configuration with display names and CSS values */
+export const fontConfig: Record<FontFamily, { display: string; css: string }> = {
+  "geist": { display: "Geist", css: "'Geist', sans-serif" },
+  "geist-mono": { display: "Geist Mono", css: "'Geist Mono', monospace" },
+  "ibm-plex-sans": { display: "IBM Plex Sans", css: "'IBM Plex Sans', sans-serif" },
+  "inter": { display: "Inter", css: "'Inter', sans-serif" },
+  "libre-baskerville": { display: "Libre Baskerville", css: "'Libre Baskerville', serif" },
+  "manrope": { display: "Manrope", css: "'Manrope', sans-serif" },
+  "sora": { display: "Sora", css: "'Sora', sans-serif" },
+  "space-grotesk": { display: "Space Grotesk", css: "'Space Grotesk', sans-serif" },
 };
 
 export interface ChartConfig {
