@@ -10,7 +10,5 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
   ],
-  // GitHub Pages deployment
-  site: "https://your-username.github.io",
-  base: "/llmplot",
+  site: "https://llmplot.com",
 });
