@@ -22,6 +22,7 @@ export default function ChartGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [chartHtml, setChartHtml] = useState<string>("");
   const [containerWidth, setContainerWidth] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Track container width with ResizeObserver
@@ -39,8 +40,10 @@ export default function ChartGenerator() {
   // Re-render chart when container width changes or yaml changes (debounced)
   useEffect(() => {
     if (containerWidth > 0 && yaml) {
+      setIsGenerating(true);
       const timeout = setTimeout(() => {
         generateChart();
+        setIsGenerating(false);
       }, 1000);
       return () => clearTimeout(timeout);
     }
@@ -114,6 +117,9 @@ export default function ChartGenerator() {
           ref={containerRef}
           className="relative border border-gray-300 rounded-lg overflow-hidden"
         >
+          {isGenerating && (
+            <div className="absolute inset-0 bg-gray-500/20 z-20" />
+          )}
           {chartHtml && (
             <button
               onClick={downloadHtml}
