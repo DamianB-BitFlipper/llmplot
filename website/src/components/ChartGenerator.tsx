@@ -35,6 +35,9 @@ export default function ChartGenerator() {
   const {
     chartConfig,
     errors,
+    touched,
+    showAllErrors,
+    markTouched,
     chartHtml,
     isGenerating,
     containerRef,
@@ -49,96 +52,100 @@ export default function ChartGenerator() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Form Panel */}
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="title"
-              value={chartConfig.title}
-              onChange={(e) => updateConfig({ title: e.target.value })}
-              className={cn(errors.title && "border-destructive bg-destructive/10")}
-              placeholder="Benchmark Title"
-            />
-            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+      <div className="space-y-4">
+        {/* Header & Options Compact Section */}
+        <div className="p-3 border rounded-lg bg-card space-y-3">
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-12 md:col-span-4 space-y-1">
+              <Label htmlFor="title" className="text-[10px] uppercase text-muted-foreground font-semibold">
+                Title <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="title"
+                value={chartConfig.title}
+                onChange={(e) => updateConfig({ title: e.target.value })}
+                className={cn("h-8 text-sm", errors.title && "border-destructive bg-destructive/10")}
+                placeholder="Benchmark Title"
+              />
+            </div>
+
+            <div className="col-span-6 md:col-span-4 space-y-1">
+              <Label htmlFor="subtitle" className="text-[10px] uppercase text-muted-foreground font-semibold">Subtitle</Label>
+              <Input
+                id="subtitle"
+                value={chartConfig.subtitle}
+                onChange={(e) => updateConfig({ subtitle: e.target.value })}
+                placeholder="Optional description"
+                className="h-8 text-sm"
+              />
+            </div>
+
+            <div className="col-span-6 md:col-span-4 space-y-1">
+              <Label htmlFor="sponsoredBy" className="text-[10px] uppercase text-muted-foreground font-semibold">Sponsored By</Label>
+              <Input
+                id="sponsoredBy"
+                value={chartConfig.sponsoredBy}
+                onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
+                placeholder="Optional sponsor"
+                className="h-8 text-sm"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="subtitle">Subtitle</Label>
-            <Input
-              id="subtitle"
-              value={chartConfig.subtitle}
-              onChange={(e) => updateConfig({ subtitle: e.target.value })}
-              placeholder="Optional description"
-            />
-          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="showRankings"
+                checked={chartConfig.showRankings}
+                onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
+              />
+              <Label htmlFor="showRankings" className="text-xs cursor-pointer font-medium">
+                Show Rankings
+              </Label>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="sponsoredBy">Sponsored By</Label>
-            <Input
-              id="sponsoredBy"
-              value={chartConfig.sponsoredBy}
-              onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
-              placeholder="Optional sponsor"
-            />
-          </div>
-        </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Label className="text-xs font-medium text-muted-foreground">Precision</Label>
+                <Select
+                  value={String(chartConfig.percentPrecision)}
+                  onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
+                >
+                  <SelectTrigger className="w-12 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0</SelectItem>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Options Section */}
-        <div className="flex flex-wrap gap-4 items-center p-4 bg-muted rounded-lg">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="showRankings"
-              checked={chartConfig.showRankings}
-              onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
-            />
-            <Label htmlFor="showRankings" className="cursor-pointer">
-              Show Rankings
-            </Label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Label>Precision:</Label>
-            <Select
-              value={String(chartConfig.percentPrecision)}
-              onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">0</SelectItem>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Label>Font:</Label>
-            <Select
-              value={chartConfig.font}
-              onValueChange={(value) => updateConfig({ font: value as FontFamily })}
-            >
-              <SelectTrigger className="w-44" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {fontFamilies.map((font) => (
-                  <SelectItem 
-                    key={font} 
-                    value={font}
-                    style={{ fontFamily: fontCssFamily[font] }}
-                  >
-                    {fontDisplayNames[font]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs font-medium text-muted-foreground">Font</Label>
+                <Select
+                  value={chartConfig.font}
+                  onValueChange={(value) => updateConfig({ font: value as FontFamily })}
+                >
+                  <SelectTrigger className="w-32 h-7 text-xs" style={{ fontFamily: fontCssFamily[chartConfig.font || "sora"] }}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fontFamilies.map((font) => (
+                      <SelectItem 
+                        key={font} 
+                        value={font}
+                        style={{ fontFamily: fontCssFamily[font] }}
+                      >
+                        {fontDisplayNames[font]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -152,11 +159,14 @@ export default function ChartGenerator() {
               model={model}
               index={index}
               errors={errors.models[model.id] || {}}
+              touched={touched[model.id] || {}}
+              showAllErrors={showAllErrors}
               canRemove={chartConfig.models.length > 1}
               customProviders={chartConfig.customProviders}
               onUpdate={(updates) => updateModel(model.id, updates)}
               onRemove={() => removeModel(model.id)}
               onAddCustomProvider={() => setShowCustomProviderModal(true)}
+              onMarkTouched={(field) => markTouched(model.id, field)}
             />
           ))}
 

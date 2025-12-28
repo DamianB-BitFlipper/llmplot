@@ -205,6 +205,11 @@ function toRenderConfig(config: ChartConfig): InputConfig {
 export function useChartConfig() {
   const [chartConfig, setChartConfig] = useState<ChartConfig>(defaultChartConfig);
   const [errors, setErrors] = useState<ValidationErrors>({ models: {} });
+  // Track which fields have been touched by the user
+  const [touched, setTouched] = useState<Record<string, Record<string, boolean>>>({});
+  // State to force showing all errors (e.g. after download attempt)
+  const [showAllErrors, setShowAllErrors] = useState(false);
+  
   const [chartHtml, setChartHtml] = useState<string>("");
   const [containerWidth, setContainerWidth] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -321,11 +326,19 @@ export function useChartConfig() {
     }
   }, [containerWidth, chartFingerprint, generateChart]);
 
+  const markTouched = useCallback((modelId: string, field: string) => {
+    setTouched((prev) => ({
+      ...prev,
+      [modelId]: { ...(prev[modelId] || {}), [field]: true }
+    }));
+  }, []);
+
   const downloadHtml = useCallback(() => {
     const currentConfig = configRef.current;
     const validationErrors = validateConfig(currentConfig);
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
+      setShowAllErrors(true);
       return;
     }
 
@@ -358,6 +371,7 @@ export function useChartConfig() {
   }, []);
 
   const addModel = useCallback(() => {
+    setShowAllErrors(false);
     setChartConfig((prev) => ({
       ...prev,
       models: [...prev.models, createEmptyModel()],
@@ -384,6 +398,9 @@ export function useChartConfig() {
   return {
     chartConfig,
     errors,
+    touched,
+    showAllErrors,
+    markTouched,
     chartHtml,
     isGenerating,
     containerRef,

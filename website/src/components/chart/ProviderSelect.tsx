@@ -22,6 +22,7 @@ interface ProviderSelectProps {
   customProviders: CustomProvider[];
   onAddCustomClick: () => void;
   error?: string;
+  className?: string;
 }
 
 export function ProviderSelect({
@@ -30,6 +31,7 @@ export function ProviderSelect({
   customProviders,
   onAddCustomClick,
   error,
+  className,
 }: ProviderSelectProps) {
   const providerGroups = getProviderGroups();
 
@@ -61,7 +63,7 @@ export function ProviderSelect({
   return (
     <div className="space-y-1">
       <Select value={value} onValueChange={handleValueChange}>
-        <SelectTrigger className={cn(error && "border-destructive")}>
+        <SelectTrigger className={cn("h-8 text-sm", error && "border-destructive", className)}>
           <SelectValue placeholder="Select provider...">
             {currentDisplay && (
               <span className="flex items-center gap-2">
@@ -69,7 +71,7 @@ export function ProviderSelect({
                   src={currentDisplay.isCustom && currentDisplay.iconDataUrl
                     ? currentDisplay.iconDataUrl
                     : getProviderIcon(currentDisplay.iconKey || "")}
-                  className="w-5 h-5 flex-shrink-0"
+                  className="w-4 h-4 flex-shrink-0"
                   alt=""
                 />
                 <span className="truncate">{currentDisplay.name}</span>
@@ -84,7 +86,7 @@ export function ProviderSelect({
               <span className="flex items-center gap-2">
                 <img
                   src={getProviderIcon(provider.iconKey)}
-                  className="w-5 h-5 flex-shrink-0"
+                  className="w-4 h-4 flex-shrink-0"
                   alt=""
                 />
                 <span>{provider.group}</span>
@@ -100,10 +102,10 @@ export function ProviderSelect({
                 <SelectItem key={provider.key} value={provider.key}>
                   <span className="flex items-center gap-2">
                     {provider.iconDataUrl ? (
-                      <img src={provider.iconDataUrl} className="w-5 h-5 flex-shrink-0" alt="" />
+                      <img src={provider.iconDataUrl} className="w-4 h-4 flex-shrink-0" alt="" />
                     ) : (
                       <span
-                        className="w-5 h-5 flex-shrink-0 rounded-full"
+                        className="w-4 h-4 flex-shrink-0 rounded-full"
                         style={{ backgroundColor: provider.color }}
                       />
                     )}
@@ -118,13 +120,13 @@ export function ProviderSelect({
           <SelectSeparator />
           <SelectItem value="__add_custom__">
             <span className="flex items-center gap-2 text-muted-foreground">
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4" />
               <span>Custom...</span>
             </span>
           </SelectItem>
         </SelectContent>
       </Select>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-[10px] text-destructive">{error}</p>}
     </div>
   );
 }
