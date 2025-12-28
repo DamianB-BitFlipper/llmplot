@@ -1,4 +1,4 @@
-import xLogoIcon from "@assets/x-logo.svg";
+const xLogoIcon = { src: "/x-logo.svg" };
 
 export interface XFollowBadgeProps {
   className?: string;

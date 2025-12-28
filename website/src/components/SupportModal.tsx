@@ -10,7 +10,7 @@ import { XFollowBadge } from "./badges/XFollowBadge";
 import { GitHubStarBadge } from "./badges/GitHubStarBadge";
 import { BuyMeCoffeeBadge } from "./badges/BuyMeCoffeeBadge";
 import { Heart } from "lucide-react";
-import damianImg from "@assets/damian.jpg";
+const damianImg = { src: "/damian.jpg" };
 
 const STORAGE_KEY = "llmplot-hide-support-modal";
 

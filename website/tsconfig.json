@@ -6,8 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@core/*": ["../src/core/*"],
-      "@assets/*": ["./assets/*"]
+      "@core/*": ["../src/core/*"]
     }
   },
   "include": ["src/**/*", "../src/core/**/*"]

@@ -1,4 +1,4 @@
-import githubIcon from "@assets/github.svg";
+const githubIcon = { src: "/github.svg" };
 
 export interface GitHubStarBadgeProps {
   className?: string;
