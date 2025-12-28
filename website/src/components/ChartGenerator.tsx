@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Download, Plus } from "lucide-react";
-import { useChartForm, hasErrors } from "./chart/useChartForm.js";
+import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 
@@ -13,18 +13,18 @@ export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   
   const {
-    form,
+    chartConfig,
     errors,
     chartHtml,
     isGenerating,
     containerRef,
-    updateForm,
+    updateConfig,
     updateModel,
     addModel,
     removeModel,
     addCustomProvider,
     downloadHtml,
-  } = useChartForm();
+  } = useChartConfig();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -38,8 +38,8 @@ export default function ChartGenerator() {
             </label>
             <input
               type="text"
-              value={form.title}
-              onChange={(e) => updateForm({ title: e.target.value })}
+              value={chartConfig.title}
+              onChange={(e) => updateConfig({ title: e.target.value })}
               className={inputClass(!!errors.title)}
               placeholder="Benchmark Title"
             />
@@ -50,8 +50,8 @@ export default function ChartGenerator() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
             <input
               type="text"
-              value={form.subtitle}
-              onChange={(e) => updateForm({ subtitle: e.target.value })}
+              value={chartConfig.subtitle}
+              onChange={(e) => updateConfig({ subtitle: e.target.value })}
               className={inputClass(false)}
               placeholder="Optional description"
             />
@@ -61,8 +61,8 @@ export default function ChartGenerator() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Sponsored By</label>
             <input
               type="text"
-              value={form.sponsoredBy}
-              onChange={(e) => updateForm({ sponsoredBy: e.target.value })}
+              value={chartConfig.sponsoredBy}
+              onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
               className={inputClass(false)}
               placeholder="Optional sponsor"
             />
@@ -74,8 +74,8 @@ export default function ChartGenerator() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={form.showRankings}
-              onChange={(e) => updateForm({ showRankings: e.target.checked })}
+              checked={chartConfig.showRankings}
+              onChange={(e) => updateConfig({ showRankings: e.target.checked })}
               className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
             />
             <span className="text-sm text-gray-700">Show Rankings</span>
@@ -84,8 +84,8 @@ export default function ChartGenerator() {
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-700">Precision:</label>
             <select
-              value={form.percentPrecision}
-              onChange={(e) => updateForm({ percentPrecision: parseInt(e.target.value, 10) })}
+              value={chartConfig.percentPrecision}
+              onChange={(e) => updateConfig({ percentPrecision: parseInt(e.target.value, 10) })}
               className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value={0}>0</option>
@@ -97,13 +97,19 @@ export default function ChartGenerator() {
 
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-700">Font:</label>
-            <input
-              type="text"
-              value={form.font}
-              onChange={(e) => updateForm({ font: e.target.value })}
-              className="w-32 px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="System default"
-            />
+            <select
+              value={chartConfig.font}
+              onChange={(e) => updateConfig({ font: e.target.value })}
+              className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Geist Sans">Geist Sans</option>
+              <option value="Inter">Inter</option>
+              <option value="Roboto">Roboto</option>
+              <option value="Open Sans">Open Sans</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="">System Default</option>
+            </select>
           </div>
         </div>
 
@@ -111,14 +117,14 @@ export default function ChartGenerator() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Models</h3>
           
-          {form.models.map((model, index) => (
+          {chartConfig.models.map((model, index) => (
             <ModelCard
               key={model.id}
               model={model}
               index={index}
               errors={errors.models[model.id] || {}}
-              canRemove={form.models.length > 1}
-              customProviders={form.customProviders}
+              canRemove={chartConfig.models.length > 1}
+              customProviders={chartConfig.customProviders}
               onUpdate={(updates) => updateModel(model.id, updates)}
               onRemove={() => removeModel(model.id)}
               onAddCustomProvider={() => setShowCustomProviderModal(true)}

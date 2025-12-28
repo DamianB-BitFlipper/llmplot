@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { processModels, renderChart, calculateLayoutDimensions } from "../../../../src/core/index.js";
 import type { InputConfig, ModelData } from "../../../../src/core/index.js";
-import type { FormState, ModelFormData, ValidationErrors, CustomProvider } from "./types.js";
+import type { ChartConfig, ModelConfig, ValidationErrors, CustomProvider } from "./types.js";
 
 // Utilities
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export function createEmptyModel(): ModelFormData {
+export function createEmptyModel(): ModelConfig {
   return {
     id: generateId(),
     provider: "",
@@ -25,30 +25,16 @@ export function createEmptyModel(): ModelFormData {
   };
 }
 
-const defaultModels: ModelFormData[] = [
-  {
-    id: generateId(),
-    provider: "openai",
-    modelName: "gpt-4o",
-    scoreMode: 'fraction',
-    positive: "92",
-    total: "100",
-    percent: "",
-    displayName: "",
-    totalParams: "",
-    activeParams: "",
-    color: "",
-    showAdvanced: false,
-  },
+const defaultModels: ModelConfig[] = [
   {
     id: generateId(),
     provider: "anthropic",
-    modelName: "claude-3.5-sonnet",
+    modelName: "claude-opus-4.5",
     scoreMode: 'fraction',
-    positive: "89",
+    positive: "75",
     total: "100",
     percent: "",
-    displayName: "",
+    displayName: "Claude Opus 4.5",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -56,13 +42,27 @@ const defaultModels: ModelFormData[] = [
   },
   {
     id: generateId(),
-    provider: "gemini",
-    modelName: "gemini-2.0-flash",
-    scoreMode: 'fraction',
-    positive: "85",
-    total: "100",
-    percent: "",
-    displayName: "",
+    provider: "google",
+    modelName: "gemini-3-pro-preview",
+    scoreMode: 'percent',
+    positive: "",
+    total: "",
+    percent: "74.2",
+    displayName: "Gemini 3 Pro",
+    totalParams: "",
+    activeParams: "",
+    color: "",
+    showAdvanced: false,
+  },
+  {
+    id: generateId(),
+    provider: "openai",
+    modelName: "gpt-5.2-high",
+    scoreMode: 'percent',
+    positive: "",
+    total: "",
+    percent: "71.8",
+    displayName: "GPT 5.2 High",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -70,26 +70,26 @@ const defaultModels: ModelFormData[] = [
   },
 ];
 
-const defaultFormState: FormState = {
+const defaultChartConfig: ChartConfig = {
   title: "Example Benchmark",
   subtitle: "Model Performance Comparison",
   sponsoredBy: "",
   showRankings: false,
   percentPrecision: 0,
-  font: "",
+  font: "Geist Sans",
   models: defaultModels,
   customProviders: [],
 };
 
 // Validation
-function validateForm(form: FormState): ValidationErrors {
+function validateConfig(config: ChartConfig): ValidationErrors {
   const errors: ValidationErrors = { models: {} };
 
-  if (!form.title.trim()) {
+  if (!config.title.trim()) {
     errors.title = "Title is required";
   }
 
-  form.models.forEach((model) => {
+  config.models.forEach((model) => {
     const modelErrors: ValidationErrors['models'][string] = {};
 
     if (!model.provider.trim()) {
@@ -150,11 +150,11 @@ export function hasErrors(errors: ValidationErrors): boolean {
   return !!errors.title || Object.keys(errors.models).length > 0;
 }
 
-// Convert form state to InputConfig
-function formToConfig(form: FormState): InputConfig {
-  const models: ModelData[] = form.models.map((m) => {
+// Convert chart config to InputConfig for renderer
+function toRenderConfig(config: ChartConfig): InputConfig {
+  const models: ModelData[] = config.models.map((m) => {
     // Find custom provider if this model uses one
-    const customProvider = form.customProviders.find(cp => cp.key === m.provider);
+    const customProvider = config.customProviders.find(cp => cp.key === m.provider);
     
     const base: ModelData = {
       model: `${m.provider}/${m.modelName}`,
@@ -193,24 +193,56 @@ function formToConfig(form: FormState): InputConfig {
   });
 
   return {
-    title: form.title,
-    subtitle: form.subtitle || undefined,
-    sponsoredBy: form.sponsoredBy || undefined,
-    showRankings: form.showRankings,
-    percentPrecision: form.percentPrecision,
-    font: form.font || undefined,
+    title: config.title,
+    subtitle: config.subtitle || undefined,
+    sponsoredBy: config.sponsoredBy || undefined,
+    showRankings: config.showRankings,
+    percentPrecision: config.percentPrecision,
+    font: config.font || undefined,
     models,
   };
 }
 
 // Main hook
-export function useChartForm() {
-  const [form, setForm] = useState<FormState>(defaultFormState);
+export function useChartConfig() {
+  const [chartConfig, setChartConfig] = useState<ChartConfig>(defaultChartConfig);
   const [errors, setErrors] = useState<ValidationErrors>({ models: {} });
   const [chartHtml, setChartHtml] = useState<string>("");
   const [containerWidth, setContainerWidth] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Store config in a ref so generateChart doesn't need config as a dependency
+  const configRef = useRef<ChartConfig>(chartConfig);
+  useEffect(() => {
+    configRef.current = chartConfig;
+  }, [chartConfig]);
+
+  // Derive a stable fingerprint of only chart-affecting data (excludes UI-only state like showAdvanced and id)
+  const chartFingerprint = useMemo(() => {
+    const relevantData = {
+      title: chartConfig.title,
+      subtitle: chartConfig.subtitle,
+      sponsoredBy: chartConfig.sponsoredBy,
+      showRankings: chartConfig.showRankings,
+      percentPrecision: chartConfig.percentPrecision,
+      font: chartConfig.font,
+      models: chartConfig.models.map(m => ({
+        provider: m.provider,
+        modelName: m.modelName,
+        scoreMode: m.scoreMode,
+        positive: m.positive,
+        total: m.total,
+        percent: m.percent,
+        displayName: m.displayName,
+        totalParams: m.totalParams,
+        activeParams: m.activeParams,
+        color: m.color,
+      })),
+      customProviders: chartConfig.customProviders,
+    };
+    return JSON.stringify(relevantData);
+  }, [chartConfig]);
 
   // Track container width with ResizeObserver
   useEffect(() => {
@@ -225,7 +257,8 @@ export function useChartForm() {
   }, []);
 
   const generateChart = useCallback(() => {
-    const validationErrors = validateForm(form);
+    const currentConfig = configRef.current;
+    const validationErrors = validateConfig(currentConfig);
     setErrors(validationErrors);
 
     if (hasErrors(validationErrors)) {
@@ -234,20 +267,20 @@ export function useChartForm() {
     }
 
     try {
-      const config = formToConfig(form);
-      const models = processModels(config);
+      const renderConfig = toRenderConfig(currentConfig);
+      const models = processModels(renderConfig);
       
-      const dimensions = calculateLayoutDimensions(models.length, !!config.subtitle, !!config.sponsoredBy);
+      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.subtitle, !!renderConfig.sponsoredBy);
       const scale = containerWidth > 0 ? containerWidth / dimensions.backgroundWidth : 1;
       
-      const html = renderChart(config, models, { mode: 'web', scale });
+      const html = renderChart(renderConfig, models, { mode: 'web', scale });
       setChartHtml(html);
     } catch {
       setChartHtml("");
     }
-  }, [form, containerWidth]);
+  }, [containerWidth]);
 
-  // Re-render chart when container width changes or form changes (debounced)
+  // Re-render chart when container width changes or chart-affecting data changes (debounced)
   useEffect(() => {
     if (containerWidth > 0) {
       setIsGenerating(true);
@@ -257,19 +290,20 @@ export function useChartForm() {
       }, 1000);
       return () => clearTimeout(timeout);
     }
-  }, [containerWidth, form, generateChart]);
+  }, [containerWidth, chartFingerprint, generateChart]);
 
   const downloadHtml = useCallback(() => {
-    const validationErrors = validateForm(form);
+    const currentConfig = configRef.current;
+    const validationErrors = validateConfig(currentConfig);
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
       return;
     }
 
     try {
-      const config = formToConfig(form);
-      const models = processModels(config);
-      const html = renderChart(config, models, { mode: 'web' });
+      const renderConfig = toRenderConfig(currentConfig);
+      const models = processModels(renderConfig);
+      const html = renderChart(renderConfig, models, { mode: 'web' });
       
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -281,28 +315,28 @@ export function useChartForm() {
     } catch {
       // Ignore errors during download
     }
-  }, [form]);
-
-  const updateForm = useCallback((updates: Partial<FormState>) => {
-    setForm((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const updateModel = useCallback((id: string, updates: Partial<ModelFormData>) => {
-    setForm((prev) => ({
+  const updateConfig = useCallback((updates: Partial<ChartConfig>) => {
+    setChartConfig((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateModel = useCallback((id: string, updates: Partial<ModelConfig>) => {
+    setChartConfig((prev) => ({
       ...prev,
       models: prev.models.map((m) => (m.id === id ? { ...m, ...updates } : m)),
     }));
   }, []);
 
   const addModel = useCallback(() => {
-    setForm((prev) => ({
+    setChartConfig((prev) => ({
       ...prev,
       models: [...prev.models, createEmptyModel()],
     }));
   }, []);
 
   const removeModel = useCallback((id: string) => {
-    setForm((prev) => {
+    setChartConfig((prev) => {
       if (prev.models.length <= 1) return prev;
       return {
         ...prev,
@@ -312,19 +346,19 @@ export function useChartForm() {
   }, []);
 
   const addCustomProvider = useCallback((provider: CustomProvider) => {
-    setForm((prev) => ({
+    setChartConfig((prev) => ({
       ...prev,
       customProviders: [...prev.customProviders, provider],
     }));
   }, []);
 
   return {
-    form,
+    chartConfig,
     errors,
     chartHtml,
     isGenerating,
     containerRef,
-    updateForm,
+    updateConfig,
     updateModel,
     addModel,
     removeModel,

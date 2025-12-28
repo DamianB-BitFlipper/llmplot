@@ -1,14 +1,14 @@
 import { ChevronDown, ChevronRight, X } from "lucide-react";
-import type { ModelFormData, ModelValidationErrors, CustomProvider } from "./types.js";
+import type { ModelConfig, ModelValidationErrors, CustomProvider } from "./types.js";
 import { ProviderSelect } from "./ProviderSelect.js";
 
 interface ModelCardProps {
-  model: ModelFormData;
+  model: ModelConfig;
   index: number;
   errors: ModelValidationErrors;
   canRemove: boolean;
   customProviders: CustomProvider[];
-  onUpdate: (updates: Partial<ModelFormData>) => void;
+  onUpdate: (updates: Partial<ModelConfig>) => void;
   onRemove: () => void;
   onAddCustomProvider: () => void;
 }

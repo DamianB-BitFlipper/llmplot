@@ -1,4 +1,4 @@
-// Form state types for the chart generator
+// Chart configuration types for the chart generator
 
 export interface CustomProvider {
   key: string;        // auto-generated from name, e.g., "my-provider"
@@ -7,7 +7,7 @@ export interface CustomProvider {
   iconDataUrl?: string; // optional base64 data URL for uploaded SVG/PNG
 }
 
-export interface ModelFormData {
+export interface ModelConfig {
   id: string;
   provider: string;
   modelName: string;
@@ -22,14 +22,14 @@ export interface ModelFormData {
   showAdvanced: boolean;
 }
 
-export interface FormState {
+export interface ChartConfig {
   title: string;
   subtitle: string;
   sponsoredBy: string;
   showRankings: boolean;
   percentPrecision: number;
   font: string;
-  models: ModelFormData[];
+  models: ModelConfig[];
   customProviders: CustomProvider[];
 }
 
