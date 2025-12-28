@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes } from "lucide-react";
+import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useChartConfig, hasErrors } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
@@ -7,6 +7,12 @@ import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dropdown,
   DropdownContent,
@@ -46,6 +52,7 @@ export default function ChartGenerator() {
     downloadHtml,
     downloadYaml,
     importYaml,
+    clearAll,
   } = useChartConfig();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,31 +90,51 @@ export default function ChartGenerator() {
         {/* Chart Section */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Chart Details</h2>
-          <div className="flex gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".yaml,.yml"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleImportClick}
-            >
-              <ArrowDownToLine className="w-4 h-4 mr-1" />
-              Import
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={downloadYaml}
-            >
-              <Save className="w-4 h-4 mr-1" />
-              Save Config
-            </Button>
-          </div>
+          <TooltipProvider delayDuration={300}>
+            <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".yaml,.yml"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleImportClick}
+                  >
+                    <ArrowDownToLine className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Import Config</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={clearAll}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear All</TooltipContent>
+              </Tooltip>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadYaml}
+              >
+                <Save className="w-4 h-4 mr-1" />
+                Save Config
+              </Button>
+            </div>
+          </TooltipProvider>
         </div>
         <div className="space-y-2">
           <ConfigCard>

@@ -460,6 +460,21 @@ export function useChartConfig() {
     }));
   }, []);
 
+  const clearAll = useCallback(() => {
+    setChartConfig({
+      title: "",
+      description: "",
+      sponsoredBy: "",
+      showRankings: false,
+      percentPrecision: 0,
+      font: "sora" as const,
+      models: [createEmptyModel()],
+      customProviders: [],
+    });
+    setTouched({});
+    setShowAllErrors(false);
+  }, []);
+
   return {
     chartConfig,
     errors,
@@ -479,5 +494,6 @@ export function useChartConfig() {
     exportYaml,
     downloadYaml,
     importYaml,
+    clearAll,
   };
 }
