@@ -23,7 +23,7 @@ models:
     displayName: "GPT 5.2 High"
     percent: 71.8
     color: "#4BA080"
-    icon: "assets/icons/openai.svg"
+    icon: "common_assets/provider_logos/openai.svg"
 
   - model: "deepseek/deepseek-v3.2"
     displayName: "DeepSeek V3.2"

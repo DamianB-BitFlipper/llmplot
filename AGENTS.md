@@ -183,7 +183,7 @@ style="width: ${percentage}%; background-color: ${color};"
 
 ## Adding a New Provider
 
-1. Add SVG icon to `assets/icons/{provider}.svg`
+1. Add SVG icon to `common_assets/provider_logos/{provider}.svg`
 2. Run `bun run generate:assets` to regenerate `src/core/assets.ts`
 3. Add entry to `providers` object in `src/core/providers.ts`
 

@@ -38,7 +38,7 @@ Now you can run `llmplot` from anywhere. Changes to source files take effect imm
 
 ## Asset development
 
-When modifying icons in `assets/icons/` or fonts in `assets/fonts/`, you need to regenerate `src/core/assets.ts`:
+When modifying icons in `common_assets/provider_logos/` or fonts in `common_assets/fonts/`, you need to regenerate `src/core/assets.ts`:
 
 ```bash
 bun run generate:assets

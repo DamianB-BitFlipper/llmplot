@@ -29,12 +29,9 @@ import { AdvancedToggle } from "@/components/common/advanced-toggle";
 import { AdvancedContent } from "@/components/common/advanced-content";
 
 import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
+interface ChartGeneratorProps {}
 
-interface ChartGeneratorProps {
-  publicAssetsBaseUrl?: string;
-}
-
-export default function ChartGenerator({ publicAssetsBaseUrl = "/" }: ChartGeneratorProps) {
+export default function ChartGenerator({}: ChartGeneratorProps) {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
   const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
@@ -424,7 +421,6 @@ export default function ChartGenerator({ publicAssetsBaseUrl = "/" }: ChartGener
       <SupportModal
         isOpen={showSupportModal}
         onClose={() => setShowSupportModal(false)}
-        publicAssetsBaseUrl={publicAssetsBaseUrl}
       />
     </div>
   );

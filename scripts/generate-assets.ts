@@ -7,8 +7,8 @@
  */
 import { watch } from "fs";
 
-const ASSETS_DIR = "./assets";
-const ICONS_DIR = `${ASSETS_DIR}/icons`;
+const ASSETS_DIR = "./common_assets";
+const ICONS_DIR = `${ASSETS_DIR}/provider_logos`;
 const FONTS_DIR = `${ASSETS_DIR}/fonts`;
 const OUTPUT_PATH = "./src/core/assets.ts";
 
@@ -86,7 +86,7 @@ async function generate(): Promise<void> {
   // Generate TypeScript code
   const code = `/**
  * AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
- * Run \`bun run generate:assets\` to regenerate from source files in assets/
+ * Run \`bun run generate:assets\` to regenerate from source files in common_assets/
  */
 
 export const icons: Record<string, string> = {

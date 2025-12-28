@@ -5,9 +5,7 @@ import { Toaster } from "../components/ui/sonner";
 import { XFollowBadge } from "../components/badges/XFollowBadge";
 import { GitHubStarBadge } from "../components/badges/GitHubStarBadge";
 import { BuyMeCoffeeBadge } from "../components/badges/BuyMeCoffeeBadge";
-
-const faviconUrl = `${import.meta.env.BASE_URL}/favicon.svg`;
-const publicAssetsBaseUrl = import.meta.env.BASE_URL;
+import faviconIcon from "../../assets/favicon.svg";
 ---
 
 <Layout title="LLM Plot - Generate Beautiful LLM Benchmark Charts">
@@ -15,7 +13,7 @@ const publicAssetsBaseUrl = import.meta.env.BASE_URL;
     <header class="bg-white border-b border-gray-200">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <img src={faviconUrl} alt="LLM Plot" class="w-11 h-11" />
+          <img src={faviconIcon.src} alt="LLM Plot" class="w-11 h-11" />
           <div class="flex items-baseline gap-2.5">
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">LLM Plot</h1>
             <span class="text-slate-500 italic text-[15px] hidden sm:inline">Making LLM plots not ugly.</span>
@@ -24,17 +22,17 @@ const publicAssetsBaseUrl = import.meta.env.BASE_URL;
         
         <div class="flex items-center gap-2">
           <div class="hidden md:block">
-            <XFollowBadge publicAssetsBaseUrl={publicAssetsBaseUrl} client:load />
+            <XFollowBadge client:load />
           </div>
           <div class="hidden md:block">
-            <GitHubStarBadge publicAssetsBaseUrl={publicAssetsBaseUrl} client:load />
+            <GitHubStarBadge client:load />
           </div>
           <BuyMeCoffeeBadge client:load />
         </div>
       </div>
     </header>
     <div class="max-w-6xl mx-auto px-4 py-4">
-      <ChartGenerator publicAssetsBaseUrl={publicAssetsBaseUrl} client:only="react" />
+      <ChartGenerator client:only="react" />
     </div>
   </main>
   <Toaster client:load richColors position="bottom-right" />
