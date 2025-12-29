@@ -143,23 +143,6 @@ export function AddCustomProviderModal({
             />
           </div>
 
-          {/* Key (auto-generated) */}
-          <div className="space-y-2">
-            <Label htmlFor="provider-key">
-              Key <span className="text-muted-foreground">(auto-generated)</span>
-            </Label>
-            <Input
-              id="provider-key"
-              type="text"
-              value={key}
-              disabled
-              className="bg-muted text-muted-foreground"
-            />
-            <p className="text-xs text-muted-foreground">
-              Used in model string: {key || "..."}/model-name
-            </p>
-          </div>
-
           {/* Color */}
           <div className="space-y-2">
             <Label>
