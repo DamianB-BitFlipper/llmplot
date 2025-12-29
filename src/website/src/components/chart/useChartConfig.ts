@@ -17,15 +17,46 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
+// Parse score string into structured data
+// Returns null if invalid format
+export type ParsedScore =
+  | { mode: 'fraction'; passed: number; total: number }
+  | { mode: 'percent'; percent: number };
+
+export function parseScore(score: string): ParsedScore | null {
+  const trimmed = score.trim();
+  if (!trimmed) return null;
+
+  // Try fraction format: "45/100" or " 45 / 100 "
+  const fractionMatch = trimmed.match(/^(\d+)\s*\/\s*(\d+)$/);
+  if (fractionMatch) {
+    const passed = parseInt(fractionMatch[1], 10);
+    const total = parseInt(fractionMatch[2], 10);
+    if (total > 0 && passed <= total) {
+      return { mode: 'fraction', passed, total };
+    }
+    return null; // Invalid: total=0 or passed>total
+  }
+
+  // Try percent format: "75%" or "75.5%"
+  const percentMatch = trimmed.match(/^(\d+(?:\.\d+)?)\s*%$/);
+  if (percentMatch) {
+    const percent = parseFloat(percentMatch[1]);
+    if (percent >= 0 && percent <= 100) {
+      return { mode: 'percent', percent };
+    }
+    return null; // Invalid: out of range
+  }
+
+  return null; // No format matched
+}
+
 export function createEmptyModel(): ModelConfig {
   return {
     id: generateId(),
     provider: "",
     modelName: "",
-    scoreMode: 'fraction',
-    passed: "",
-    total: "",
-    percent: "",
+    score: "",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -38,10 +69,7 @@ const defaultModels: ModelConfig[] = [
     id: generateId(),
     provider: "anthropic",
     modelName: "Claude Opus 4.5",
-    scoreMode: 'fraction',
-    passed: "75",
-    total: "100",
-    percent: "",
+    score: "75/100",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -51,10 +79,7 @@ const defaultModels: ModelConfig[] = [
     id: generateId(),
     provider: "openai",
     modelName: "GPT 5.2 High",
-    scoreMode: 'percent',
-    passed: "",
-    total: "",
-    percent: "74.2",
+    score: "74.2%",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -64,10 +89,7 @@ const defaultModels: ModelConfig[] = [
     id: generateId(),
     provider: "google",
     modelName: "Gemini 3 Pro",
-    scoreMode: 'percent',
-    passed: "",
-    total: "",
-    percent: "71.8",
+    score: "71.8%",
     totalParams: "",
     activeParams: "",
     color: "",
@@ -105,23 +127,13 @@ function validateConfig(config: ChartConfig): ValidationErrors {
       modelErrors.modelName = "Required";
     }
 
-    if (model.scoreMode === 'fraction') {
-      const passed = parseInt(model.passed, 10);
-      const total = parseInt(model.total, 10);
-
-      if (model.passed === "" || isNaN(passed) || passed < 0) {
-        modelErrors.passed = "Must be >= 0";
-      }
-      if (model.total === "" || isNaN(total) || total <= 0) {
-        modelErrors.total = "Must be > 0";
-      }
-      if (!isNaN(passed) && !isNaN(total) && passed > total) {
-        modelErrors.passed = "Cannot exceed total";
-      }
+    // Validate score field
+    if (!model.score.trim()) {
+      modelErrors.score = "Required";
     } else {
-      const percent = parseFloat(model.percent);
-      if (model.percent === "" || isNaN(percent) || percent < 0 || percent > 100) {
-        modelErrors.percent = "Must be 0-100";
+      const parsed = parseScore(model.score);
+      if (!parsed) {
+        modelErrors.score = "Invalid format";
       }
     }
 
@@ -183,11 +195,15 @@ function toRenderConfig(config: ChartConfig): InputConfig {
       model: m.provider,
     };
 
-    if (m.scoreMode === 'fraction') {
-      base.passed = parseInt(m.passed, 10);
-      base.total = parseInt(m.total, 10);
-    } else {
-      base.percent = parseFloat(m.percent);
+    // Parse score and set appropriate fields
+    const parsed = parseScore(m.score);
+    if (parsed) {
+      if (parsed.mode === 'fraction') {
+        base.passed = parsed.passed;
+        base.total = parsed.total;
+      } else {
+        base.percent = parsed.percent;
+      }
     }
 
     // Use the modelName field as displayName
@@ -267,10 +283,7 @@ export function useChartConfig() {
       models: chartConfig.models.map(m => ({
         provider: m.provider,
         modelName: m.modelName,
-        scoreMode: m.scoreMode,
-        passed: m.passed,
-        total: m.total,
-        percent: m.percent,
+        score: m.score,
         totalParams: m.totalParams,
         activeParams: m.activeParams,
         color: m.color,

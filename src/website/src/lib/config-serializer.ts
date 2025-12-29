@@ -1,5 +1,6 @@
 import { stringify, parse } from "yaml";
 import type { ChartConfig, ModelConfig, CustomProvider, FontFamily } from "@/components/chart/types";
+import { parseScore } from "@/components/chart/useChartConfig";
 
 const STORAGE_KEY = "llmplot-config";
 
@@ -102,15 +103,15 @@ export function chartConfigToYaml(config: ChartConfig): string {
       yamlModel.displayName = m.modelName.trim();
     }
 
-    // Add score (fraction or percent)
-    if (m.scoreMode === "fraction") {
-      const passed = parseInt(m.passed, 10);
-      const total = parseInt(m.total, 10);
-      if (!isNaN(passed)) yamlModel.passed = passed;
-      if (!isNaN(total)) yamlModel.total = total;
-    } else {
-      const percent = parseFloat(m.percent);
-      if (!isNaN(percent)) yamlModel.percent = percent;
+    // Parse score and add appropriate fields
+    const parsed = parseScore(m.score);
+    if (parsed) {
+      if (parsed.mode === "fraction") {
+        yamlModel.passed = parsed.passed;
+        yamlModel.total = parsed.total;
+      } else {
+        yamlModel.percent = parsed.percent;
+      }
     }
 
     // Add optional fields
@@ -205,7 +206,7 @@ export function yamlToChartConfig(yamlString: string): ChartConfig {
       throw new Error(`Model at index ${index}: missing required field 'model'`);
     }
 
-    // Determine score mode and validate
+    // Determine score and validate
     const hasPercent = model.percent !== undefined;
     const hasFraction = model.passed !== undefined || model.total !== undefined;
 
@@ -213,20 +214,15 @@ export function yamlToChartConfig(yamlString: string): ChartConfig {
       throw new Error(`Model at index ${index}: must have either 'percent' or 'passed'/'total'`);
     }
 
-    let scoreMode: "fraction" | "percent";
-    let passed = "";
-    let total = "";
-    let percent = "";
+    let score = "";
 
     if (hasPercent) {
-      scoreMode = "percent";
       const pct = Number(model.percent);
       if (isNaN(pct) || pct < 0 || pct > 100) {
         throw new Error(`Model at index ${index}: 'percent' must be a number between 0 and 100`);
       }
-      percent = String(pct);
+      score = `${pct}%`;
     } else {
-      scoreMode = "fraction";
       const p = Number(model.passed);
       const t = Number(model.total);
       if (isNaN(p) || p < 0) {
@@ -238,8 +234,7 @@ export function yamlToChartConfig(yamlString: string): ChartConfig {
       if (p > t) {
         throw new Error(`Model at index ${index}: 'passed' cannot exceed 'total'`);
       }
-      passed = String(p);
-      total = String(t);
+      score = `${p}/${t}`;
     }
 
     // Parse optional fields
@@ -285,10 +280,7 @@ export function yamlToChartConfig(yamlString: string): ChartConfig {
       id: generateId(),
       provider,
       modelName,
-      scoreMode,
-      passed,
-      total,
-      percent,
+      score,
       totalParams,
       activeParams,
       color,
@@ -368,19 +360,31 @@ export function loadConfigFromStorage(): ChartConfig | null {
     }
 
     // Ensure all models have required fields (migration safety)
-    parsed.models = parsed.models.map((m) => ({
-      id: m.id || generateId(),
-      provider: m.provider || "",
-      modelName: m.modelName || "",
-      scoreMode: m.scoreMode || "fraction",
-      passed: m.passed ?? "",
-      total: m.total ?? "",
-      percent: m.percent ?? "",
-      totalParams: m.totalParams ?? "",
-      activeParams: m.activeParams ?? "",
-      color: m.color ?? "",
-      showAdvanced: m.showAdvanced ?? false,
-    }));
+    // Use 'any' for migration to handle old format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parsed.models = parsed.models.map((m: any) => {
+      // Handle migration from old format (scoreMode/passed/total/percent) to new format (score)
+      let score = m.score ?? "";
+      if (!score && m.scoreMode) {
+        // Migrate from old format
+        if (m.scoreMode === "percent" && m.percent) {
+          score = `${m.percent}%`;
+        } else if (m.passed !== undefined && m.total !== undefined) {
+          score = `${m.passed}/${m.total}`;
+        }
+      }
+
+      return {
+        id: m.id || generateId(),
+        provider: m.provider || "",
+        modelName: m.modelName || "",
+        score,
+        totalParams: m.totalParams ?? "",
+        activeParams: m.activeParams ?? "",
+        color: m.color ?? "",
+        showAdvanced: m.showAdvanced ?? false,
+      };
+    });
 
     // Ensure customProviders array exists
     parsed.customProviders = parsed.customProviders || [];

@@ -8,7 +8,8 @@ import { ConfigLabel } from "@/components/config-card/config-label";
 import { ConfigInput } from "@/components/config-card/config-input";
 import { AdvancedToggle } from "@/components/common/advanced-toggle";
 import { AdvancedContent } from "@/components/common/advanced-content";
-import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface ModelCardProps {
   model: ModelConfig;
@@ -47,8 +48,8 @@ export function ModelCard({
   return (
     <ConfigCard onRemove={onRemove} canRemove={canRemove}>
       <div className="space-y-2">
-        {/* Row 1: Provider & Model Name */}
-        <ConfigCardRow columns="140px 1fr">
+        {/* Row 1: Provider, Model Name & Score */}
+        <ConfigCardRow columns="140px 1fr 140px">
           <ConfigCardColumn>
             <ConfigLabel>Provider</ConfigLabel>
             <ProviderSelect
@@ -80,99 +81,36 @@ export function ModelCard({
               )}
             </div>
           </ConfigCardColumn>
-        </ConfigCardRow>
-
-        {/* Row 2: Format & Score */}
-        <ConfigCardRow columns="140px 1fr">
           <ConfigCardColumn>
-            <ConfigLabel>Format</ConfigLabel>
-            <div className="flex bg-muted p-0.5 rounded-md h-8 border">
-              <button
-                type="button"
-                onClick={() => onUpdate({ scoreMode: 'fraction' })}
-                className={cn(
-                  "flex-1 text-xs font-medium rounded-sm transition-all flex items-center justify-center",
-                  model.scoreMode === 'fraction' 
-                    ? "bg-background shadow-sm text-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                )}
-              >
-                Fraction
-              </button>
-              <button
-                type="button"
-                onClick={() => onUpdate({ scoreMode: 'percent' })}
-                className={cn(
-                  "flex-1 text-xs font-medium rounded-sm transition-all flex items-center justify-center",
-                  model.scoreMode === 'percent' 
-                    ? "bg-background shadow-sm text-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                )}
-              >
-                %
-              </button>
-            </div>
+            <ConfigLabel className="flex items-center gap-1">
+              Score
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="font-normal">Enter a fraction like 45/100 or a percentage like 74.5%</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </ConfigLabel>
+            <ConfigInput
+              type="text"
+              value={model.score}
+              onChange={(e) => onUpdate({ score: e.target.value })}
+              onBlur={() => onMarkTouched('score')}
+              error={showError('score')}
+              placeholder="75/100 or 75%"
+            />
           </ConfigCardColumn>
-          
-          <div className="flex items-end">
-            {model.scoreMode === 'fraction' ? (
-              <>
-                <ConfigCardColumn>
-                  <ConfigLabel>Passed</ConfigLabel>
-                  <ConfigInput
-                    type="number"
-                    value={model.passed}
-                    onChange={(e) => onUpdate({ passed: e.target.value })}
-                    onBlur={() => onMarkTouched('passed')}
-                    error={showError('passed')}
-                    placeholder="75"
-                    min={0}
-                    className="w-24"
-                  />
-                </ConfigCardColumn>
-                <span className="h-8 flex items-center justify-center text-muted-foreground font-light text-sm px-1">/</span>
-                <ConfigCardColumn>
-                  <ConfigLabel>Total</ConfigLabel>
-                  <ConfigInput
-                    type="number"
-                    value={model.total}
-                    onChange={(e) => onUpdate({ total: e.target.value })}
-                    onBlur={() => onMarkTouched('total')}
-                    error={showError('total')}
-                    placeholder="100"
-                    min={1}
-                    className="w-24"
-                  />
-                </ConfigCardColumn>
-              </>
-            ) : (
-              <ConfigCardColumn>
-                <ConfigLabel>Percentage</ConfigLabel>
-                <ConfigInput
-                  type="number"
-                  value={model.percent}
-                  onChange={(e) => onUpdate({ percent: e.target.value })}
-                  onBlur={() => onMarkTouched('percent')}
-                  error={showError('percent')}
-                  placeholder="74.2"
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  suffix="%"
-                  className="w-20"
-                />
-              </ConfigCardColumn>
-            )}
-
-            {/* Advanced toggle */}
-            <div className="flex-1 flex justify-end">
-              <AdvancedToggle
-                open={model.showAdvanced}
-                onOpenChange={(open) => onUpdate({ showAdvanced: open })}
-              />
-            </div>
-          </div>
         </ConfigCardRow>
+
+        {/* Row 2: Advanced toggle */}
+        <div className="flex justify-end">
+          <AdvancedToggle
+            open={model.showAdvanced}
+            onOpenChange={(open) => onUpdate({ showAdvanced: open })}
+          />
+        </div>
 
         {/* Advanced Content */}
         <AdvancedContent open={model.showAdvanced}>

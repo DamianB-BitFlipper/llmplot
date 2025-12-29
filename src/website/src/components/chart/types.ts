@@ -11,10 +11,7 @@ export interface ModelConfig {
   id: string;
   provider: string;
   modelName: string;  // Display name for the model (shown in chart)
-  scoreMode: 'fraction' | 'percent';
-  passed: string;
-  total: string;
-  percent: string;
+  score: string;      // User input: "45/100" or "75%"
   totalParams: string;
   activeParams: string;
   color: string;
@@ -51,9 +48,7 @@ export interface ChartConfig {
 export interface ModelValidationErrors {
   provider?: string;
   modelName?: string;
-  passed?: string;
-  total?: string;
-  percent?: string;
+  score?: string;
   totalParams?: string;
   activeParams?: string;
   color?: string;

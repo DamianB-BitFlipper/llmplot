@@ -141,7 +141,7 @@ export default function ChartGenerator() {
                     <ArrowDownToLine className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Import Config</TooltipContent>
+                <TooltipContent>Load Config</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
