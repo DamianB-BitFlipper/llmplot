@@ -44,6 +44,9 @@ export function ModelCard({
     return undefined;
   };
 
+  // Pin advanced open if any advanced field has a value
+  const hasAdvancedValues = Boolean(model.totalParams || model.activeParams || model.color);
+
   return (
     <ConfigCard onRemove={onRemove} canRemove={canRemove}>
       {(isActive) => (
@@ -104,8 +107,8 @@ export function ModelCard({
             </ConfigCardColumn>
           </ConfigCardRow>
 
-          {/* Advanced Content - auto-expands when card is active */}
-          <AdvancedContent open={isActive}>
+          {/* Advanced Content - auto-expands when card is active or has values */}
+          <AdvancedContent open={isActive || hasAdvancedValues}>
             <ConfigCardRow columns="repeat(3, 1fr)">
               <ConfigCardColumn>
                 <ConfigLabel size="small">Total Params</ConfigLabel>

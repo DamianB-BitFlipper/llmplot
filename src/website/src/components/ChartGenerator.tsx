@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { ArrowDownToLine, ChevronDown, Download, PlusCircle, Save, FileCode, Image as ImageIcon, Shapes, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
-import { useChartConfig, hasErrors, formatErrors } from "./chart/useChartConfig.js";
+import { useChartConfig, hasErrors, formatErrors, chartConfigDefaults } from "./chart/useChartConfig.js";
 import { ModelCard } from "./chart/ModelCard.js";
 import { AddCustomProviderModal } from "./chart/AddCustomProviderModal.js";
 import { ShadowDomChart } from "./chart/ShadowDomChart.js";
@@ -167,7 +167,14 @@ export default function ChartGenerator() {
         </div>
         <div className="space-y-2">
           <ConfigCard>
-            {(isActive) => (
+            {(isActive) => {
+              // Pin advanced open if any advanced field differs from default
+              const hasAdvancedValues = Boolean(
+                chartConfig.sponsoredBy ||
+                chartConfig.showRankings !== chartConfigDefaults.showRankings ||
+                chartConfig.percentPrecision !== chartConfigDefaults.percentPrecision
+              );
+              return (
               <ConfigCardColumn gap="sm">
                 {/* Title + Font Row */}
                 <div className="flex gap-4 items-end">
@@ -214,8 +221,8 @@ export default function ChartGenerator() {
                   />
                 </ConfigCardColumn>
 
-                {/* Advanced Content - auto-expands when card is active */}
-                <AdvancedContent open={isActive}>
+                {/* Advanced Content - auto-expands when card is active or has values */}
+                <AdvancedContent open={isActive || hasAdvancedValues}>
                   <div className="flex items-end justify-between gap-4">
                     <ConfigCardColumn>
                       <ConfigLabel size="small">Sponsored By</ConfigLabel>
@@ -262,7 +269,8 @@ export default function ChartGenerator() {
                   </div>
                 </AdvancedContent>
               </ConfigCardColumn>
-            )}
+              );
+            }}
           </ConfigCard>
         </div>
 

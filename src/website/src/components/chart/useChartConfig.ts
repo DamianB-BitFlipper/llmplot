@@ -93,12 +93,18 @@ const defaultModels: ModelConfig[] = [
   },
 ];
 
+// Default values for chart config (exported for use in components)
+export const chartConfigDefaults = {
+  showRankings: false,
+  percentPrecision: 1,
+} as const;
+
 const defaultChartConfig: ChartConfig = {
   title: "Sample Plot",
   description: "Model Performance Comparison",
   sponsoredBy: "",
-  showRankings: false,
-  percentPrecision: 1,
+  showRankings: chartConfigDefaults.showRankings,
+  percentPrecision: chartConfigDefaults.percentPrecision,
   font: "sora",
   models: defaultModels,
   customProviders: [],
