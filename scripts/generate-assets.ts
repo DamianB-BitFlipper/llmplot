@@ -15,6 +15,7 @@ const OUTPUT_PATH = "./src/core/assets.ts";
 // Font files to bundle (order matters for the exported type)
 const FONT_FILES = [
   { name: "geist", file: "Geist.ttf" },
+  { name: "geist-mono", file: "GeistMono.ttf" },
   { name: "ibm-plex-sans", file: "IBMPlexSans.ttf" },
   { name: "inter", file: "Inter.ttf" },
   { name: "libre-baskerville", file: "LibreBaskerville.ttf" },
@@ -75,6 +76,7 @@ async function generate(): Promise<void> {
   // Generate font family names for CSS
   const fontFamilyNames: Record<string, string> = {
     "geist": "Geist",
+    "geist-mono": "Geist Mono",
     "ibm-plex-sans": "IBM Plex Sans",
     "inter": "Inter",
     "libre-baskerville": "Libre Baskerville",
@@ -96,7 +98,7 @@ ${Object.entries(icons)
 };
 
 /** Available font families */
-export const fontFamilies = ["geist", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
+export const fontFamilies = ["geist", "geist-mono", "ibm-plex-sans", "inter", "libre-baskerville", "manrope", "sora", "space-grotesk"] as const;
 export type FontFamily = typeof fontFamilies[number];
 
 /** Font data URLs keyed by font family */

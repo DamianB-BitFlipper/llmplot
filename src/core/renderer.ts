@@ -7,6 +7,7 @@ import { fonts, type FontFamily } from "./assets.js";
 /** Map font family keys to display names */
 const fontDisplayNames: Record<FontFamily, string> = {
   "geist": "Geist Sans",
+  "geist-mono": "Geist Mono",
   "ibm-plex-sans": "IBM Plex Sans",
   "inter": "Inter",
   "libre-baskerville": "Libre Baskerville",
@@ -14,6 +15,9 @@ const fontDisplayNames: Record<FontFamily, string> = {
   "sora": "Sora",
   "space-grotesk": "Space Grotesk",
 };
+
+/** Default font to use when requested font is not available */
+const DEFAULT_FONT: FontFamily = "sora";
 
 // Initialize Twind once
 install({
@@ -238,7 +242,9 @@ export function renderChart(
   
   const chartHtml = renderHorizontalChart(models, showRankings, percentPrecision, barContainerWidth);
 
-  const fontKey: FontFamily = config.font ?? "sora";
+  // Use requested font, falling back to default if not available
+  const requestedFont = config.font ?? DEFAULT_FONT;
+  const fontKey: FontFamily = fonts[requestedFont] ? requestedFont : DEFAULT_FONT;
   const fontName = fontDisplayNames[fontKey];
   const fontDataUrl = fonts[fontKey];
   const fontFamily = `'${fontName}', ui-sans-serif, system-ui, sans-serif`;
