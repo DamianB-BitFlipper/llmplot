@@ -91,26 +91,19 @@ export default function ChartGenerator() {
     return localStorage.getItem("llmplot-hide-support-modal") !== "true";
   };
 
-  const handleDownloadHtml = () => {
-    const success = downloadHtml();
-    if (success && shouldShowSupportModal()) {
+  const withSupportModal = (downloadFn: () => void) => {
+    const showModal = shouldShowSupportModal();
+    if (showModal) {
       setShowSupportModal(true);
+      setTimeout(downloadFn, 300);
+    } else {
+      downloadFn();
     }
   };
 
-  const handleDownloadPng = async () => {
-    const success = await downloadPng();
-    if (success && shouldShowSupportModal()) {
-      setShowSupportModal(true);
-    }
-  };
-
-  const handleDownloadSvg = async () => {
-    const success = await downloadSvg();
-    if (success && shouldShowSupportModal()) {
-      setShowSupportModal(true);
-    }
-  };
+  const handleDownloadHtml = () => withSupportModal(downloadHtml);
+  const handleDownloadPng = () => withSupportModal(downloadPng);
+  const handleDownloadSvg = () => withSupportModal(downloadSvg);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr] gap-8">
