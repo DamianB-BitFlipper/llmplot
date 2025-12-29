@@ -10,13 +10,16 @@ interface ConfigCardProps {
   onRemove?: () => void;
   canRemove?: boolean;
   className?: string;
+  /** Optional accent color for left rail (e.g., provider color) */
+  accentColor?: string;
 }
 
 export function ConfigCard({ 
   children, 
   onRemove, 
   canRemove = true,
-  className 
+  className,
+  accentColor 
 }: ConfigCardProps) {
   const [isActive, setIsActive] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -38,8 +41,10 @@ export function ConfigCard({
       ref={cardRef}
       className={cn(
         "relative group border shadow-sm bg-card transition-all hover:shadow-md",
+        accentColor && "border-l-[3px]",
         className
       )}
+      style={accentColor ? { borderLeftColor: accentColor } : undefined}
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
     >

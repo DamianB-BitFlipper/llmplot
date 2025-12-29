@@ -1,5 +1,6 @@
 import type { ModelConfig, ModelValidationErrors, CustomProvider } from "./types.js";
 import { ProviderSelect } from "./ProviderSelect.js";
+import { providers, DEFAULT_COLOR } from "@core/providers.js";
 import { Input } from "@/components/ui/input";
 import { ConfigCard } from "@/components/config-card/config-card";
 import { ConfigCardRow } from "@/components/config-card/config-card-row";
@@ -9,6 +10,18 @@ import { ConfigInput } from "@/components/config-card/config-input";
 import { AdvancedContent } from "@/components/common/advanced-content";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+
+/** Get provider color from core providers config */
+function getProviderColor(providerKey: string, customProviders: CustomProvider[]): string {
+  // Check custom providers first
+  const customProvider = customProviders.find((p) => p.key === providerKey);
+  if (customProvider) {
+    return customProvider.color;
+  }
+  // Check built-in providers
+  const provider = providers[providerKey.toLowerCase()];
+  return provider?.color ?? DEFAULT_COLOR;
+}
 
 interface ModelCardProps {
   model: ModelConfig;
@@ -47,8 +60,11 @@ export function ModelCard({
   // Pin advanced open if any advanced field has a value
   const hasAdvancedValues = Boolean(model.totalParams || model.activeParams || model.color);
 
+  // Get provider color for left rail
+  const providerColor = getProviderColor(model.provider, customProviders);
+
   return (
-    <ConfigCard onRemove={onRemove} canRemove={canRemove}>
+    <ConfigCard onRemove={onRemove} canRemove={canRemove} accentColor={providerColor}>
       {(isActive) => (
         <div className="space-y-2">
           {/* Row 1: Provider, Model Name & Score */}

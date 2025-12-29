@@ -73,7 +73,7 @@ export function getProviderGroups(): ProviderGroup[] {
   return groups;
 }
 
-const DEFAULT_COLOR = "#666666";
+export const DEFAULT_COLOR = "#666666";
 
 /**
  * Get provider configuration with contains matching.

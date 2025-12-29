@@ -4,25 +4,31 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Tinted app background - subtle cool gray-blue (#F8F9FB) */
+    --background: 220 20% 98%;
     --foreground: 222.2 84% 4.9%;
+    /* Cards remain pure white */
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Primary accent - deeper blue (#2563EB) */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    /* Secondary - light blue tint for secondary buttons */
+    --secondary: 217 91% 95%;
+    --secondary-foreground: 221 83% 40%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 217.2 91.2% 59.8%;
+    /* Borders - slightly cooler (#E2E6ED) */
+    --border: 218 20% 91%;
+    --border-secondary: 217 40% 80%;
+    --input: 218 20% 91%;
+    --ring: 221 83% 53%;
     --radius: 0.5rem;
   }
 

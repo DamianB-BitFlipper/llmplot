@@ -131,9 +131,9 @@ export default function ChartGenerator() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 border border-border-secondary"
                     onClick={handleImportClick}
                   >
                     <ArrowDownToLine className="w-4 h-4" />
@@ -144,9 +144,9 @@ export default function ChartGenerator() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 border border-border-secondary"
                     onClick={restoreSampleData}
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -155,8 +155,9 @@ export default function ChartGenerator() {
                 <TooltipContent>Restore Sample Data</TooltipContent>
               </Tooltip>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
+                className="h-8 border border-border-secondary"
                 onClick={downloadYaml}
               >
                 <Save className="w-4 h-4 mr-1" />
@@ -279,9 +280,10 @@ export default function ChartGenerator() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Models</h3>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={addModel}
+              className="h-8 border border-border-secondary"
             >
               <PlusCircle className="w-4 h-4 mr-1" />
               Add Model
@@ -318,7 +320,7 @@ export default function ChartGenerator() {
         {/* Measurement div - not affected by chart content */}
         <div ref={containerRef} className="w-full" />
         <div 
-          className="sticky top-8 relative border rounded-lg overflow-hidden"
+          className="sticky top-8 relative border border-border-secondary rounded-lg overflow-hidden"
         >
           {isGenerating && (
             <div className="absolute inset-0 bg-muted/50 z-20" />
@@ -326,21 +328,21 @@ export default function ChartGenerator() {
           {chartHtml && (
             <div className="absolute top-3 right-3 z-10 flex rounded-md shadow-sm isolate">
               <Button
-                variant="outline"
-                className="rounded-r-none border-r-0 bg-background/80 hover:bg-background backdrop-blur-sm focus:z-10 h-auto py-2 px-3"
+                variant="default"
+                className="rounded-r-none border-r-0 focus:z-10 h-auto py-2 px-3"
                     onClick={handleDownloadPng}
               >
                 <Download className="w-4 h-4 mr-3" />
 <div className="flex flex-col items-center leading-tight">
                                   <span className="text-sm font-medium">Download</span>
-                                  <span className="text-[11px] text-muted-foreground">PNG</span>
+                                  <span className="text-[11px] text-primary-foreground/70">PNG</span>
                                 </div>
               </Button>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant="outline"
-                    className="rounded-l-none px-2 bg-background/80 hover:bg-background backdrop-blur-sm [&[data-state=open]_.chevron]:rotate-180 transition-all focus:z-10 h-auto py-2"
+                    variant="default"
+                    className="rounded-l-none px-2 border-l border-primary-foreground/20 [&[data-state=open]_.chevron]:rotate-180 transition-all focus:z-10 h-auto py-2"
                   >
                     <ChevronDown className="w-4 h-4 chevron transition-transform duration-200" />
                   </Button>
