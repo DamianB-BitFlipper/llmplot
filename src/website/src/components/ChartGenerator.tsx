@@ -28,11 +28,12 @@ import { ConfigInput } from "@/components/config-card/config-input";
 import { ConfigTextarea } from "@/components/config-card/config-textarea";
 import { AdvancedContent } from "@/components/common/advanced-content";
 
-import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
+import { fontFamilies, fontConfig, type FontFamily, type CustomProvider } from "./chart/types.js";
 
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
+  const [editingProvider, setEditingProvider] = useState<CustomProvider | undefined>(undefined);
   const [showSupportModal, setShowSupportModal] = useState(false);
   
   const {
@@ -50,6 +51,7 @@ export default function ChartGenerator() {
     removeModel,
     addCustomProvider,
     removeCustomProvider,
+    updateCustomProvider,
     downloadHtml,
     downloadPng,
     downloadSvg,
@@ -296,7 +298,16 @@ export default function ChartGenerator() {
               onRemove={() => removeModel(model.id)}
               onAddCustomProvider={() => {
                 setCustomProviderTargetModelId(model.id);
+                setEditingProvider(undefined);
                 setShowCustomProviderModal(true);
+              }}
+              onEditCustomProvider={(key) => {
+                const provider = chartConfig.customProviders.find((p) => p.key === key);
+                if (provider) {
+                  setEditingProvider(provider);
+                  setCustomProviderTargetModelId(null);
+                  setShowCustomProviderModal(true);
+                }
               }}
               onDeleteCustomProvider={removeCustomProvider}
               onMarkTouched={(field) => markTouched(model.id, field)}
@@ -396,16 +407,25 @@ export default function ChartGenerator() {
         onClose={() => {
           setShowCustomProviderModal(false);
           setCustomProviderTargetModelId(null);
+          setEditingProvider(undefined);
         }}
-        onAdd={(provider) => {
-          addCustomProvider(provider);
-          // Auto-select the new provider for the model that triggered the modal
-          if (customProviderTargetModelId) {
-            updateModel(customProviderTargetModelId, { provider: provider.key });
+        onAdd={(provider, oldKey) => {
+          if (oldKey) {
+            // Edit mode: update existing provider
+            updateCustomProvider(oldKey, provider);
+          } else {
+            // Add mode: add new provider
+            addCustomProvider(provider);
+            // Auto-select the new provider for the model that triggered the modal
+            if (customProviderTargetModelId) {
+              updateModel(customProviderTargetModelId, { provider: provider.key });
+            }
           }
           setShowCustomProviderModal(false);
           setCustomProviderTargetModelId(null);
+          setEditingProvider(undefined);
         }}
+        editingProvider={editingProvider}
       />
 
       {/* Support Modal */}

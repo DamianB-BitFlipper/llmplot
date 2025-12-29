@@ -23,6 +23,9 @@ export function AdvancedContent({
           "bg-muted/20 p-2 rounded-md border",
           className
         )}>
+          <div className="text-xs font-medium text-muted-foreground mb-2">
+            Advanced Options
+          </div>
           {children}
         </div>
       </CollapsibleContent>

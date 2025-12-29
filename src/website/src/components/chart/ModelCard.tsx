@@ -33,6 +33,7 @@ interface ModelCardProps {
   onUpdate: (updates: Partial<ModelConfig>) => void;
   onRemove: () => void;
   onAddCustomProvider: () => void;
+  onEditCustomProvider?: (key: string) => void;
   onDeleteCustomProvider?: (key: string) => void;
   onMarkTouched: (field: string) => void;
 }
@@ -47,6 +48,7 @@ export function ModelCard({
   onUpdate, 
   onRemove, 
   onAddCustomProvider,
+  onEditCustomProvider,
   onDeleteCustomProvider,
   onMarkTouched
 }: ModelCardProps) {
@@ -79,6 +81,7 @@ export function ModelCard({
                 }}
                 customProviders={customProviders}
                 onAddCustomClick={onAddCustomProvider}
+                onEditCustom={onEditCustomProvider}
                 onDeleteCustom={onDeleteCustomProvider}
                 error={showError('provider')}
                 className="h-8 text-sm"

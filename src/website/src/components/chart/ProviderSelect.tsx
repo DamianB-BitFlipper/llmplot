@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { getProviderGroups, getIcon, providers } from "@core/index.js";
 import type { CustomProvider } from "./types.js";
 import {
@@ -20,6 +20,7 @@ interface ProviderSelectProps {
   onChange: (value: string) => void;
   customProviders: CustomProvider[];
   onAddCustomClick: () => void;
+  onEditCustom?: (key: string) => void;
   onDeleteCustom?: (key: string) => void;
   error?: string;
   className?: string;
@@ -30,6 +31,7 @@ export function ProviderSelect({
   onChange,
   customProviders,
   onAddCustomClick,
+  onEditCustom,
   onDeleteCustom,
   error,
   className,
@@ -110,15 +112,26 @@ export function ProviderSelect({
                       )}
                       <span>{provider.name}</span>
                     </span>
-                    {onDeleteCustom && (
-                      <Trash2
-                        className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive flex-shrink-0 ml-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteCustom(provider.key);
-                        }}
-                      />
-                    )}
+                    <span className="flex items-center gap-1">
+                      {onEditCustom && (
+                        <Pencil
+                          className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditCustom(provider.key);
+                          }}
+                        />
+                      )}
+                      {onDeleteCustom && (
+                        <Trash2
+                          className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteCustom(provider.key);
+                          }}
+                        />
+                      )}
+                    </span>
                   </div>
                 </DropdownItem>
               ))}

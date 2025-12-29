@@ -592,6 +592,21 @@ const width = Math.round(rect.width * 3);
     }));
   }, []);
 
+  const updateCustomProvider = useCallback((oldKey: string, provider: CustomProvider) => {
+    setChartConfig((prev) => ({
+      ...prev,
+      customProviders: prev.customProviders.map((p) =>
+        p.key === oldKey ? provider : p
+      ),
+      // If key changed, update all models using the old key
+      models: oldKey !== provider.key
+        ? prev.models.map((m) =>
+            m.provider === oldKey ? { ...m, provider: provider.key } : m
+          )
+        : prev.models,
+    }));
+  }, []);
+
   const restoreSampleData = useCallback(() => {
     // Restore default config with fresh IDs for each model
     setChartConfig({
@@ -618,6 +633,7 @@ const width = Math.round(rect.width * 3);
     removeModel,
     addCustomProvider,
     removeCustomProvider,
+    updateCustomProvider,
     downloadHtml,
     downloadPng,
     downloadSvg,

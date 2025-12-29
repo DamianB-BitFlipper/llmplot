@@ -24,13 +24,15 @@ function generateKey(name: string): string {
 interface AddCustomProviderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (provider: CustomProvider) => void;
+  onAdd: (provider: CustomProvider, oldKey?: string) => void;
+  editingProvider?: CustomProvider;
 }
 
 export function AddCustomProviderModal({
   isOpen,
   onClose,
   onAdd,
+  editingProvider,
 }: AddCustomProviderModalProps) {
   const [name, setName] = useState("");
   const [color, setColor] = useState("#6366f1");
@@ -38,6 +40,19 @@ export function AddCustomProviderModal({
   const [iconFileName, setIconFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Initialize form when editingProvider changes
+  const editingKeyRef = useRef<string | undefined>();
+  if (editingProvider && editingProvider.key !== editingKeyRef.current) {
+    editingKeyRef.current = editingProvider.key;
+    setName(editingProvider.name);
+    setColor(editingProvider.color);
+    setIcon(editingProvider.iconDataUrl);
+    setIconFileName(editingProvider.iconDataUrl ? "Current icon" : "");
+  } else if (!editingProvider && editingKeyRef.current) {
+    editingKeyRef.current = undefined;
+  }
+
+  const isEditing = !!editingProvider;
   const key = generateKey(name);
   const isValid = name.trim() && key;
 
@@ -68,20 +83,24 @@ export function AddCustomProviderModal({
   const handleSubmit = useCallback(() => {
     if (!isValid) return;
 
-    onAdd({
-      key,
-      name: name.trim(),
-      color,
-      iconDataUrl: icon,
-    });
+    onAdd(
+      {
+        key,
+        name: name.trim(),
+        color,
+        iconDataUrl: icon,
+      },
+      isEditing ? editingProvider?.key : undefined
+    );
 
     // Reset form
     setName("");
     setColor("#6366f1");
     setIcon(undefined);
     setIconFileName("");
+    editingKeyRef.current = undefined;
     onClose();
-  }, [isValid, key, name, color, icon, onAdd, onClose]);
+  }, [isValid, key, name, color, icon, isEditing, editingProvider?.key, onAdd, onClose]);
 
   const handleClearIcon = useCallback(() => {
     setIcon(undefined);
@@ -91,11 +110,21 @@ export function AddCustomProviderModal({
     }
   }, []);
 
+  const handleClose = useCallback(() => {
+    // Reset form on close
+    setName("");
+    setColor("#6366f1");
+    setIcon(undefined);
+    setIconFileName("");
+    editingKeyRef.current = undefined;
+    onClose();
+  }, [onClose]);
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Custom Provider</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Custom Provider" : "Add Custom Provider"}</DialogTitle>
         </DialogHeader>
 
         {/* Form */}
@@ -196,11 +225,11 @@ export function AddCustomProviderModal({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={handleClose}>
             Cancel
           </Button>
           <Button type="button" onClick={handleSubmit} disabled={!isValid}>
-            Add
+            {isEditing ? "Save" : "Add"}
           </Button>
         </DialogFooter>
       </DialogContent>
