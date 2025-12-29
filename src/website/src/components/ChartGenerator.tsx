@@ -173,7 +173,7 @@ export default function ChartGenerator() {
               return (
               <ConfigCardColumn gap="sm">
                 {/* Title + Font Row */}
-                <div className="flex gap-4 items-end">
+                <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
                   <ConfigCardColumn className="flex-1">
                     <ConfigLabel>Title</ConfigLabel>
                     <ConfigInput

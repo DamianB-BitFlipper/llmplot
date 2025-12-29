@@ -70,7 +70,7 @@ export function ModelCard({
       {(isActive) => (
         <div className="space-y-2">
           {/* Row 1: Provider, Model Name & Score */}
-          <ConfigCardRow columns="140px 1fr 140px">
+          <ConfigCardRow columns="1fr" className="sm:!grid-cols-[140px_1fr_140px]">
             <ConfigCardColumn>
               <ConfigLabel>Provider</ConfigLabel>
               <ProviderSelect
