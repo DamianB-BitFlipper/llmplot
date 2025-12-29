@@ -10,12 +10,12 @@ export function GitHubStarBadge({ className = "" }: GitHubStarBadgeProps) {
       href="https://github.com/DamianB-BitFlipper/llmplot"
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-border-accent rounded-full text-sm font-medium text-gray-700 transition-colors ${className}`}
+      className={`group inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-border-accent rounded-full text-sm font-medium text-gray-700 transition-colors ${className}`}
     >
       <img src={githubIcon.src} alt="GitHub" className="w-4 h-4" />
       <span>GitHub</span>
       <svg
-        className="w-4 h-4 text-gray-500"
+        className="w-4 h-4 text-gray-500 group-hover:text-yellow-400 group-hover:fill-yellow-400 transition-colors"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
