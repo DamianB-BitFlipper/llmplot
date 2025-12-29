@@ -1,3 +1,6 @@
+import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
+
 const githubIcon = { src: "/github.svg" };
 
 export interface GitHubStarBadgeProps {
@@ -5,6 +8,21 @@ export interface GitHubStarBadgeProps {
 }
 
 export function GitHubStarBadge({ className = "" }: GitHubStarBadgeProps) {
+  const [starCount, setStarCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/DamianB-BitFlipper/llmplot")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.stargazers_count === "number") {
+          setStarCount(data.stargazers_count);
+        }
+      })
+      .catch(() => {
+        // Silently fail - badge will just not show count
+      });
+  }, []);
+
   return (
     <a
       href="https://github.com/DamianB-BitFlipper/llmplot"
@@ -14,20 +32,12 @@ export function GitHubStarBadge({ className = "" }: GitHubStarBadgeProps) {
     >
       <img src={githubIcon.src} alt="GitHub" className="w-4 h-4" />
       <span>GitHub</span>
-      <svg
-        className="w-4 h-4 text-gray-500 group-hover:text-yellow-400 group-hover:fill-yellow-400 transition-colors"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-        />
-      </svg>
-      <span className="text-gray-500">0</span>
+      <Star className="w-4 h-4 fill-white stroke-gray-400 group-hover:fill-yellow-400 group-hover:stroke-yellow-400 transition-colors" />
+      {starCount !== null && (
+        <span className="px-1 py-0.5 border border-border-accent rounded text-xs text-secondary-foreground">
+          {starCount}
+        </span>
+      )}
     </a>
   );
 }
