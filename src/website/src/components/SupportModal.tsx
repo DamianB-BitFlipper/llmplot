@@ -34,7 +34,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
       <DialogContent className="sm:max-w-lg pt-8 pb-8" hideCloseButton>
         <div className="flex flex-col items-center text-center">
           {/* Profile image */}
-          <div className="w-44 h-44 rounded-full border-4 border-gray-200 overflow-hidden mb-3">
+          <div className="w-44 h-44 rounded-full border-4 border-border-accent overflow-hidden mb-3">
             <img
               src={damianImg.src}
               alt="Damian Barabonkov"
@@ -79,7 +79,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
               Don't show again
             </label>
           </div>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Skip
           </Button>
         </DialogFooter>

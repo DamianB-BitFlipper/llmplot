@@ -131,9 +131,9 @@ export default function ChartGenerator() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="icon"
-                    className="h-8 w-8 border-border-secondary text-secondary-foreground hover:bg-secondary"
+                    className="h-8 w-8"
                     onClick={handleImportClick}
                   >
                     <ArrowDownToLine className="w-4 h-4" />
@@ -144,9 +144,9 @@ export default function ChartGenerator() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="icon"
-                    className="h-8 w-8 border-border-secondary text-secondary-foreground hover:bg-secondary"
+                    className="h-8 w-8"
                     onClick={restoreSampleData}
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -155,9 +155,9 @@ export default function ChartGenerator() {
                 <TooltipContent>Restore Sample Data</TooltipContent>
               </Tooltip>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
-                className="h-8 border-border-secondary text-secondary-foreground hover:bg-secondary"
+                className="h-8"
                 onClick={downloadYaml}
               >
                 <Save className="w-4 h-4 mr-1" />
@@ -280,10 +280,10 @@ export default function ChartGenerator() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Models</h3>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={addModel}
-              className="h-8 border-border-secondary hover:bg-secondary text-secondary-foreground"
+              className="h-8"
             >
               <PlusCircle className="w-4 h-4 mr-1" />
               Add Model
@@ -320,7 +320,7 @@ export default function ChartGenerator() {
         {/* Measurement div - not affected by chart content */}
         <div ref={containerRef} className="w-full" />
         <div 
-          className="sticky top-8 relative border border-border-secondary rounded-lg overflow-hidden"
+          className="sticky top-8 relative border border-border-accent rounded-lg overflow-hidden"
         >
           {isGenerating && (
             <div className="absolute inset-0 bg-muted/50 z-20" />

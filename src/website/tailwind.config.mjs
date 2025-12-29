@@ -12,7 +12,7 @@ export default {
       colors: {
         border: {
           DEFAULT: "hsl(var(--border))",
-          secondary: "hsl(var(--border-secondary))",
+          accent: "hsl(var(--border-accent))",
         },
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -25,6 +25,7 @@ export default {
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          accent: "hsl(var(--secondary-accent))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

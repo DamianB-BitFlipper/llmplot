@@ -15,9 +15,11 @@
     /* Primary accent - deeper blue (#2563EB) */
     --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
-    /* Secondary - light blue tint for secondary buttons, gray text */
-    --secondary: 217 91% 95%;
+    /* Secondary - light gray fill for secondary buttons, darker gray text */
+    --secondary: 220 10% 92%;
     --secondary-foreground: 220 9% 38%;
+    /* Secondary accent - light blue for header bg, decorative borders */
+    --secondary-accent: 217 91% 95%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96%;
@@ -26,7 +28,7 @@
     --destructive-foreground: 210 40% 98%;
     /* Borders - slightly cooler (#E2E6ED) */
     --border: 218 20% 91%;
-    --border-secondary: 217 40% 80%;
+    --border-accent: 217 50% 75%;
     --input: 218 20% 91%;
     --ring: 221 83% 53%;
     --radius: 0.5rem;
