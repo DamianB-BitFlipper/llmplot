@@ -102,7 +102,7 @@ const defaultChartConfig: ChartConfig = {
   description: "Model Performance Comparison",
   sponsoredBy: "",
   showRankings: false,
-  percentPrecision: 0,
+  percentPrecision: 1,
   font: "sora",
   models: defaultModels,
   customProviders: [],

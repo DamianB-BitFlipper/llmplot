@@ -234,6 +234,7 @@ export default function ChartGenerator() {
                       placeholder="Optional Sponsor"
                       size="small"
                       className="w-44"
+                      optional
                     />
                   </ConfigCardColumn>
 
@@ -255,14 +256,14 @@ export default function ChartGenerator() {
                         value={String(chartConfig.percentPrecision)}
                         onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
                       >
-                        <DropdownTrigger className="w-14 h-7 text-xs bg-background">
+                        <DropdownTrigger className="w-16 h-7 text-xs bg-background">
                           {chartConfig.percentPrecision}
                         </DropdownTrigger>
-                        <DropdownContent>
-                          <DropdownItem value="0">0</DropdownItem>
-                          <DropdownItem value="1">1</DropdownItem>
-                          <DropdownItem value="2">2</DropdownItem>
-                          <DropdownItem value="3">3</DropdownItem>
+                        <DropdownContent className="min-w-0">
+                          <DropdownItem value="0" className="pl-6 pr-1">0</DropdownItem>
+                          <DropdownItem value="1" className="pl-6 pr-1">1</DropdownItem>
+                          <DropdownItem value="2" className="pl-6 pr-1">2</DropdownItem>
+                          <DropdownItem value="3" className="pl-6 pr-1">3</DropdownItem>
                         </DropdownContent>
                       </Dropdown>
                     </ConfigCardColumn>

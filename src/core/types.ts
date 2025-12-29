@@ -27,7 +27,7 @@ export interface InputConfig {
   description?: string;
   sponsoredBy?: string;
   showRankings: boolean; // default: false
-  percentPrecision: number; // default: 0, controls decimal places in percentage display
+  percentPrecision: number; // default: 1, controls decimal places in percentage display
   font?: FontFamily; // optional font family, defaults to "sora"
   customProviders?: CustomProvider[]; // optional custom provider definitions
   models: ModelData[];

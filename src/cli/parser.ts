@@ -304,7 +304,7 @@ function validateInputConfig(data: unknown): RawInputConfig {
     description: d.description as string | undefined,
     sponsoredBy: d.sponsoredBy as string | undefined,
     showRankings: (d.showRankings as boolean | undefined) ?? false,
-    percentPrecision: (d.percentPrecision as number | undefined) ?? 0,
+    percentPrecision: (d.percentPrecision as number | undefined) ?? 1,
     font: normalizedFont,
     customProviders,
     models,

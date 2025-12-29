@@ -85,7 +85,7 @@ export function chartConfigToYaml(config: ChartConfig): string {
   if (config.showRankings) {
     yamlConfig.showRankings = true;
   }
-  if (config.percentPrecision !== 0) {
+  if (config.percentPrecision !== 1) {
     yamlConfig.percentPrecision = config.percentPrecision;
   }
   if (config.font && config.font !== "sora") {
@@ -320,7 +320,7 @@ export function yamlToChartConfig(yamlString: string): ChartConfig {
     description: typeof data.description === "string" ? data.description.trim() : "",
     sponsoredBy: typeof data.sponsoredBy === "string" ? data.sponsoredBy.trim() : "",
     showRankings: data.showRankings === true,
-    percentPrecision: typeof data.percentPrecision === "number" ? Math.min(3, Math.max(0, Math.floor(data.percentPrecision))) : 0,
+    percentPrecision: typeof data.percentPrecision === "number" ? Math.min(3, Math.max(0, Math.floor(data.percentPrecision))) : 1,
     font,
     models,
     customProviders,
