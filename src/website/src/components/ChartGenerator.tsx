@@ -26,7 +26,6 @@ import { ConfigCardColumn } from "@/components/config-card/config-card-column";
 import { ConfigLabel } from "@/components/config-card/config-label";
 import { ConfigInput } from "@/components/config-card/config-input";
 import { ConfigTextarea } from "@/components/config-card/config-textarea";
-import { AdvancedToggle } from "@/components/common/advanced-toggle";
 import { AdvancedContent } from "@/components/common/advanced-content";
 
 import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
@@ -34,7 +33,6 @@ import { fontFamilies, fontConfig, type FontFamily } from "./chart/types.js";
 export default function ChartGenerator() {
   const [showCustomProviderModal, setShowCustomProviderModal] = useState(false);
   const [customProviderTargetModelId, setCustomProviderTargetModelId] = useState<string | null>(null);
-  const [headerAdvancedOpen, setHeaderAdvancedOpen] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   
   const {
@@ -169,108 +167,102 @@ export default function ChartGenerator() {
         </div>
         <div className="space-y-2">
           <ConfigCard>
-            <ConfigCardColumn gap="sm">
-              {/* Title + Font Row */}
-              <div className="flex gap-4 items-end">
-                <ConfigCardColumn className="flex-1">
-                  <ConfigLabel>Title</ConfigLabel>
-                  <ConfigInput
-                    value={chartConfig.title}
-                    onChange={(e) => updateConfig({ title: e.target.value })}
-                    placeholder="Graph Title"
-                  />
-                </ConfigCardColumn>
-                <ConfigCardColumn>
-                  <ConfigLabel>Font</ConfigLabel>
-                  <Dropdown
-                    value={chartConfig.font}
-                    onValueChange={(value) => updateConfig({ font: value as FontFamily })}
-                  >
-                    <DropdownTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontConfig[chartConfig.font || "sora"].css }}>
-                      {fontConfig[chartConfig.font || "sora"].display}
-                    </DropdownTrigger>
-                    <DropdownContent>
-                      {fontFamilies.map((font) => (
-                        <DropdownItem 
-                          key={font} 
-                          value={font}
-                          style={{ fontFamily: fontConfig[font].css }}
-                        >
-                          {fontConfig[font].display}
-                        </DropdownItem>
-                      ))}
-                    </DropdownContent>
-                  </Dropdown>
-                </ConfigCardColumn>
-              </div>
-
-              {/* Description - Full Row, Auto-growing Textarea */}
-              <ConfigCardColumn>
-                <ConfigLabel>Description</ConfigLabel>
-                <ConfigTextarea
-                  value={chartConfig.description}
-                  onChange={(e) => updateConfig({ description: e.target.value })}
-                  placeholder="Optional Description"
-                  maxRows={3}
-                />
-              </ConfigCardColumn>
-
-              {/* Advanced Toggle */}
-              <div className="flex justify-end">
-                <AdvancedToggle 
-                  open={headerAdvancedOpen} 
-                  onOpenChange={setHeaderAdvancedOpen}
-                />
-              </div>
-
-              {/* Advanced Content */}
-              <AdvancedContent open={headerAdvancedOpen}>
-                <div className="flex items-end justify-between gap-4">
-                  <ConfigCardColumn>
-                    <ConfigLabel size="small">Sponsored By</ConfigLabel>
+            {(isActive) => (
+              <ConfigCardColumn gap="sm">
+                {/* Title + Font Row */}
+                <div className="flex gap-4 items-end">
+                  <ConfigCardColumn className="flex-1">
+                    <ConfigLabel>Title</ConfigLabel>
                     <ConfigInput
-                      value={chartConfig.sponsoredBy}
-                      onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
-                      placeholder="Optional Sponsor"
-                      size="small"
-                      className="w-44"
-                      optional
+                      value={chartConfig.title}
+                      onChange={(e) => updateConfig({ title: e.target.value })}
+                      placeholder="Graph Title"
                     />
                   </ConfigCardColumn>
-
-                  <div className="flex items-end gap-4">
-                    <div className="flex items-center gap-2 h-7">
-                      <Checkbox
-                        id="showRankings"
-                        checked={chartConfig.showRankings}
-                        onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
-                      />
-                      <ConfigLabel htmlFor="showRankings" className="cursor-pointer">
-                        Show Rankings
-                      </ConfigLabel>
-                    </div>
-
-                    <ConfigCardColumn>
-                      <ConfigLabel size="small">Precision</ConfigLabel>
-                      <Dropdown
-                        value={String(chartConfig.percentPrecision)}
-                        onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
-                      >
-                        <DropdownTrigger className="w-16 h-7 text-xs bg-background">
-                          {chartConfig.percentPrecision}
-                        </DropdownTrigger>
-                        <DropdownContent className="min-w-0">
-                          <DropdownItem value="0" className="pl-6 pr-1">0</DropdownItem>
-                          <DropdownItem value="1" className="pl-6 pr-1">1</DropdownItem>
-                          <DropdownItem value="2" className="pl-6 pr-1">2</DropdownItem>
-                          <DropdownItem value="3" className="pl-6 pr-1">3</DropdownItem>
-                        </DropdownContent>
-                      </Dropdown>
-                    </ConfigCardColumn>
-                  </div>
+                  <ConfigCardColumn>
+                    <ConfigLabel>Font</ConfigLabel>
+                    <Dropdown
+                      value={chartConfig.font}
+                      onValueChange={(value) => updateConfig({ font: value as FontFamily })}
+                    >
+                      <DropdownTrigger className="w-36 h-8 text-sm" style={{ fontFamily: fontConfig[chartConfig.font || "sora"].css }}>
+                        {fontConfig[chartConfig.font || "sora"].display}
+                      </DropdownTrigger>
+                      <DropdownContent>
+                        {fontFamilies.map((font) => (
+                          <DropdownItem 
+                            key={font} 
+                            value={font}
+                            style={{ fontFamily: fontConfig[font].css }}
+                          >
+                            {fontConfig[font].display}
+                          </DropdownItem>
+                        ))}
+                      </DropdownContent>
+                    </Dropdown>
+                  </ConfigCardColumn>
                 </div>
-              </AdvancedContent>
-            </ConfigCardColumn>
+
+                {/* Description - Full Row, Auto-growing Textarea */}
+                <ConfigCardColumn>
+                  <ConfigLabel>Description</ConfigLabel>
+                  <ConfigTextarea
+                    value={chartConfig.description}
+                    onChange={(e) => updateConfig({ description: e.target.value })}
+                    placeholder="Optional Description"
+                    maxRows={3}
+                  />
+                </ConfigCardColumn>
+
+                {/* Advanced Content - auto-expands when card is active */}
+                <AdvancedContent open={isActive}>
+                  <div className="flex items-end justify-between gap-4">
+                    <ConfigCardColumn>
+                      <ConfigLabel size="small">Sponsored By</ConfigLabel>
+                      <ConfigInput
+                        value={chartConfig.sponsoredBy}
+                        onChange={(e) => updateConfig({ sponsoredBy: e.target.value })}
+                        placeholder="Optional Sponsor"
+                        size="small"
+                        className="w-44"
+                        optional
+                      />
+                    </ConfigCardColumn>
+
+                    <div className="flex items-end gap-4">
+                      <div className="flex items-center gap-2 h-7">
+                        <Checkbox
+                          id="showRankings"
+                          checked={chartConfig.showRankings}
+                          onCheckedChange={(checked) => updateConfig({ showRankings: checked === true })}
+                        />
+                        <ConfigLabel htmlFor="showRankings" className="cursor-pointer">
+                          Show Rankings
+                        </ConfigLabel>
+                      </div>
+
+                      <ConfigCardColumn>
+                        <ConfigLabel size="small">Precision</ConfigLabel>
+                        <Dropdown
+                          value={String(chartConfig.percentPrecision)}
+                          onValueChange={(value) => updateConfig({ percentPrecision: parseInt(value, 10) })}
+                        >
+                          <DropdownTrigger className="w-16 h-7 text-xs bg-background">
+                            {chartConfig.percentPrecision}
+                          </DropdownTrigger>
+                          <DropdownContent className="min-w-0">
+                            <DropdownItem value="0" className="pl-6 pr-1">0</DropdownItem>
+                            <DropdownItem value="1" className="pl-6 pr-1">1</DropdownItem>
+                            <DropdownItem value="2" className="pl-6 pr-1">2</DropdownItem>
+                            <DropdownItem value="3" className="pl-6 pr-1">3</DropdownItem>
+                          </DropdownContent>
+                        </Dropdown>
+                      </ConfigCardColumn>
+                    </div>
+                  </div>
+                </AdvancedContent>
+              </ConfigCardColumn>
+            )}
           </ConfigCard>
         </div>
 

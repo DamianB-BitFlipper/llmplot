@@ -15,7 +15,6 @@ export interface ModelConfig {
   totalParams: string;
   activeParams: string;
   color: string;
-  showAdvanced: boolean;
 }
 
 /** Available font families */

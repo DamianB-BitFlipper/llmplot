@@ -60,7 +60,6 @@ export function createEmptyModel(): ModelConfig {
     totalParams: "",
     activeParams: "",
     color: "",
-    showAdvanced: false,
   };
 }
 
@@ -73,7 +72,6 @@ const defaultModels: ModelConfig[] = [
     totalParams: "",
     activeParams: "",
     color: "",
-    showAdvanced: false,
   },
   {
     id: generateId(),
@@ -83,7 +81,6 @@ const defaultModels: ModelConfig[] = [
     totalParams: "",
     activeParams: "",
     color: "",
-    showAdvanced: false,
   },
   {
     id: generateId(),
@@ -93,7 +90,6 @@ const defaultModels: ModelConfig[] = [
     totalParams: "",
     activeParams: "",
     color: "",
-    showAdvanced: false,
   },
 ];
 
