@@ -37,12 +37,19 @@ async function readIconFile(iconPath: string, basePath: string, index: number): 
 }
 
 /**
+ * Regex pattern for valid icon data URLs.
+ * Matches: data:image/svg+xml;base64,... or data:image/png;base64,...
+ */
+const ICON_DATA_URL_PATTERN = /^data:image\/(svg\+xml|png);base64,[A-Za-z0-9+/]+=*$/;
+
+/**
  * Raw custom provider from YAML before icon resolution.
  */
 interface RawCustomProvider {
   key: string;
   color: string;
-  iconPath?: string; // file path before resolution to iconDataUrl
+  iconPath?: string;    // file path (CLI) - resolved to iconDataUrl
+  iconDataUrl?: string; // inline base64 data URL (frontend export)
 }
 
 /**
@@ -105,15 +112,33 @@ function validateCustomProvider(provider: unknown, index: number): RawCustomProv
     );
   }
 
-  // Validate optional icon (file path)
+  // Validate optional icon (file path) - mutually exclusive with iconDataUrl
   if (p.icon !== undefined && typeof p.icon !== "string") {
     throw new ParseError(`customProviders[${index}].icon must be a string (file path)`);
+  }
+
+  // Validate optional iconDataUrl (inline base64 data URL)
+  if (p.iconDataUrl !== undefined) {
+    if (typeof p.iconDataUrl !== "string") {
+      throw new ParseError(`customProviders[${index}].iconDataUrl must be a string (base64 data URL)`);
+    }
+    if (!ICON_DATA_URL_PATTERN.test(p.iconDataUrl)) {
+      throw new ParseError(
+        `customProviders[${index}].iconDataUrl must be a valid base64 data URL (data:image/svg+xml;base64,... or data:image/png;base64,...)`
+      );
+    }
+  }
+
+  // Cannot have both icon and iconDataUrl
+  if (p.icon !== undefined && p.iconDataUrl !== undefined) {
+    throw new ParseError(`customProviders[${index}] cannot have both 'icon' and 'iconDataUrl' - use one or the other`);
   }
 
   return {
     key: p.key,
     color: p.color,
     iconPath: p.icon as string | undefined,
+    iconDataUrl: p.iconDataUrl as string | undefined,
   };
 }
 
@@ -126,7 +151,8 @@ interface RawModelData {
   totalParams?: number;
   activeParams?: number;
   color?: string;
-  iconPath?: string; // file path before resolution to iconDataUrl
+  iconPath?: string;    // file path (CLI) - resolved to iconDataUrl
+  iconDataUrl?: string; // inline base64 data URL (frontend export)
 }
 
 function validateModelData(model: unknown, index: number): RawModelData {
@@ -197,9 +223,26 @@ function validateModelData(model: unknown, index: number): RawModelData {
     }
   }
 
-  // Validate optional icon (file path to be resolved later)
+  // Validate optional icon (file path) - mutually exclusive with iconDataUrl
   if (m.icon !== undefined && typeof m.icon !== "string") {
     throw new ParseError(`models[${index}].icon must be a string (file path)`);
+  }
+
+  // Validate optional iconDataUrl (inline base64 data URL)
+  if (m.iconDataUrl !== undefined) {
+    if (typeof m.iconDataUrl !== "string") {
+      throw new ParseError(`models[${index}].iconDataUrl must be a string (base64 data URL)`);
+    }
+    if (!ICON_DATA_URL_PATTERN.test(m.iconDataUrl)) {
+      throw new ParseError(
+        `models[${index}].iconDataUrl must be a valid base64 data URL (data:image/svg+xml;base64,... or data:image/png;base64,...)`
+      );
+    }
+  }
+
+  // Cannot have both icon and iconDataUrl
+  if (m.icon !== undefined && m.iconDataUrl !== undefined) {
+    throw new ParseError(`models[${index}] cannot have both 'icon' and 'iconDataUrl' - use one or the other`);
   }
 
   return {
@@ -212,6 +255,7 @@ function validateModelData(model: unknown, index: number): RawModelData {
     activeParams: m.activeParams as number | undefined,
     color: m.color as string | undefined,
     iconPath: m.icon as string | undefined,
+    iconDataUrl: m.iconDataUrl as string | undefined,
   };
 }
 
@@ -330,11 +374,15 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
   const rawConfig = validateInputConfig(data);
   const resolvedBasePath = basePath ?? process.cwd();
 
-  // Resolve icon file paths to inline strings
+  // Resolve icon file paths to inline strings, or use inline iconDataUrl directly
   const models: ModelData[] = await Promise.all(
     rawConfig.models.map(async (m, index) => {
       let iconDataUrl: string | undefined;
-      if (m.iconPath) {
+      if (m.iconDataUrl) {
+        // Use inline data URL directly (from frontend export)
+        iconDataUrl = m.iconDataUrl;
+      } else if (m.iconPath) {
+        // Resolve file path to data URL (CLI mode)
         iconDataUrl = await readIconFile(m.iconPath, resolvedBasePath, index);
       }
 
@@ -352,11 +400,15 @@ export async function parseYaml(yamlString: string, basePath?: string): Promise<
     })
   );
 
-  // Resolve custom provider icon file paths
+  // Resolve custom provider icon file paths, or use inline iconDataUrl directly
   const customProviders: CustomProvider[] = await Promise.all(
     rawConfig.customProviders.map(async (p, index) => {
       let iconDataUrl: string | undefined;
-      if (p.iconPath) {
+      if (p.iconDataUrl) {
+        // Use inline data URL directly (from frontend export)
+        iconDataUrl = p.iconDataUrl;
+      } else if (p.iconPath) {
+        // Resolve file path to data URL (CLI mode)
         iconDataUrl = await readProviderIconFile(p.iconPath, resolvedBasePath, index);
       }
 
