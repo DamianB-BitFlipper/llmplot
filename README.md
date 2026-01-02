@@ -2,7 +2,9 @@
 
 Generate benchmark charts for LLM model comparisons.
 
-![Example Chart](readme_assets/example.png)
+<p align="center">
+  <img src="readme_assets/example.png" alt="Example Chart" width="350">
+</p>
 
 ## Install
 
