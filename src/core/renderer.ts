@@ -44,6 +44,7 @@ const BAR_HEIGHT = 28; // The actual bar height
 // Header/footer heights (approximate)
 const TITLE_HEIGHT = 36; // h1 text-3xl
 const DESCRIPTION_HEIGHT = 24; // p text
+const BRANDING_HEIGHT = 20; // "Made with llmplot.com" line (text-sm)
 
 // Target output width - layout is scaled to achieve this
 export const TARGET_OUTPUT_WIDTH = 1280;
@@ -161,12 +162,12 @@ function renderHorizontalChart(
 export function calculateLayoutDimensions(
   modelCount: number,
   hasDescription: boolean,
-  hasFooter: boolean,
   showRankings: boolean
 ): { barContainerWidth: number; cardWidth: number; cardHeight: number; backgroundWidth: number; backgroundHeight: number } {
   // Calculate content height
   const headerHeight = TITLE_HEIGHT + (hasDescription ? GAP_TITLE_SUBTITLE + DESCRIPTION_HEIGHT : 0);
-  const footerHeight = hasFooter ? DESCRIPTION_HEIGHT : 0;
+  // Footer always has branding line (same height whether sponsor exists or not, since they're side-by-side)
+  const footerHeight = BRANDING_HEIGHT;
   
   // Each bar row: label + gap + bar
   const barRowHeight = BAR_LABEL_HEIGHT + GAP_LABEL_BAR + BAR_HEIGHT;
@@ -174,11 +175,13 @@ export function calculateLayoutDimensions(
   const chartHeight = (barRowHeight * modelCount) + (GAP_BETWEEN_BARS * (modelCount - 1));
   
   // Total card content height (without padding)
+  // Footer always exists (branding line is always shown)
   const contentHeight = 
     headerHeight + 
     GAP_HEADER_CHART + 
     chartHeight + 
-    (hasFooter ? GAP_CHART_FOOTER + footerHeight : 0);
+    GAP_CHART_FOOTER + 
+    footerHeight;
   
   // Fixed row width (icon + optional rank badge)
   const fixedRowWidth = 
@@ -236,7 +239,6 @@ export function renderChart(
   const { barContainerWidth, cardWidth, backgroundWidth, backgroundHeight } = calculateLayoutDimensions(
     models.length,
     !!config.description,
-    !!config.sponsoredBy,
     showRankings
   );
   
@@ -274,14 +276,14 @@ export function renderChart(
     </div>
     
     <!-- Footer -->
-    ${
-      config.sponsoredBy
-        ? `
-    <div style="margin-top: ${GAP_CHART_FOOTER}px;">
-      <p class="text-sm text-gray-400 text-right">Sponsored by <span class="font-semibold text-gray-600">${escapeHtml(config.sponsoredBy)}</span></p>
-    </div>`
-        : ""
-    }
+    <div class="flex justify-between items-end" style="margin-top: ${GAP_CHART_FOOTER}px;">
+      <p class="text-sm text-gray-400">Made with <a href="https://llmplot.com" target="_blank" class="font-semibold text-gray-600">llmplot.com</a></p>
+      ${
+        config.sponsoredBy
+          ? `<p class="text-sm text-gray-400 text-right">Sponsored by <span class="font-semibold text-gray-600">${escapeHtml(config.sponsoredBy)}</span></p>`
+          : ""
+      }
+    </div>
   `;
 
   if (mode === 'web') {

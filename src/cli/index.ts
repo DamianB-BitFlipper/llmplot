@@ -49,7 +49,6 @@ async function main(): Promise<void> {
       const dimensions = calculateLayoutDimensions(
         models.length,
         !!config.description,
-        !!config.sponsoredBy,
         config.showRankings
       );
 

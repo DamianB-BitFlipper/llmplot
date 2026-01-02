@@ -2,6 +2,8 @@
 
 Generate benchmark charts for LLM model comparisons.
 
+![Example Chart](readme_assets/example.png)
+
 ## Install
 
 ```bash

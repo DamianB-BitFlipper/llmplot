@@ -323,7 +323,7 @@ export function useChartConfig() {
       const renderConfig = toRenderConfig(currentConfig);
       const models = processModels(renderConfig);
       
-      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.description, !!renderConfig.sponsoredBy, renderConfig.showRankings);
+      const dimensions = calculateLayoutDimensions(models.length, !!renderConfig.description, renderConfig.showRankings);
       // Cap scale at 1.0 - only scale down, never up
       const scale = containerWidth > 0 ? Math.min(1, containerWidth / dimensions.backgroundWidth) : 1;
       
